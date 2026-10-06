@@ -148,7 +148,8 @@ def us_terrain(src, w=2925, h=1830):
 
 
 # Extra-detail regions: 1024 px tiles at z5 (standard zoom 7, ~1.2 km/px), built from zoom-7 elevation.
-DETAIL = {"europe": (-25, 34, 45, 71.5), "seasia": (92, -12, 153, 28), "africa": (-20, -36, 55, 38)}
+DETAIL = {"europe": (-25, 34, 45, 71.5), "seasia": (92, -12, 153, 28), "africa": (-20, -36, 55, 38),
+          "namerica": (-125, 15, -67.6, 52)}  # lower 48, southern Canada, Mexico
 
 
 def detail_tiles():
@@ -213,7 +214,6 @@ if __name__ == "__main__":
     if "--fetch" in sys.argv:
         fetch(src)
     build(src)
-    us_terrain(src)
     if len(sys.argv) > 2 and not sys.argv[2].startswith("--"):  # optional second dir for zoom-7 detail
         src7 = Path(sys.argv[2])
         if "--fetch" in sys.argv:

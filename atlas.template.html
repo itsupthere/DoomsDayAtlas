@@ -948,7 +948,7 @@ svg.leaflet-image-layer.leaflet-interactive path {
 	}
 
 /* zoomable terrain map */
-#wLeaf{width:100%;aspect-ratio:975/600;min-height:340px;background:var(--sea);font-family:var(--f-body);z-index:0}
+#wLeaf,#naLeaf{width:100%;aspect-ratio:975/600;min-height:340px;background:var(--sea);font-family:var(--f-body);z-index:0}
 .leaflet-container{background:var(--sea);font-family:var(--f-body)}
 .leaflet-tile-pane{filter:var(--terrain-filter)}
 .leaflet-control-attribution{font-size:10px;background:color-mix(in srgb,var(--panel) 80%,transparent)!important;color:var(--muted)}
@@ -967,7 +967,7 @@ svg.leaflet-image-layer.leaflet-interactive path {
 <header>
   <div>
     <h1>DoomsDay <span>Atlas</span></h1>
-    <p class="sub" id="subline">Every US county scored for 14 disaster scenarios, built on FEMA's county risk data plus modeled threat zones. Pick a scenario, watch it play out over time, and see where you'd fare best.</p>
+    <p class="sub" id="subline">All 3,142 US counties plus Canada's provinces and Mexico's states, scored for 14 disaster scenarios on a zoomable terrain map. Pick a scenario, watch it play out, and see where you'd fare best.</p>
   </div>
   <div class="stamp">Scenario <b id="stampScen">—</b><br>Phase <b id="stampPhase">Overall</b><br>Home <b id="stampHome">—</b></div>
 </header>
@@ -981,7 +981,7 @@ svg.leaflet-image-layer.leaflet-interactive path {
 </div>
 
 <div class="tabs" role="tablist" aria-label="Region">
-  <button class="tab" role="tab" data-tab="us" aria-selected="true">United States</button>
+  <button class="tab" role="tab" data-tab="us" aria-selected="true">North America</button>
   <button class="tab" role="tab" data-tab="europe" aria-selected="false">Europe</button>
   <button class="tab" role="tab" data-tab="asia" aria-selected="false">Asia-Pacific</button>
   <button class="tab" role="tab" data-tab="africa" aria-selected="false">Africa</button>
@@ -1014,10 +1014,11 @@ svg.leaflet-image-layer.leaflet-interactive path {
         </select>
         <label class="lab" for="region">Region</label>
         <select id="region">
-          <option value="all">All states</option>
-          <option value="NE">Northeast</option><option value="MW">Midwest</option>
-          <option value="S">South</option><option value="W">West</option>
-          <option value="L48">Lower 48 only</option>
+          <option value="all">All of North America</option>
+          <option value="USA">United States</option><option value="CAN">Canada</option><option value="MEX">Mexico</option>
+          <option value="NE">US Northeast</option><option value="MW">US Midwest</option>
+          <option value="S">US South</option><option value="W">US West</option>
+          <option value="L48">US lower 48</option>
         </select>
       </div>
     </section>
@@ -1036,17 +1037,18 @@ svg.leaflet-image-layer.leaflet-interactive path {
           <button class="tog" id="ovR" aria-pressed="false">Reactors</button>
           <button class="tog" id="ovG" aria-pressed="false">Faults + volcanoes</button>
           <button class="tog" id="ovL" aria-pressed="true">Labels</button>
+          <button class="tog" id="ovS" aria-pressed="false" disabled>Street-level detail (online)</button>
         </div>
         <div style="display:flex;gap:8px;align-items:center"><label class="lab" for="usOpacity">Risk layer</label><input type="range" id="usOpacity" min="20" max="100" value="78" style="width:110px"><output id="usOpacityOut" class="lab" for="usOpacity">78%</output></div>
       </div>
-      <div id="map">
+      <div id="map" class="mapbox">
         <div class="zoom"><button id="zin" aria-label="Zoom in">+</button><button id="zout" aria-label="Zoom out">−</button><button id="zhome" aria-label="Zoom to home" title="Zoom to home">⌂</button><button id="zreset" aria-label="Reset zoom" title="Reset">⤢</button></div>
         <div class="tip" id="tip"></div>
       </div>
       <div class="legend">
         <span id="legLo">Lower risk</span><canvas class="ramp" id="ramp" width="180" height="10"></canvas><span id="legHi">Higher risk</span>
         <span class="key" id="ovKey"></span>
-        <span style="margin-left:auto">Click a county to set home · Shift-click to compare · Scroll or pinch to zoom</span>
+        <span id="naZoomNote" class="detstat"></span><span style="margin-left:auto">Drag to pan · Scroll or pinch to zoom · Click to set home · Shift-click to compare</span>
       </div>
       <div class="readout" id="readout" aria-live="polite">Hover the map for details.</div>
       <div class="phases" id="phases">
@@ -1303,14 +1305,19 @@ const STNAME={AL:'Alabama',AK:'Alaska',AZ:'Arizona',AR:'Arkansas',CA:'California
 const REGION={NE:'CT ME MA NH RI VT NJ NY PA',MW:'IL IN MI OH WI IA KS MN MO NE ND SD',S:'DE DC FL GA MD NC SC VA WV AL KY MS TN AR LA OK TX',W:'AZ CO ID MT NV NM UT WY AK CA HI OR WA'};
 const REG_OF={}; Object.entries(REGION).forEach(([r,s])=>s.split(' ').forEach(a=>REG_OF[a]=r));
 
-// ---------- geometry ----------
+// ---------- geometry (longitude / latitude) ----------
+const NAA = __NAADMIN__;
 const features=topojson.feature(TOPO,TOPO.objects.counties).features;
 const stateFeats=topojson.feature(TOPO,TOPO.objects.states).features;
-const path=d3.geoPath();
-const proj=d3.geoAlbersUsa().scale(1300).translate([487.5,305]);
-const KM_PX=6371/1300;
-const regionOf=id=>id.startsWith('02')?'AK':id.startsWith('15')?'HI':'L48';
-const kmScale=r=>r==='AK'?KM_PX/0.35:KM_PX;
+const stateMesh=topojson.mesh(TOPO,TOPO.objects.states,(a,b)=>a!==b);
+const adminFeats=topojson.feature(NAA,NAA.objects.admin).features;
+// geoBoundaries uses the GeoJSON right-hand rule; d3 expects the opposite winding, so flip any ring set that would cover the globe
+adminFeats.forEach(f=>{const g=f.geometry,fix=poly=>{if(d3.geoArea({type:'Polygon',coordinates:poly})>2*Math.PI)poly.forEach(r=>r.reverse());};if(g.type==='Polygon')fix(g.coordinates);else if(g.type==='MultiPolygon')g.coordinates.forEach(fix);});
+const adminMesh=topojson.mesh(NAA,NAA.objects.admin,(a,b)=>a!==b);
+const RAD=Math.PI/180;
+const regionOf=id=>id.startsWith('02')?'AK':id.startsWith('15')?'HI':id.length>5?'NA':'L48';
+const kmxy=(p,o)=>[(((p[0]-o[0])+540)%360-180)*111.2*Math.cos((p[1]+o[1])/2*RAD),(p[1]-o[1])*111.2]; // east, north
+const kmd=(p,o)=>{const d=kmxy(p,o);return Math.hypot(d[0],d[1]);};
 
 // ---------- counties ----------
 const C=[], CI={};
@@ -1319,9 +1326,70 @@ features.forEach(f=>{
   const [st,name,pop,area,...vals]=r;
   const v={}; CD.keys.forEach((k,i)=>v[k]=vals[i]/10);
   Object.assign(v,SE[st]||{gr:5,wa:5,gs:5,cl:5});
-  const c={id:f.id,st,name,pop,area,v,f,reg:regionOf(f.id),xy:path.centroid(f)};
-  c.ll=proj.invert(c.xy)||[0,0];
+  const c={id:f.id,st,cty:'USA',name,pop,area,v,f,reg:regionOf(f.id),ll:d3.geoCentroid(f),bb:d3.geoBounds(f)};
   c.label=`${name}${/County|Parish|Borough|city|Census Area|Municipality/.test(name)?'':(st==='LA'?' Parish':st==='AK'?'':' County')}, ${st}`;
+  C.push(c); CI[c.id]=c;
+});
+// ---------- Canadian provinces and Mexican states (estimated) ----------
+// code|population (M)|population-center lon,lat|eq hu to st wf fl cf dr ht ws vo ts ls|fd sv cr|gr wa gs cl
+const NA_EST=`CA-BC|5.6|-122.8,49.3|8 0 1 2 8 5 5 3 2 5 4 7 7|5 2 2|3 1 6 4
+CA-AB|4.8|-113.8,52.3|2 0 4 6 7 5 0 6 2 8 0 0 4|2 2 2|3 4 8 5
+CA-SK|1.2|-105.9,51.5|1 0 4 6 5 5 0 7 2 9 0 0 2|1 3 3|3 4 8 5
+CA-MB|1.5|-97.2,49.95|1 0 4 6 5 7 1 5 2 9 0 0 2|2 4 3|3 2 8 4
+CA-ON|16.1|-79.6,43.8|2 0 3 5 3 5 1 2 3 8 0 0 3|4 2 2|4 1 6 4
+CA-QC|9.0|-73.2,45.9|3 1 2 4 4 6 3 1 2 9 0 1 4|4 2 2|3 1 7 4
+CA-NB|0.85|-65.9,45.9|2 4 1 3 3 6 6 1 1 8 0 1 2|4 4 4|4 1 7 4
+CA-NS|1.1|-63.6,44.8|2 6 1 3 3 4 7 1 1 7 0 2 2|5 4 4|4 1 6 4
+CA-PE|0.18|-63.2,46.3|1 6 1 3 1 3 8 1 1 7 0 2 1|3 4 4|4 2 6 5
+CA-NL|0.55|-53.3,47.6|2 5 0 3 2 4 6 1 0 9 0 2 3|7 4 5|5 1 9 4
+CA-YT|0.046|-135.05,60.7|5 0 0 1 6 4 0 3 1 10 2 0 6|9 4 5|7 1 10 6
+CA-NT|0.045|-114.4,62.45|2 0 0 1 7 5 1 3 1 10 0 0 4|9 6 6|7 1 10 7
+CA-NU|0.04|-68.5,63.75|2 0 0 1 0 2 3 1 0 10 0 1 3|10 8 7|9 2 10 7
+MX-AGU|1.5|-102.3,21.9|3 0 2 4 3 4 0 7 6 2 1 0 3|6 5 5|6 8 2 7
+MX-BCN|3.8|-116.5,32.4|8 3 0 1 7 3 4 9 7 1 2 3 5|7 4 4|6 10 2 9
+MX-BCS|0.8|-110.8,24.5|5 8 0 2 4 4 7 9 7 0 2 4 3|8 4 4|7 10 1 9
+MX-CAM|0.93|-90.5,19.5|1 8 2 4 4 6 8 4 8 0 0 2 1|5 6 5|7 3 0 8
+MX-CHP|5.5|-93,16.5|9 6 1 5 5 8 6 3 6 0 7 6 8|6 9 7|7 3 1 7
+MX-CHH|3.7|-106.5,30|3 1 2 4 6 4 0 9 8 3 0 0 3|4 5 6|6 9 2 8
+MX-CMX|9.2|-99.13,19.4|8 0 1 4 1 6 0 6 4 1 6 0 5|10 4 4|5 9 2 6
+MX-COA|3.1|-101.5,26.3|2 2 2 5 5 5 0 9 8 2 0 0 2|5 4 4|6 9 1 8
+MX-COL|0.73|-103.9,19.1|9 8 0 3 4 6 7 5 7 0 8 7 6|6 5 5|6 5 0 7
+MX-DUR|1.8|-104.7,24.5|3 2 2 4 5 4 0 8 6 2 1 0 4|5 6 6|6 8 2 7
+MX-GUA|6.2|-101.2,20.8|4 0 2 4 3 5 0 7 5 1 3 0 4|5 5 6|6 8 2 7
+MX-GRO|3.5|-99.7,17.3|10 8 1 4 5 7 8 5 7 0 3 8 8|7 9 8|8 5 0 8
+MX-HID|3.1|-98.8,20.2|4 1 2 4 3 6 0 5 4 1 2 0 6|6 7 5|6 6 2 6
+MX-JAL|8.3|-103.4,20.7|7 7 1 5 5 6 6 6 6 1 6 6 6|5 4 6|6 6 1 7
+MX-MEX|17.0|-99.4,19.5|7 0 2 4 2 6 0 6 4 1 7 0 5|8 6 6|6 8 2 6
+MX-MIC|4.7|-101.5,19.6|9 7 1 4 5 6 6 6 6 1 6 7 7|6 7 8|7 6 1 7
+MX-MOR|2.0|-99.2,18.8|7 0 1 4 3 5 0 6 6 0 7 0 5|7 6 7|6 7 1 7
+MX-NAY|1.2|-104.9,21.6|6 7 1 4 5 7 7 5 7 0 4 6 6|6 6 6|6 5 0 7
+MX-NLE|5.8|-100.3,25.7|2 5 2 5 4 7 0 8 8 2 0 0 4|6 3 4|5 8 1 8
+MX-OAX|4.1|-96.7,17|10 6 1 5 5 7 6 5 6 0 2 7 8|6 9 7|8 5 0 7
+MX-PUE|6.6|-98.1,19|7 1 2 4 3 6 0 6 5 1 9 0 6|6 7 6|6 7 1 7
+MX-QUE|2.4|-100.2,20.6|4 0 2 4 3 5 0 7 5 1 2 0 4|6 5 5|5 8 2 7
+MX-ROO|1.9|-87.3,20.6|2 10 1 5 4 6 9 3 8 0 0 2 1|7 5 5|7 4 0 9
+MX-SLP|2.8|-100.9,22.2|3 2 2 4 4 5 0 7 6 1 1 0 4|5 7 6|6 7 1 7
+MX-SIN|3.0|-107.6,24.6|6 7 1 4 5 6 7 7 8 0 1 5 5|4 5 7|6 7 0 8
+MX-SON|2.9|-110.6,29.6|5 4 1 3 6 4 4 9 9 1 1 3 3|5 4 5|6 10 1 9
+MX-TAB|2.4|-92.9,18|2 6 2 5 2 10 8 2 8 0 3 2 3|6 7 6|7 2 0 8
+MX-TAM|3.5|-98.2,23.8|2 8 3 5 5 7 7 7 8 1 0 2 3|5 5 7|6 7 0 8
+MX-TLA|1.3|-98.2,19.3|6 0 2 4 2 5 0 6 4 1 7 0 5|6 7 5|6 7 2 6
+MX-VER|8.1|-96.5,19.3|6 9 2 5 4 9 8 3 7 1 6 5 7|4 8 6|7 3 0 8
+MX-YUC|2.3|-89.6,20.9|1 9 2 5 4 4 8 4 8 0 0 2 1|6 5 4|6 4 0 8
+MX-ZAC|1.6|-102.6,22.8|3 1 2 4 4 4 0 8 6 2 0 0 3|5 7 7|6 8 2 7`;
+const NAT_K=['eq','hu','to','st','wf','fl','cf','dr','ht','ws','vo','ts','ls'];
+const ADMF=Object.fromEntries(adminFeats.map(f=>[f.id,f]));
+NA_EST.split('\n').forEach(line=>{
+  const [code,popM,pc,nat,soc,inf]=line.split('|'), f=ADMF[code]; if(!f) return;
+  const cty=code.startsWith('CA')?'CAN':'MEX', st=code.slice(3), name=f.properties.name;
+  const v={}; nat.split(' ').forEach((x,i)=>v[NAT_K[i]]=+x);
+  const [fd,sv,cr]=soc.split(' ').map(Number), [gr,wa,gs,cl]=inf.split(' ').map(Number);
+  Object.assign(v,{fd,sv,cr,gr,wa,gs,cl});
+  const pop=Math.round(+popM*1e6), area=d3.geoArea(f)*6371*6371/2.59;
+  v.pd=Math.max(0,Math.min(10,10*Math.log10(Math.max(pop/area,1))/4));
+  const c={id:code,st,cty,name,pop,area,v,f,reg:'NA',ll:pc.split(',').map(Number),bb:d3.geoBounds(f),est:true};
+  c.label=`${name}, ${cty==='CAN'?'Canada':'Mexico'}`;
+  STNAME[st]=name; REG_OF[st]=cty;
   C.push(c); CI[c.id]=c;
 });
 
@@ -1345,46 +1413,48 @@ const TARGETS=[
  {n:'Philadelphia',t:'city',c:[-75.16,39.95]},{n:'Atlanta',t:'city',c:[-84.39,33.75]},{n:'Miami',t:'city',c:[-80.19,25.76]},
  {n:'San Francisco Bay',t:'city',c:[-122.27,37.8]},{n:'Seattle',t:'city',c:[-122.33,47.6]},{n:'Boston',t:'city',c:[-71.06,42.36]},
  {n:'Phoenix',t:'city',c:[-112.07,33.45]},{n:'Detroit',t:'city',c:[-83.05,42.33]},{n:'Denver',t:'city',c:[-104.99,39.74]}
-].map(t=>({...t,xy:proj(t.c),reg:t.c[0]<-140&&t.c[1]>50?'AK':t.c[0]<-150?'HI':'L48'})).filter(t=>t.xy);
-const REACTORS=[[33.39,-112.86],[35.21,-120.85],[35.31,-93.23],[41.31,-72.17],[27.35,-80.25],[25.43,-80.33],[33.14,-81.76],[31.93,-82.34],[42.07,-89.28],[41.24,-88.23],[41.25,-88.67],[41.39,-88.27],[41.73,-90.31],[40.17,-88.83],[38.24,-95.69],[30.76,-91.33],[29.99,-90.47],[38.43,-76.44],[41.96,-83.26],[41.98,-86.57],[42.32,-86.31],[45.33,-93.85],[44.62,-92.63],[32.01,-91.05],[38.76,-91.78],[40.36,-95.64],[42.90,-70.85],[39.46,-75.54],[43.52,-76.41],[43.28,-77.31],[33.96,-78.01],[35.63,-78.96],[35.43,-80.95],[41.60,-83.09],[41.80,-81.14],[40.62,-80.43],[40.22,-75.59],[39.76,-76.27],[41.09,-76.15],[35.05,-81.07],[34.79,-82.90],[34.40,-80.16],[34.30,-81.32],[35.23,-85.09],[35.60,-84.79],[32.30,-97.79],[28.80,-96.05],[38.06,-77.79],[37.17,-76.70],[46.47,-119.33],[44.28,-87.54],[34.70,-87.12],[31.22,-85.11]].map(([la,lo])=>proj([lo,la])).filter(Boolean);
+];
+const REACTORS=[[33.39,-112.86],[35.21,-120.85],[35.31,-93.23],[41.31,-72.17],[27.35,-80.25],[25.43,-80.33],[33.14,-81.76],[31.93,-82.34],[42.07,-89.28],[41.24,-88.23],[41.25,-88.67],[41.39,-88.27],[41.73,-90.31],[40.17,-88.83],[38.24,-95.69],[30.76,-91.33],[29.99,-90.47],[38.43,-76.44],[41.96,-83.26],[41.98,-86.57],[42.32,-86.31],[45.33,-93.85],[44.62,-92.63],[32.01,-91.05],[38.76,-91.78],[40.36,-95.64],[42.90,-70.85],[39.46,-75.54],[43.52,-76.41],[43.28,-77.31],[33.96,-78.01],[35.63,-78.96],[35.43,-80.95],[41.60,-83.09],[41.80,-81.14],[40.62,-80.43],[40.22,-75.59],[39.76,-76.27],[41.09,-76.15],[35.05,-81.07],[34.79,-82.90],[34.40,-80.16],[34.30,-81.32],[35.23,-85.09],[35.60,-84.79],[32.30,-97.79],[28.80,-96.05],[38.06,-77.79],[37.17,-76.70],[46.47,-119.33],[44.28,-87.54],[34.70,-87.12],[31.22,-85.11],
+  [43.81,-79.07],[43.87,-78.72],[44.33,-81.6],[45.07,-66.45],[19.72,-96.41]];
 const FAULTS=[
  {n:'San Andreas',c:[[-124.3,40.3],[-123.7,39.0],[-122.5,37.7],[-121.5,36.8],[-120.4,35.8],[-119.0,34.9],[-117.6,34.3],[-116.5,33.9],[-115.6,33.2]]},
- {n:'Cascadia subduction zone',c:[[-124.7,48.4],[-124.4,46.5],[-124.4,44.5],[-124.5,42.5],[-124.3,40.5]]},
+ {n:'Cascadia subduction zone',c:[[-127.6,50.6],[-126.3,49.4],[-124.7,48.4],[-124.4,46.5],[-124.4,44.5],[-124.5,42.5],[-124.3,40.5]]},
  {n:'Wasatch',c:[[-111.9,42.0],[-111.8,41.0],[-111.75,40.4],[-111.8,39.7]]},
- {n:'New Madrid',c:[[-90.3,35.6],[-89.9,36.2],[-89.5,36.6],[-89.2,37.1]]}
-].map(f=>({...f,xy:f.c.map(c=>proj(c)).filter(Boolean)}));
-const VOLC=[{n:'Mt Rainier',c:[-121.76,46.85]},{n:'Mt St Helens',c:[-122.18,46.19]},{n:'Mt Hood',c:[-121.7,45.37]},{n:'Mt Shasta',c:[-122.19,41.41]},{n:'Yellowstone caldera',c:[-110.67,44.43],big:1},{n:'Long Valley caldera',c:[-118.9,37.7]},{n:'Kilauea',c:[-155.29,19.41]}].map(v=>({...v,xy:proj(v.c)}));
+ {n:'New Madrid',c:[[-90.3,35.6],[-89.9,36.2],[-89.5,36.6],[-89.2,37.1]]},
+ {n:'Middle America Trench',c:[[-105.6,19.3],[-103.0,17.8],[-100.0,16.6],[-97.0,15.5],[-94.0,14.6]]}
+];
+const VOLC=[{n:'Mt Rainier',c:[-121.76,46.85]},{n:'Mt St Helens',c:[-122.18,46.19]},{n:'Mt Hood',c:[-121.7,45.37]},{n:'Mt Shasta',c:[-122.19,41.41]},{n:'Yellowstone caldera',c:[-110.67,44.43],big:1},{n:'Long Valley caldera',c:[-118.9,37.7]},{n:'Kilauea',c:[-155.29,19.41]},
+  {n:'Popocatépetl',c:[-98.62,19.02]},{n:'Volcán de Colima',c:[-103.62,19.51]},{n:'Pico de Orizaba',c:[-97.27,19.03]},{n:'Mt Meager',c:[-123.5,50.64]}];
 
 function segDist(p,a,b){const dx=b[0]-a[0],dy=b[1]-a[1];const t=Math.max(0,Math.min(1,((p[0]-a[0])*dx+(p[1]-a[1])*dy)/(dx*dx+dy*dy)));return Math.hypot(p[0]-a[0]-t*dx,p[1]-a[1]-t*dy);}
-function lineDist(p,pts){let m=Infinity;for(let i=0;i<pts.length-1;i++)m=Math.min(m,segDist(p,pts[i],pts[i+1]));return m;}
+function lineKm(p,coords){const pts=coords.map(c=>kmxy(c,p));let m=Infinity;for(let i=0;i<pts.length-1;i++)m=Math.min(m,segDist([0,0],pts[i],pts[i+1]));return m;}
 (function model(){
-  const WIND=-12*Math.PI/180, wx=Math.cos(WIND), wy=Math.sin(WIND); // prevailing westerlies, drifting slightly north
+  const WIND=12*RAD, wx=Math.cos(WIND), wy=Math.sin(WIND); // prevailing westerlies, drifting slightly north
   const TW={silo:{p:1,tau:55,fo:10},base:{p:.9,tau:40,fo:3},city:{p:.85,tau:50,fo:1.2}};
-  const ysXY=proj([-110.67,44.43]), cz=FAULTS[1].xy, nm=FAULTS[3].xy;
-  const metros=C.filter(c=>c.pop>900000);
-  const GM_BOOST={MN:3,WI:3,MI:2.5,IA:1.5,ME:2.5,NH:2.5,VT:2.5,MA:2,NY:2.5,PA:2,NJ:2,MD:2,VA:2.5,NC:2,SC:2,GA:1.5,DE:1.5,CT:2,RI:2,CO:2,WA:2,OR:1.5,AK:4};
+  const ys=[-110.67,44.43], cz=FAULTS[1].c, nm=FAULTS[3].c;
+  const metros=C.filter(c=>c.cty==='USA'&&c.pop>900000).map(c=>({ll:c.ll,pop:c.pop})).concat(
+    [[-79.38,43.65,6.2e6],[-73.57,45.5,4.3e6],[-123.12,49.28,2.6e6],[-114.07,51.05,1.5e6],[-113.49,53.55,1.4e6],[-75.7,45.42,1.4e6],
+     [-99.13,19.43,21.8e6],[-103.35,20.67,5.3e6],[-100.31,25.69,5.3e6],[-98.2,19.04,3.2e6],[-117.04,32.51,2.2e6]].map(([lo,la,pop])=>({ll:[lo,la],pop})));
+  const GM_BOOST={MN:3,WI:3,MI:2.5,IA:1.5,ME:2.5,NH:2.5,VT:2.5,MA:2,NY:2.5,PA:2,NJ:2,MD:2,VA:2.5,NC:2,SC:2,GA:1.5,DE:1.5,CT:2,RI:2,CO:2,WA:2,OR:1.5,AK:4,
+    ON:2.5,QC:3,MB:2.5,BC:2,NB:2,NS:2,NL:2.5,PE:2,SK:2,AB:2,YT:4,NT:4,NU:4};
   let foMax=0;
   C.forEach(c=>{
-    const km=kmScale(c.reg); let nk=0, fo=0;
+    const p=c.ll; let nk=0, fo=0;
     TARGETS.forEach(t=>{
-      if(t.reg!==c.reg) return;
-      const dx=(c.xy[0]-t.xy[0])*km, dy=(c.xy[1]-t.xy[1])*km, d=Math.hypot(dx,dy), w=TW[t.t];
+      const [dx,dy]=kmxy(p,t.c), d=Math.hypot(dx,dy), w=TW[t.t];
       nk=Math.max(nk,w.p*Math.exp(-Math.max(0,d-10)/w.tau));
       const a=dx*wx+dy*wy, cr=-dx*wy+dy*wx;
-      if(a>-40){const aa=Math.max(a,0), s=16+0.085*aa; fo+=w.fo*Math.exp(-aa/480)*Math.exp(-(cr*cr)/(2*s*s));}
+      if(a>-40&&a<4000){const aa=Math.max(a,0), s=16+0.085*aa; fo+=w.fo*Math.exp(-aa/480)*Math.exp(-(cr*cr)/(2*s*s));}
     });
     c.v.nk=10*nk; c._fo=fo; foMax=Math.max(foMax,fo);
-    let np=0; if(c.reg==='L48') REACTORS.forEach(r=>{const d=Math.hypot(c.xy[0]-r[0],c.xy[1]-r[1])*km;np=Math.max(np,d<16?10:10*Math.exp(-(d-16)/110));});
+    let np=0; REACTORS.forEach(r=>{const d=kmd(p,[r[1],r[0]]);np=Math.max(np,d<16?10:10*Math.exp(-(d-16)/110));});
     c.v.np=np;
-    if(c.reg==='L48'){
-      const dx=(c.xy[0]-ysXY[0])*km, dy=(c.xy[1]-ysXY[1])*km, d=Math.hypot(dx,dy);
-      const cos=d?(dx*wx+dy*wy)/d:0, de=d*(1-0.2*cos);
-      const logT=2.6-de/700; c.v.ys=Math.max(0,Math.min(10,(logT+1)/3.6*10)); c.ashCm=Math.pow(10,logT);
-      c.v.cz=10*Math.exp(-lineDist(c.xy,cz)*km/170);
-      c.v.nm=10*Math.exp(-lineDist(c.xy,nm)*km/260);
-    } else {c.v.ys=0;c.v.cz=c.st==='AK'?3:0;c.v.nm=0;c.ashCm=0;}
-    const lat=c.ll[1]; c.v.gm=Math.max(0,Math.min(10,(lat-24)/26*6+(GM_BOOST[c.st]||0)));
-    let rf=0; metros.forEach(m=>{if(m.reg!==c.reg)return;const d=Math.hypot(c.xy[0]-m.xy[0],c.xy[1]-m.xy[1])*km;rf=Math.max(rf,(1+Math.log10(m.pop/900000))*Math.exp(-d/120));});
+    const [dx,dy]=kmxy(p,ys), d=Math.hypot(dx,dy), cos=d?(dx*wx+dy*wy)/d:0, de=d*(1-0.2*cos);
+    const logT=2.6-de/700; c.v.ys=c.reg==='HI'?0:Math.max(0,Math.min(10,(logT+1)/3.6*10)); c.ashCm=c.reg==='HI'?0:Math.pow(10,logT);
+    c.v.cz=10*Math.exp(-lineKm(p,cz)/170);
+    c.v.nm=10*Math.exp(-lineKm(p,nm)/260);
+    const lat=p[1]; c.v.gm=Math.max(0,Math.min(10,(lat-24)/26*6+(GM_BOOST[c.st]||0)));
+    let rf=0; metros.forEach(m=>{const dd=kmd(p,m.ll);if(dd>800)return;rf=Math.max(rf,(1+Math.log10(m.pop/900000))*Math.exp(-dd/120));});
     c.v.rf=Math.min(10,7*rf);
   });
   const I0=0.12; C.forEach(c=>{c.v.fo=10*Math.log(1+c._fo/I0)/Math.log(1+foMax/I0);});
@@ -1475,14 +1545,16 @@ function compute(){
   const idx=Object.fromEntries(C.map((c,i)=>[c.id,i]));
   R={s,order,rank,ext,idx,of:id=>({score:s[idx[id]],rank:rank[idx[id]],pct:(rank[idx[id]]-1)/(C.length-1)})};
 }
-const passes=c=>c.pop>=minPop&&(region==='all'||(region==='L48'?c.reg==='L48':REG_OF[c.st]===region));
+const passes=c=>c.pop>=minPop&&(region==='all'||(['USA','CAN','MEX'].includes(region)?c.cty===region:region==='L48'?c.reg==='L48':c.cty==='USA'&&REG_OF[c.st]===region));
 function bestId(excl){for(const i of R.order){const c=C[i];if(passes(c)&&c.id!==excl)return c.id;}return C[R.order[0]].id;}
 const tierOf=p=>TIERS.find(t=>p<t[0]);
 const norm=v=>(v-R.ext[0])/((R.ext[1]-R.ext[0])||1);
 
 // ---------- gallery ----------
 const galEl=$('gallery');
-const p2d=features.map(f=>CD.c[f.id]?{id:f.id,p:new Path2D(path(f))}:null).filter(Boolean);
+const MINI=d3.geoConicEqualArea().parallels([20,60]).rotate([100,0]).fitExtent([[2,2],[298,186]],{type:'MultiPoint',coordinates:[[-128,15],[-62,15],[-62,58],[-128,58],[-96,63]]});
+const miniPath=d3.geoPath(MINI);
+const p2d=C.map(c=>({id:c.id,p:new Path2D(miniPath(c.f)||'')}));
 SCEN.forEach(s=>{
   const b=document.createElement('button');b.className='gcard';b.id='g-'+s.id;b.dataset.id=s.id;
   b.innerHTML=`<canvas width="300" height="188" aria-hidden="true"></canvas><b>${s.label}</b><span>${s.tag}${s.phases?' · '+s.phases.length+' phases':''}</span>`;
@@ -1493,7 +1565,7 @@ function drawMini(s){
   const cv=$('g-'+s.id).querySelector('canvas'), ctx=cv.getContext('2d');
   const w=s.w||W, sc=scoreWith(w), ext=d3.extent(sc), byId={};
   C.forEach((c,i)=>byId[c.id]=sc[i]);
-  ctx.setTransform(1,0,0,1,0,0);ctx.clearRect(0,0,cv.width,cv.height);ctx.scale(cv.width/975,cv.height/610);
+  ctx.setTransform(1,0,0,1,0,0);ctx.clearRect(0,0,cv.width,cv.height);
   p2d.forEach(o=>{const v=byId[o.id];if(v==null)return;ctx.fillStyle=riskInterp((v-ext[0])/((ext[1]-ext[0])||1));ctx.fill(o.p);});
 }
 function drawGallery(){let i=0;(function next(){if(i>=SCEN.length)return;drawMini(SCEN[i++]);setTimeout(next,0);})();}
@@ -1517,40 +1589,83 @@ function syncWeights(){
   $('showAllW').textContent=showAllW?'Hide unused factors':'Show all 28 factors';
 }
 
-// ---------- map ----------
+// ---------- map: zoomable terrain with the county / province layer drawn over it ----------
 const mapEl=$('map'), tip=$('tip');
-const svg=d3.select(mapEl).append('svg').attr('viewBox','0 0 975 610').attr('role','img').attr('aria-label','US county map colored by scenario risk');
-const gz=svg.append('g');
-gz.append('image').attr('href','data/us-terrain.jpg').attr('x',0).attr('y',0).attr('width',975).attr('height',610).attr('preserveAspectRatio','none').attr('pointer-events','none');
-const coPaths=gz.append('g').selectAll('path').data(C).join('path').attr('class',c=>'co'+(c.reg!=='L48'?' inset':'')).attr('d',c=>path(c.f))
-  .on('mousemove',(e,c)=>showTip(e,c)).on('mouseleave',()=>tip.style.opacity=0)
-  .on('click',(e,c)=>{if(e.shiftKey||e.altKey||e.metaKey){cmp=c.id===home?null:c.id;}else{home=c.id;if(cmp===home)cmp=null;}update();});
-gz.append('path').datum(topojson.mesh(TOPO,TOPO.objects.states,(a,b)=>a!==b)).attr('class','stmesh').attr('d',path);
-const gHi=gz.append('g').attr('pointer-events','none');
-const gLbl=gz.append('g');
-gLbl.selectAll('text').data(stateFeats.filter(f=>!['10','11','09','44','34','24','25','33','50'].includes(f.id))).join('text').attr('class','lbl')
-  .attr('transform',f=>{const c=path.centroid(f);const o={'12':[10,8],'22':[-8,0],'26':[10,16]}[f.id]||[0,0];return `translate(${c[0]+o[0]},${c[1]+o[1]+3})`;})
-  .text(f=>{const n=f.properties.name;return Object.keys(STNAME).find(a=>STNAME[a]===n)||'';});
-const OVC={silo:'#7A2E8E',base:'#B42F2A',city:'var(--ink)',reactor:'#D4A017',geo:'#C9481A'};
-const gT=gz.append('g').attr('pointer-events','none'), gR=gz.append('g').attr('pointer-events','none'), gG=gz.append('g').attr('pointer-events','none');
-TARGETS.forEach((t,i)=>{const g=gT.append('g').attr('class','mk').attr('data-x',t.xy[0]).attr('data-y',t.xy[1]);g.append('circle').attr('class','ring').attr('r',t.t==='silo'?9:6).style('animation-delay',(i%7)*.13+'s');g.append('circle').attr('r',t.t==='silo'?3.4:3).style('fill',OVC[t.t]).attr('stroke','var(--stroke)').attr('stroke-width',1).attr('vector-effect','non-scaling-stroke');});
-REACTORS.forEach(r=>{gR.append('g').attr('class','mk').attr('data-x',r[0]).attr('data-y',r[1]).append('rect').attr('x',-3).attr('y',-3).attr('width',6).attr('height',6).attr('transform','rotate(45)').attr('fill',OVC.reactor).attr('stroke','var(--stroke)').attr('stroke-width',1).attr('vector-effect','non-scaling-stroke');});
-const line=d3.line();
-FAULTS.forEach(f=>gG.append('path').attr('d',line(f.xy)).attr('fill','none').attr('stroke',OVC.geo).attr('stroke-width',2.4).attr('stroke-dasharray','6 3').attr('stroke-linecap','round').attr('vector-effect','non-scaling-stroke'));
-VOLC.forEach(v=>{if(!v.xy)return;const s=v.big?8:5.5;gG.append('g').attr('class','mk').attr('data-x',v.xy[0]).attr('data-y',v.xy[1]).append('path').attr('d',`M0,${-s}L${s},${s*.7}L${-s},${s*.7}Z`).attr('fill',OVC.geo).attr('stroke','var(--stroke)').attr('stroke-width',1).attr('vector-effect','non-scaling-stroke');});
+const leaf=document.createElement('div'); leaf.id='naLeaf'; leaf.className='leafbox'; mapEl.insertBefore(leaf,mapEl.firstChild);
+const lmap=L.map(leaf,{zoomControl:false,minZoom:2,maxZoom:11,zoomSnap:.25,zoomDelta:.5,wheelPxPerZoomLevel:90,preferCanvas:true,worldCopyJump:false});
+lmap.attributionControl.setPrefix(false);
+const naTerrain=L.tileLayer('tiles/{z}/{x}/{y}.jpg',{tileSize:1024,zoomOffset:-2,minNativeZoom:2,maxNativeZoom:6,maxZoom:11,
+  attribution:'Terrain: AWS Terrain Tiles (SRTM, GMTED, ETOPO1) · Risk: FEMA NRI; Canada and Mexico estimated'}).addTo(lmap);
+const naDetail=(function(){const [w,s,e,nl]=[-125,15,-67.6,52],n=32,t2lat=y=>Math.atan(Math.sinh(Math.PI*(1-2*y/n)))/RAD,lat2t=lat=>Math.floor((1-Math.log(Math.tan(lat*RAD)+1/Math.cos(lat*RAD))/Math.PI)/2*n);
+  const x0=Math.floor((w+180)/360*n),x1=Math.floor((e+180)/360*n)+1,y0=lat2t(nl),y1=lat2t(s)+1;
+  return L.tileLayer('tiles/{z}/{x}/{y}.jpg',{tileSize:1024,zoomOffset:-2,minNativeZoom:7,maxNativeZoom:7,minZoom:6.25,maxZoom:11,bounds:[[t2lat(y1),x0/n*360-180],[t2lat(y0),x1/n*360-180]],errorTileUrl:'data:image/gif;base64,R0lGODlhAQABAAAAACw='}).addTo(lmap);})();
+const naStreet=L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png',{subdomains:'abc',maxZoom:17,attribution:'Map: © OpenTopoMap (CC-BY-SA), © OpenStreetMap contributors'});
+let naStreetOK=false, naStreetOn=false;
+(function(){const im=new Image();im.onload=()=>{naStreetOK=true;$('ovS').disabled=false;$('ovS').title='Online topographic map with roads and towns, down to street level';};
+  im.onerror=()=>{$('ovS').disabled=true;$('ovS').title='Online street maps are blocked in this viewer. Open the site from GitHub Pages or your computer to use them.';};im.src='https://a.tile.opentopomap.org/3/2/3.png';})();
+const naOverlay=L.imageOverlay('data:image/gif;base64,R0lGODlhAQABAAAAACw=',[[0,0],[1,1]],{opacity:.78,interactive:false,className:'riskimg'}).addTo(lmap);
+const OVC={silo:'#7A2E8E',base:'#B42F2A',city:'#17252A',reactor:'#F2C230',geo:'#C9481A'};
+const mk={t:L.layerGroup(),r:L.layerGroup(),g:L.layerGroup()};
+TARGETS.forEach(t=>L.circleMarker([t.c[1],t.c[0]],{radius:t.t==='silo'?4.5:3.8,color:'#fff',weight:1.2,fillColor:OVC[t.t],fillOpacity:1,interactive:false}).addTo(mk.t));
+REACTORS.forEach(r=>L.circleMarker(r,{radius:3.4,color:'#3a2a00',weight:1,fillColor:OVC.reactor,fillOpacity:1,interactive:false}).addTo(mk.r));
+FAULTS.forEach(f=>L.polyline(f.c.map(c=>[c[1],c[0]]),{color:OVC.geo,weight:2.6,dashArray:'7 4',interactive:false}).addTo(mk.g));
+VOLC.forEach(v=>L.circleMarker([v.c[1],v.c[0]],{radius:v.big?6:4.2,color:'#fff',weight:1.2,fillColor:OVC.geo,fillOpacity:1,interactive:false}).addTo(mk.g));
+const naStrike=L.layerGroup(TARGETS.map((t,i)=>L.marker([t.c[1],t.c[0]],{interactive:false,keyboard:false,icon:L.divIcon({className:'strikefx'+(t.t==='silo'?' big':''),iconSize:[34,34],html:`<i style="animation-delay:${(i%9)*.11}s"></i>`})})));
+const naLive=L.layerGroup(); let naLiveOn=true;
+const LABELS=stateFeats.map(f=>{const n=f.properties.name,ab=Object.keys(STNAME).find(a=>STNAME[a]===n);return ab?{ab,ll:d3.geoCentroid(f)}:null;}).filter(Boolean)
+  .concat(C.filter(c=>c.est).map(c=>({ab:c.st,ll:d3.geoCentroid(c.f)})));
 
-let zk=1;
-const zoom=d3.zoom().scaleExtent([1,14]).translateExtent([[-50,-50],[1025,660]]).on('zoom',e=>{
-  zk=e.transform.k; gz.attr('transform',e.transform);
-  gz.selectAll('.mk').attr('transform',function(){return `translate(${this.dataset.x},${this.dataset.y}) scale(${1/Math.sqrt(zk)})`;});
-  gLbl.selectAll('text').style('font-size',(9.5/zk)+'px').style('stroke-width',(2.5/zk)+'px');
-});
-svg.call(zoom).on('dblclick.zoom',null);
-gz.selectAll('.mk').attr('transform',function(){return `translate(${this.dataset.x},${this.dataset.y})`;});
-$('zin').onclick=()=>svg.transition().duration(300).call(zoom.scaleBy,1.8);
-$('zout').onclick=()=>svg.transition().duration(300).call(zoom.scaleBy,1/1.8);
-$('zreset').onclick=()=>svg.transition().duration(400).call(zoom.transform,d3.zoomIdentity);
-function zoomTo(id,k=5){const c=CI[id];svg.transition().duration(700).call(zoom.transform,d3.zoomIdentity.translate(487.5-k*c.xy[0],305-k*c.xy[1]).scale(k));}
+const NCELL=2;
+let OV=null;
+function naProj(){const z=lmap.getZoom(),c=lmap.getCenter(),p0=lmap.latLngToContainerPoint([0,c.lng]);return d3.geoMercator().rotate([-c.lng,0]).scale(256*Math.pow(2,z)/(2*Math.PI)).translate([p0.x,p0.y]);}
+function visibleIdx(){
+  const b=lmap.getBounds().pad(.1), W_=b.getWest(), E=b.getEast(), S=b.getSouth(), N=b.getNorth(), out=[];
+  C.forEach((c,i)=>{const [[w,s],[e,n]]=c.bb;if(w>e||(e>=W_&&w<=E&&n>=S&&s<=N))out.push(i);});
+  return out;
+}
+function naRender(){
+  if(!lmap._loaded||$('view-us').hidden)return;
+  const size=lmap.getSize(),W_=size.x,H=size.y; if(!W_||!H)return;
+  const pj=naProj(), vis=visibleIdx(), nx=Math.ceil(W_/NCELL), ny=Math.ceil(H/NCELL);
+  const cv=document.createElement('canvas');cv.width=nx;cv.height=ny;const ctx=cv.getContext('2d',{willReadFrequently:true});
+  ctx.setTransform(1/NCELL,0,0,1/NCELL,0,0); const gp=d3.geoPath(pj,ctx);
+  vis.forEach(i=>{ctx.beginPath();gp(C[i].f);ctx.fillStyle=`rgb(${(i&15)*17},${((i>>4)&15)*17},${((i>>8)&15)*17})`;ctx.fill();});
+  const px=ctx.getImageData(0,0,nx,ny).data, cid=new Int32Array(nx*ny).fill(-1);
+  for(let k=0;k<nx*ny;k++){const r=px[4*k],g=px[4*k+1],b=px[4*k+2];if(px[4*k+3]<250||r%17||g%17||b%17)continue;const i=r/17+(g/17)*16+(b/17)*256;if(i<C.length)cid[k]=i;}
+  OV={pj,W:W_,H,nx,ny,cid,vis,bounds:[lmap.containerPointToLatLng([0,0]),lmap.containerPointToLatLng([W_,H])]};
+  paintMap();
+}
+function naPaint(){
+  if(!OV||!R)return;
+  const {pj,W:W_,H,vis}=OV, dpr=Math.min(2,window.devicePixelRatio||1), z=lmap.getZoom();
+  const cv=document.createElement('canvas');cv.width=Math.round(W_*dpr);cv.height=Math.round(H*dpr);
+  const ctx=cv.getContext('2d');ctx.scale(dpr,dpr);const gp=d3.geoPath(pj,ctx);
+  const col=layer==='score'?i=>riskInterp(norm(R.s[i])):i=>riskInterp(C[i].v[layer]/10);
+  vis.forEach(i=>{ctx.beginPath();gp(C[i].f);ctx.fillStyle=col(i);ctx.fill();});
+  const dark=document.documentElement.dataset.theme==='dark'||(document.documentElement.dataset.theme!=='light'&&matchMedia('(prefers-color-scheme: dark)').matches);
+  const ink=dark?'255,255,255':'23,37,42';
+  if(z>=4.5){ctx.beginPath();vis.forEach(i=>{if(!C[i].est)gp(C[i].f);});ctx.strokeStyle=`rgba(${ink},${z>=6?.35:.18})`;ctx.lineWidth=.5;ctx.stroke();}
+  ctx.beginPath();gp(stateMesh);gp(adminMesh);ctx.strokeStyle=`rgba(${ink},.6)`;ctx.lineWidth=z>5?1.2:.8;ctx.stroke();
+  [[cmpAb(),getComputedStyle(document.documentElement).getPropertyValue('--cmp').trim()||'#2F6F9F'],[home,dark?'#fff':'#17252A']].forEach(([id,c])=>{ctx.beginPath();gp(CI[id].f);ctx.strokeStyle=c;ctx.lineWidth=2.6;ctx.stroke();});
+  if(ov.l&&z>=3.2&&z<7.5){ctx.font=`500 ${z<4?9:11}px "IBM Plex Mono",monospace`;ctx.textAlign='center';ctx.lineWidth=3;ctx.strokeStyle=dark?'rgba(15,22,24,.8)':'rgba(245,246,242,.85)';ctx.fillStyle=dark?'#E2E7E1':'#17252A';
+    LABELS.forEach(l=>{const p=pj(l.ll);if(!p||p[0]<0||p[1]<0||p[0]>W_||p[1]>H)return;ctx.strokeText(l.ab,p[0],p[1]+3);ctx.fillText(l.ab,p[0],p[1]+3);});}
+  naOverlay.setUrl(cv.toDataURL('image/png')); naOverlay.setBounds(L.latLngBounds(OV.bounds[1],OV.bounds[0]));
+}
+function unitAt(e){
+  if(!OV)return null; const ll=e.latlng, q=OV.pj([ll.lng,ll.lat]); if(!q)return null;
+  const x=Math.floor(q[0]/NCELL),y=Math.floor(q[1]/NCELL); if(x<0||y<0||x>=OV.nx||y>=OV.ny)return null;
+  const i=OV.cid[y*OV.nx+x]; return i<0?null:C[i];
+}
+lmap.on('mousemove',e=>{const c=unitAt(e);if(!c){tip.style.opacity=0;return;}showTip(e.originalEvent,c);});
+lmap.on('mouseout',()=>tip.style.opacity=0);
+lmap.on('click',e=>{const c=unitAt(e);if(!c)return;const ev=e.originalEvent;if(ev.shiftKey||ev.altKey||ev.metaKey){cmp=c.id===home?null:c.id;}else{home=c.id;if(cmp===home)cmp=null;}update();});
+let naMoveT=null; lmap.on('moveend zoomend resize',()=>{clearTimeout(naMoveT);naMoveT=setTimeout(naRender,120);});
+lmap.on('zoomend',()=>{const z=lmap.getZoom(),c=lmap.getCenter(),inD=c.lng>-125&&c.lng<-67.6&&c.lat>15&&c.lat<52;$('naZoomNote').textContent=!naStreetOn&&z>(inD?7.5:6.5)?'Zoomed past the built-in terrain detail. Turn on street-level detail for more.':'';});
+lmap.fitBounds([[15,-128],[60,-62]],{animate:false});
+$('zin').onclick=()=>lmap.zoomIn(1);
+$('zout').onclick=()=>lmap.zoomOut(1);
+$('zreset').onclick=()=>lmap.flyToBounds([[15,-128],[60,-62]],{duration:.6});
+function zoomTo(id){const c=CI[id];let [[w,s],[e,n]]=c.bb;if(e<w)e+=360;lmap.flyToBounds([[s,w],[n,e]],{maxZoom:c.est?6:8.5,duration:.8,padding:[30,30]});}
 $('zhome').onclick=()=>zoomTo(home);
 
 function topThreats(c,w,n=3){return KEYS.filter(k=>w[k]>0).map(k=>({k,c:w[k]*c.v[k],v:c.v[k],w:w[k]})).sort((a,b)=>b.c-a.c).slice(0,n);}
@@ -1568,27 +1683,27 @@ function showTip(e,c){
   const extra=layer==='ys'&&c.ashCm?` · ~${c.ashCm>=100?(c.ashCm/100).toFixed(1)+' m':c.ashCm>=1?c.ashCm.toFixed(0)+' cm':(c.ashCm*10).toFixed(0)+' mm'} ash`:'';
   tip.innerHTML=`<b>${c.label}</b> <span class="m">${val}${extra}</span>`;
   placeTip(tip,box,e.clientX,e.clientY);
-  $('readout').innerHTML=`<b>${c.label}</b> · ${c.pop.toLocaleString()} people · ${layer==='score'?`risk ${r.score.toFixed(1)}, safer than ${Math.round((1-r.pct)*100)}% of counties`:`${FI[layer].n} ${c.v[layer].toFixed(1)}/10`}${extra} · top threats: ${topThreats(c,activeW()).map(x=>FI[x.k].n.toLowerCase()).join(', ')||'none'}`;
+  $('readout').innerHTML=`<b>${c.label}</b> · ${c.pop.toLocaleString()} people · ${layer==='score'?`risk ${r.score.toFixed(1)}, safer than ${Math.round((1-r.pct)*100)}% of places in North America`:`${FI[layer].n} ${c.v[layer].toFixed(1)}/10`}${extra} · top threats: ${topThreats(c,activeW()).map(x=>FI[x.k].n.toLowerCase()).join(', ')||'none'}${c.est?' · estimated province/state profile':''}`;
 }
 const layerEl=$('layer');
 layerEl.innerHTML=`<option value="score">Scenario risk</option>`+[G_NAT,G_MOD,G_SOC,G_INF].map(g=>`<optgroup label="${g}">${F.filter(f=>f.g===g).map(f=>`<option value="${f.k}">${f.n}</option>`).join('')}</optgroup>`).join('');
 layerEl.onchange=()=>{layer=layerEl.value;paintMap();};
 function paintMap(){
-  gT.classed('striking',scen==='nuclear'&&phase===0);
-  const col=layer==='score'?(c,i)=>riskInterp(norm(R.s[i])):(c)=>riskInterp(c.v[layer]/10);
-  coPaths.attr('fill',col);
+  if(!R)return;
+  naPaint();
+  Object.entries(mk).forEach(([k,g])=>{if(ov[k])g.addTo(lmap);else g.remove();});
+  if(scen==='nuclear'&&phase===0)naStrike.addTo(lmap);else naStrike.remove();
   $('legLo').textContent=layer==='score'?'Lowest risk ('+R.ext[0].toFixed(1)+')':'0 · none';$('legHi').textContent=layer==='score'?'Highest ('+R.ext[1].toFixed(1)+')':'10 · severe';
-  gHi.selectAll('*').remove();
-  [[cmpAb(),'cmp'],[home,'home']].forEach(([id,cl])=>{gHi.append('path').attr('d',path(CI[id].f)).attr('class','co '+cl).attr('fill','none');});
-  gT.attr('display',ov.t?null:'none');gR.attr('display',ov.r?null:'none');gG.attr('display',ov.g?null:'none');gLbl.attr('display',ov.l?null:'none');
   const k=[];
-  if(ov.t)k.push(`<span><i style="background:${OVC.silo}"></i>ICBM field</span><span><i style="background:${OVC.base}"></i>Military</span><span><i style="background:${OVC.city}"></i>Metro</span>`);
-  if(ov.r)k.push(`<span><i style="background:${OVC.reactor};border-radius:1px;transform:rotate(45deg) scale(.8)"></i>Reactor</span>`);
-  if(ov.g)k.push(`<span><i style="background:${OVC.geo};border-radius:1px;height:3px;width:14px;vertical-align:2px"></i>Fault</span><span><i style="background:${OVC.geo};border-radius:0;clip-path:polygon(50% 0,100% 100%,0 100%)"></i>Volcano</span>`);
+  if(ov.t)k.push(`<span><i style="background:${OVC.silo}"></i>ICBM field</span><span><i style="background:${OVC.base}"></i>Military</span><span><i style="background:${OVC.city};box-shadow:0 0 0 1px #fff"></i>Metro</span>`);
+  if(ov.r)k.push(`<span><i style="background:${OVC.reactor}"></i>Reactor</span>`);
+  if(ov.g)k.push(`<span><i style="background:${OVC.geo};border-radius:1px;height:3px;width:14px;vertical-align:2px"></i>Fault</span><span><i style="background:${OVC.geo}"></i>Volcano</span>`);
+  if(window.__live&&naLiveOn)k.push(`<span><i style="background:#E0522B"></i>Quake (live)</span><span><i style="background:#F59E0B"></i>Wildfire</span>`);
   $('ovKey').innerHTML=k.join('');
 }
 (function(){const c=$('ramp').getContext('2d');for(let i=0;i<180;i++){c.fillStyle=riskInterp(i/179);c.fillRect(i,0,1,10);}})();
 [['ovT','t'],['ovR','r'],['ovG','g'],['ovL','l']].forEach(([id,k])=>{const b=$(id);b.onclick=()=>{ov[k]=!ov[k];b.setAttribute('aria-pressed',ov[k]);paintMap();};});
+$('ovS').onclick=()=>{if(!naStreetOK)return;naStreetOn=!naStreetOn;$('ovS').setAttribute('aria-pressed',naStreetOn);if(naStreetOn){naStreet.addTo(lmap);naTerrain.setOpacity(0);naDetail.setOpacity(0);lmap.setMaxZoom(17);}else{naStreet.remove();naTerrain.setOpacity(1);naDetail.setOpacity(1);lmap.setMaxZoom(11);}lmap.fire('zoomend');};
 
 // ---------- phases ----------
 function renderPhases(){
@@ -1636,8 +1751,8 @@ function renderHome(){
   const hr=R.of(home), cr=R.of(c), top=topThreats(H,w,2).map(x=>FI[x.k].n.toLowerCase()), diff=hr.score-cr.score;
   const lbl=(phase>=0&&SI[scen].phases?SI[scen].phases[phase].n+' phase of ':'')+SI[scen].label.toLowerCase();
   $('verdict').innerHTML=diff>0.05
-    ?`For the <b>${lbl}</b>, ${H.label} is safer than ${Math.round((1-hr.pct)*100)}% of US counties. ${K.label} scores ${diff.toFixed(1)} points lower risk. Your biggest drivers: ${top.join(' and ')}.`
-    :`For the <b>${lbl}</b>, ${H.label} already scores as well as ${K.label} (safer than ${Math.round((1-hr.pct)*100)}% of counties). Your top remaining risks: ${top.join(' and ')}.`;
+    ?`For the <b>${lbl}</b>, ${H.label} is safer than ${Math.round((1-hr.pct)*100)}% of places in North America. ${K.label} scores ${diff.toFixed(1)} points lower risk. Your biggest drivers: ${top.join(' and ')}.`
+    :`For the <b>${lbl}</b>, ${H.label} already scores as well as ${K.label} (safer than ${Math.round((1-hr.pct)*100)}% of places). Your top remaining risks: ${top.join(' and ')}.`;
   drawRadar(H,K,w); drawPhaseChart(H,K);
 }
 function drawRadar(H,K,w){
@@ -1680,8 +1795,8 @@ function drawPhaseChart(H,K){
 // ---------- lists ----------
 function renderBest(){
   const w=activeW(), list=[]; for(const i of R.order){if(passes(C[i]))list.push(C[i]);if(list.length>=12)break;}
-  const regLbl={all:'',NE:' in the Northeast',MW:' in the Midwest',S:' in the South',W:' in the West',L48:' in the lower 48'}[region];
-  $('bestTitle').textContent=`Best counties for this scenario${regLbl}${minPop?` · ${minPop.toLocaleString()}+ people`:''}`;
+  const regLbl={all:'',USA:' in the US',CAN:' in Canada',MEX:' in Mexico',NE:' in the US Northeast',MW:' in the US Midwest',S:' in the US South',W:' in the US West',L48:' in the US lower 48'}[region];
+  $('bestTitle').textContent=`Best places for this scenario${regLbl}${minPop?` · ${minPop.toLocaleString()}+ people`:''}`;
   $('best').innerHTML=list.map((c,n)=>{
     const con=topThreats(c,w,2).filter(x=>x.v>=4), strong=KEYS.filter(k=>w[k]>=5).sort((a,b)=>c.v[a]-c.v[b]).slice(0,3).filter(k=>c.v[k]<=3);
     return `<button class="rc" data-id="${c.id}"><div class="top"><h3>${n+1}. ${c.name}</h3><span>${R.of(c.id).score.toFixed(1)}</span></div>
@@ -1769,11 +1884,11 @@ function update(){
   store.set('scen',scen);store.set('w',W);store.set('home',home);store.set('cmp',cmp);
 }
 renderSupplies(); renderResearch(); update(); drawGallery();
-window.__usRefresh=update;
-window.__usShare=()=>{const H=CI[home],r=R.of(home),K=CI[cmpAb()];return `In the DoomsDay Atlas ${SI[scen].label.toLowerCase()} scenario, ${H.label} is safer than ${Math.round((1-r.pct)*100)}% of US counties (risk ${r.score.toFixed(1)}/10). One of the safest picks: ${K.label}. ${'https://itsupthere.github.io/DoomsDayAtlas/'}#${scen}`;};
-const gLive=gz.append('g').attr('pointer-events','none').attr('class','livegrp');
-window.__liveUS=ev=>{ev.forEach(e=>{const p=proj([e.lo,e.la]);if(!p)return;const r=e.k==='quake'?3+(e.mag-2.5)*2.2:4;const g=gLive.append('g').attr('class','mk live live-'+e.k).attr('data-x',p[0]).attr('data-y',p[1]).attr('transform',`translate(${p[0]},${p[1]})`);g.append('circle').attr('class','lp').attr('r',r);g.append('circle').attr('class','lc').attr('r',Math.max(1.6,r*.45));g.append('title').text(e.title);});const b=document.getElementById('ovLive');b.hidden=false;b.onclick=()=>{const on=b.getAttribute('aria-pressed')!=='true';b.setAttribute('aria-pressed',on);gLive.attr('display',on?null:'none');};};
-const usOp=v=>{document.getElementById('map').style.setProperty('--co-op',v/100);document.getElementById('usOpacityOut').textContent=v+'%';};
+window.__usRefresh=()=>{update();setTimeout(()=>{lmap.invalidateSize();naRender();},0);};
+window.__usShare=()=>{const H=CI[home],r=R.of(home),K=CI[cmpAb()];return `In the DoomsDay Atlas ${SI[scen].label.toLowerCase()} scenario, ${H.label} is safer than ${Math.round((1-r.pct)*100)}% of places in North America (risk ${r.score.toFixed(1)}/10). One of the safest picks: ${K.label}. ${'https://itsupthere.github.io/DoomsDayAtlas/'}#${scen}`;};
+window.__liveUS=ev=>{ev.forEach(e=>{const sz=e.k==='quake'?Math.round(6+(e.mag-2.5)*3):9;L.marker([e.la,e.lo],{keyboard:false,riseOnHover:true,icon:L.divIcon({className:'livefx live-'+e.k,iconSize:[sz,sz],html:'<i></i>'})}).bindPopup(`<b>${e.title.replace(/</g,'&lt;')}</b><br>${window.__liveAgo(e.t)}${e.url?` · <a href="${e.url}" target="_blank" rel="noopener">source</a>`:''}`).addTo(naLive);});
+  naLive.addTo(lmap);const b=document.getElementById('ovLive');b.hidden=false;b.onclick=()=>{naLiveOn=!naLiveOn;b.setAttribute('aria-pressed',naLiveOn);naLiveOn?naLive.addTo(lmap):naLive.remove();paintMap();};paintMap();};
+const usOp=v=>{naOverlay.setOpacity(v/100);document.getElementById('usOpacityOut').textContent=v+'%';};
 document.getElementById('usOpacity').addEventListener('input',e=>usOp(+e.target.value));usOp(78);
 </script>
 <script>
@@ -2220,7 +2335,7 @@ window.__showRegion=function(r){
 // ================= tabs =================
 (function(){
   const views={us:'view-us',europe:'view-global',asia:'view-global',africa:'view-global',world:'view-global'};
-  const SUB={us:'Every US county scored for 14 disaster scenarios, built on FEMA’s county risk data plus modeled threat zones.',europe:'Every European country scored for 12 scenarios from the EU’s INFORM Risk Index, World Bank data and modeled threat zones.',asia:'East Asia, Southeast Asia, Australia, New Zealand and the Pacific islands, scored for 12 scenarios.',world:'All 190+ countries scored for 12 scenarios. Press the button to find the safest place on Earth.',africa:'All 54 African countries scored for 12 scenarios from INFORM, World Bank data and modeled threat zones, on a zoomable terrain map.'};
+  const SUB={us:'All 3,142 US counties from FEMA\u2019s risk data, plus Canada\u2019s 13 provinces and territories and Mexico\u2019s 32 states (estimated), scored for 14 scenarios on a zoomable terrain map.',europe:'Every European country scored for 12 scenarios from the EU’s INFORM Risk Index, World Bank data and modeled threat zones.',asia:'East Asia, Southeast Asia, Australia, New Zealand and the Pacific islands, scored for 12 scenarios.',world:'All 190+ countries scored for 12 scenarios. Press the button to find the safest place on Earth.',africa:'All 54 African countries scored for 12 scenarios from INFORM, World Bank data and modeled threat zones, on a zoomable terrain map.'};
   let cur=null;
   function show(t){
     if(t===cur)return; cur=t;

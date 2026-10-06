@@ -1,8 +1,8 @@
 # DoomsDay Atlas
 
-An interactive map of disaster survivability. Every US county, and every country in Europe, Asia-Pacific and the world, scored for up to 14 scenarios: nuclear war, nuclear winter, regional war, climate 2050, mega-drought, grid collapse, solar superstorm / EMP, pandemic, societal breakdown, Yellowstone and supervolcano winter, Cascadia, New Madrid, reactor disasters and everyday natural hazards.
+An interactive map of disaster survivability. Every US county, Canadian province and Mexican state, and every country in Europe, Asia-Pacific, Africa and the world, scored for up to 14 scenarios: nuclear war, nuclear winter, regional war, climate 2050, mega-drought, grid collapse, solar superstorm / EMP, pandemic, societal breakdown, Yellowstone and supervolcano winter, Cascadia, New Madrid, reactor disasters and everyday natural hazards.
 
-- **United States:** all 3,142 counties, from FEMA's National Risk Index plus modeled threat zones, over shaded-relief terrain.
+- **North America:** all 3,142 US counties from FEMA's National Risk Index, plus Canada's 13 provinces and territories and Mexico's 32 states (estimated profiles), with modeled threat zones on the same zoomable terrain map as the other tabs.
 - **Europe · Asia-Pacific · Africa · World:** country scores from the EU's INFORM Risk Index and World Bank data, with threat zones (blast, fallout, reactors, volcanoes, flashpoints) drawn point by point on a zoomable terrain map.
 - **Scenario playback:** watch a scenario unfold phase by phase; the map re-scores at each stage.
 - **Your location:** compare your county or country with the best match, with radar and timeline charts, a preparedness checklist and a supplies calculator.
@@ -25,9 +25,11 @@ python3 -m http.server 8000
 
 ```bash
 python3 build_world.py --fetch      # countries: INFORM + World Bank -> data/world.json
-python3 build_terrain.py SRC SRC7 --fetch # terrain tiles -> tiles/ (+ sharper tiles/5 for Europe, SE Asia, Africa), data/us-terrain.jpg; needs numpy, Pillow
+python3 build_terrain.py SRC SRC7 --fetch # terrain tiles -> tiles/ (+ sharper tiles/5 for North America, Europe, SE Asia, Africa); needs numpy, Pillow
 python3 build.py --fetch             # US counties from FEMA, then writes index.html
 ```
+
+`data/na-admin1.json` (Canada and Mexico boundaries) is made once with `node tools/make_na_admin.js can.geojson mex.geojson` from geoBoundaries files.
 
 `build_world.py` reads `data/raw/inform_2026.json`, extracted from the INFORM Mid-2026 spreadsheet in `data/raw/`. `--fetch` refreshes the online sources; without it the scripts use the files already in `data/raw/`.
 
@@ -39,8 +41,9 @@ python3 build.py --fetch             # US counties from FEMA, then writes index.
 - [USGS earthquake feed](https://earthquake.usgs.gov/earthquakes/feed/) and [NASA EONET](https://eonet.gsfc.nasa.gov/): live events
 - [AWS Terrain Tiles](https://registry.opendata.aws/terrain-tiles/) (SRTM, GMTED, ETOPO1): elevation for the shaded relief
 - [world-atlas](https://github.com/topojson/world-atlas) and [us-atlas](https://github.com/topojson/us-atlas): map boundaries (Natural Earth, US Census)
+- [geoBoundaries](https://www.geoboundaries.org/): Canadian province (Statistics Canada Open Licence) and Mexican state boundaries
 - Research behind the scenarios: Xia et al. 2022 (nuclear famine), Mastin et al. 2014 (Yellowstone ash), Love et al. 2018 (geoelectric hazards), FEMA 2019 National THIRA, NRC emergency planning zones
 
 ## Limits
 
-Threat zones (nuclear targets, fallout, reactors, ash, fault zones, geomagnetic exposure) are simple distance models built from public sources, not simulations; real fallout depends on the weather that day. US grid, water stress, growing season and 2050 climate trend are statewide estimates. Outside the US, hazard and resource data are national averages. Taiwan is estimated (INFORM does not cover it) and small territories borrow their governing country's scores. Use this to frame decisions, then check local sources before you move.
+Threat zones (nuclear targets, fallout, reactors, ash, fault zones, geomagnetic exposure) are simple distance models built from public sources, not simulations; real fallout depends on the weather that day. US grid, water stress, growing season and 2050 climate trend are statewide estimates. Canadian and Mexican hazard and resource profiles are estimates per province or state, since FEMA covers only the US; threat zones there are modeled from each area's main population center. Outside the US, hazard and resource data are national averages. Taiwan is estimated (INFORM does not cover it) and small territories borrow their governing country's scores. Use this to frame decisions, then check local sources before you move.

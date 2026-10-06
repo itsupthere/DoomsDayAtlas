@@ -128,12 +128,13 @@ def build():
     data = {"keys": keys, "c": {f: [st, nm, int(pop), round(area, 1)] + [int(round(v[k] * 10)) for k in keys]
                                 for f, (st, nm, pop, area, v) in sorted(out.items())}}
 
-    topo = (ROOT / "data" / "counties-albers-10m.json").read_text()
+    topo = (ROOT / "data" / "counties-10m.json").read_text()  # unprojected US counties (us-atlas)
     tpl = (ROOT / "atlas.template.html").read_text()
     world_topo = (ROOT / "data" / "countries-10m.json").read_text()  # high-res borders for the region maps
     world = (ROOT / "data" / "world.json").read_text()  # from build_world.py
     html = (tpl.replace("__TOPO__", topo).replace("__COUNTIES__", json.dumps(data, separators=(",", ":")))
-               .replace("__WORLDTOPO__", world_topo).replace("__WORLD__", world))
+               .replace("__WORLDTOPO__", world_topo).replace("__WORLD__", world)
+               .replace("__NAADMIN__", (ROOT / "data" / "na-admin1.json").read_text()))  # Canada + Mexico, from tools/make_na_admin.js
     (ROOT / "index.html").write_text(html)
     print(f"index.html: {len(out)} counties, {len(html) / 1e6:.2f} MB")
     for f in ("06037", "06075", "53033", "41005", "29143", "48201", "12086", "22071", "30049", "50023", "56029", "38101"):
