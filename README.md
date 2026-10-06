@@ -1,0 +1,44 @@
+# DoomsDay Atlas
+
+An interactive map of disaster survivability. Every US county, and every country in Europe, Asia-Pacific and the world, scored for up to 14 scenarios: nuclear war, nuclear winter, regional war, climate 2050, mega-drought, grid collapse, solar superstorm / EMP, pandemic, societal breakdown, Yellowstone and supervolcano winter, Cascadia, New Madrid, reactor disasters and everyday natural hazards.
+
+- **United States:** all 3,142 counties, from FEMA's National Risk Index plus modeled threat zones, over shaded-relief terrain.
+- **Europe · Asia-Pacific · World:** country scores from the EU's INFORM Risk Index and World Bank data, with threat zones (blast, fallout, reactors, volcanoes, flashpoints) drawn point by point on a zoomable terrain map.
+- **Scenario playback:** watch a scenario unfold phase by phase; the map re-scores at each stage.
+- **Your location:** compare your county or country with the best match, with radar and timeline charts, a preparedness checklist and a supplies calculator.
+- **Safest place on Earth:** ranks every country of 1M+ people across all 12 global scenarios.
+
+## Run it
+
+Open `index.html` in a browser. Keep the `tiles/` and `data/` folders next to it; the terrain maps load from there.
+
+To get the online street-level layer (OpenTopoMap) as well, serve the folder from any web host, for example GitHub Pages, or locally:
+
+```bash
+python3 -m http.server 8000
+```
+
+## Rebuild the data
+
+`index.html` is generated from `atlas.template.html`. Run the steps in this order:
+
+```bash
+python3 build_world.py --fetch      # countries: INFORM + World Bank -> data/world.json
+python3 build_terrain.py SRC --fetch # terrain tiles -> tiles/, data/us-terrain.jpg (needs numpy, Pillow)
+python3 build.py --fetch             # US counties from FEMA, then writes index.html
+```
+
+`build_world.py` reads `data/raw/inform_2026.json`, extracted from the INFORM Mid-2026 spreadsheet in `data/raw/`. `--fetch` refreshes the online sources; without it the scripts use the files already in `data/raw/`.
+
+## Data sources
+
+- [FEMA National Risk Index](https://resilience.climate.gov/datasets/FEMA::national-risk-index-counties): county hazards, population, farm output, social vulnerability, community resilience
+- [INFORM Risk Index Mid-2026](https://drmkc.jrc.ec.europa.eu/inform-index/INFORM-Risk/Results-and-data), EU Joint Research Centre: country hazards, conflict, governance, health care
+- [World Bank Open Data](https://data.worldbank.org/): farmland, grain output, water stress, electricity access
+- [AWS Terrain Tiles](https://registry.opendata.aws/terrain-tiles/) (SRTM, GMTED, ETOPO1): elevation for the shaded relief
+- [world-atlas](https://github.com/topojson/world-atlas) and [us-atlas](https://github.com/topojson/us-atlas): map boundaries (Natural Earth, US Census)
+- Research behind the scenarios: Xia et al. 2022 (nuclear famine), Mastin et al. 2014 (Yellowstone ash), Love et al. 2018 (geoelectric hazards), FEMA 2019 National THIRA, NRC emergency planning zones
+
+## Limits
+
+Threat zones (nuclear targets, fallout, reactors, ash, fault zones, geomagnetic exposure) are simple distance models built from public sources, not simulations; real fallout depends on the weather that day. US grid, water stress, growing season and 2050 climate trend are statewide estimates. Outside the US, hazard and resource data are national averages. Taiwan is estimated (INFORM does not cover it) and small territories borrow their governing country's scores. Use this to frame decisions, then check local sources before you move.

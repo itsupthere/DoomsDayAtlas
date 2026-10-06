@@ -1,0 +1,2156 @@
+<title>DoomsDay Atlas</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Stencil+Display:wght@700;800&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: field-atlas console. Scenario gallery strip on top; controls left, county map + phase timeline center, your location right; plan, supplies and research below. */
+:root{
+  --bg:#E8EBE5; --panel:#F5F6F2; --ink:#17252A; --muted:#5A696B; --line:#C8CEC4;
+  --accent:#C9481A; --accent-soft:#F3DCCF; --chip:#DDE2DA; --stroke:#F5F6F2; --nodata:#CBD1C8; --cmp:#2F6F9F; --sea:#DCE3E2; --terrain-filter:none;
+  --f-display:"Big Shoulders Stencil Display","Impact","Arial Narrow",sans-serif;
+  --f-body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,"SF Mono",Menlo,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0F1618; --panel:#162024; --ink:#E2E7E1; --muted:#8C9A9A; --line:#2A373B;
+  --accent:#F07B42; --accent-soft:#3A2419; --chip:#1F2B2F; --stroke:#0F1618; --nodata:#2A3538; --cmp:#6FB2E0; --sea:#121D20; --terrain-filter:brightness(.62) saturate(.85) contrast(1.05); color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0F1618; --panel:#162024; --ink:#E2E7E1; --muted:#8C9A9A; --line:#2A373B;
+  --accent:#F07B42; --accent-soft:#3A2419; --chip:#1F2B2F; --stroke:#0F1618; --nodata:#2A3538; --cmp:#6FB2E0; --sea:#121D20; --terrain-filter:brightness(.62) saturate(.85) contrast(1.05); color-scheme:dark}
+
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:14px;line-height:1.45;margin:0}
+.wrap{max-width:1520px;margin:0 auto;padding-inline:20px;padding-block:18px 40px}
+@media (max-width:600px){.wrap{padding-inline:16px}}
+header{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:12px 24px;border-bottom:2px solid var(--ink);padding-bottom:12px}
+h1{font-family:var(--f-display);font-weight:800;font-size:clamp(34px,5vw,56px);line-height:.9;letter-spacing:.01em;margin:0;text-transform:uppercase}
+h1 span{color:var(--accent)}
+.sub{color:var(--muted);max-width:68ch;margin:6px 0 0}
+.stamp{font-family:var(--f-mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);text-align:right;line-height:1.6}
+.stamp b{color:var(--ink);font-weight:500}
+h2{font-family:var(--f-mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;font-weight:500;color:var(--muted);margin:0 0 10px}
+h3{font-size:16px;margin:0;text-wrap:balance}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:4px;padding:14px;min-width:0}
+.stack{display:flex;flex-direction:column;gap:18px;min-width:0}
+button{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.lab{font-family:var(--f-mono);font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+select,input[type=text],input[type=number]{font:inherit;font-size:13px;padding:6px 8px;border:1px solid var(--line);border-radius:3px;background:var(--bg);color:var(--ink);min-width:0}
+
+/* gallery */
+.gallery{margin-top:16px;display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:10px}
+@media (max-width:1100px){.gallery{grid-template-columns:none;grid-auto-flow:column;grid-auto-columns:minmax(160px,1fr);overflow-x:auto;padding-bottom:6px;scroll-snap-type:x proximity}}
+.gcard{border:1px solid var(--line);background:var(--panel);border-radius:4px;padding:8px;cursor:pointer;text-align:left;scroll-snap-align:start;display:flex;flex-direction:column;gap:6px}
+.gcard:hover{border-color:var(--ink)}
+.gcard[aria-pressed="true"]{border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent)}
+.gcard canvas{width:100%;aspect-ratio:975/610;display:block;border-radius:2px;background:var(--bg)}
+.gcard b{font-size:12.5px;line-height:1.2}
+.gcard span{font-family:var(--f-mono);font-size:10px;color:var(--muted);letter-spacing:.04em;text-transform:uppercase}
+
+.grid{display:grid;grid-template-columns:300px minmax(0,1fr) 360px;gap:18px;margin-top:16px;align-items:start}
+@media (max-width:1220px){.grid{grid-template-columns:270px minmax(0,1fr)}.right{grid-column:1/-1;display:grid;grid-template-columns:1fr 1fr;gap:18px}}
+@media (max-width:820px){.grid{grid-template-columns:minmax(0,1fr)}.right{grid-template-columns:minmax(0,1fr)}.left{order:2}}
+
+/* weights */
+.scen-desc{font-size:12.5px;color:var(--muted);margin:0}
+.scen-name{font-family:var(--f-display);font-size:28px;font-weight:800;text-transform:uppercase;line-height:1;margin:0 0 6px}
+.wtools{display:flex;justify-content:space-between;align-items:center;margin-top:12px;gap:8px}
+.linkbtn{background:none;border:none;color:var(--accent);cursor:pointer;padding:0;font-size:12px;text-decoration:underline;text-underline-offset:3px}
+.wgroup{margin-top:10px}
+.phnote{font-size:12px;margin:10px 0 0;padding:8px 10px;background:var(--accent-soft);border-radius:3px}
+.wgroup h4{font-family:var(--f-mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);font-weight:500;margin:0 0 4px;border-top:1px dashed var(--line);padding-top:8px;display:flex;justify-content:space-between;gap:6px}
+.wgroup h4 em{font-style:normal;opacity:.7;letter-spacing:.02em;text-transform:none}
+.wrow{display:grid;grid-template-columns:minmax(0,1fr) 80px 20px;align-items:center;gap:8px;font-size:12.5px;padding:2px 0}
+.wrow label{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.wrow output{font-family:var(--f-mono);font-size:11.5px;text-align:right;font-variant-numeric:tabular-nums}
+.wrow.off label,.wrow.off output{color:var(--muted);opacity:.6}
+.wgroup.hideoff .wrow.off{display:none}
+.wgroup.empty{display:none}
+input[type=range]{width:100%;accent-color:var(--accent);margin:0}
+.filt{display:grid;gap:6px;margin-top:4px}
+.filt select{width:100%}
+
+/* map */
+.mapbar{display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center;justify-content:space-between;margin-bottom:8px}
+.toggles{display:flex;flex-wrap:wrap;gap:6px}
+.tog{font-size:12px;padding:4px 9px;border-radius:99px;border:1px solid var(--line);background:transparent;color:var(--muted);cursor:pointer}
+.tog[aria-pressed="true"]{background:var(--accent-soft);border-color:var(--accent);color:var(--ink)}
+#map{position:relative;width:100%;border-radius:3px;overflow:hidden;background:var(--bg);touch-action:none}
+#map svg{display:block;width:100%;height:auto;cursor:grab}
+#map svg:active{cursor:grabbing}
+.co{stroke:var(--stroke);stroke-width:.25;vector-effect:non-scaling-stroke}
+.co.home{stroke:var(--ink);stroke-width:2.5}
+.co.cmp{stroke:var(--cmp);stroke-width:2.5}
+.stmesh{fill:none;stroke:var(--ink);stroke-opacity:.45;stroke-width:.7;vector-effect:non-scaling-stroke;pointer-events:none}
+.lbl{font-family:var(--f-mono);font-size:9.5px;fill:var(--ink);pointer-events:none;text-anchor:middle;paint-order:stroke;stroke:var(--stroke);stroke-width:2.5px;stroke-opacity:.7}
+.zoom{position:absolute;right:8px;top:8px;display:flex;flex-direction:column;gap:4px}
+.zoom button{width:30px;height:30px;border:1px solid var(--line);background:var(--panel);border-radius:3px;cursor:pointer;font-size:16px;line-height:1}
+.tip{position:absolute;pointer-events:none;background:var(--ink);color:var(--panel);padding:8px 10px;border-radius:3px;font-size:12px;min-width:180px;max-width:260px;transform:translate(-50%,calc(-100% - 12px));opacity:0;transition:opacity .12s;z-index:5}
+.tip b{font-size:13px}
+.tip .m{font-family:var(--f-mono);font-size:11px;opacity:.85}
+.legend{display:flex;align-items:center;gap:10px;font-family:var(--f-mono);font-size:11px;color:var(--muted);margin-top:8px;flex-wrap:wrap}
+.ramp{height:10px;width:180px;border-radius:2px;max-width:40vw}
+.key{display:flex;gap:12px;flex-wrap:wrap}
+.key i{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:4px;vertical-align:-1px}
+
+/* phases */
+.phases{margin-top:12px;border-top:1px dashed var(--line);padding-top:12px}
+.phasebar{display:flex;gap:8px;align-items:stretch;flex-wrap:wrap}
+.play{border:1px solid var(--ink);background:var(--ink);color:var(--panel);border-radius:3px;padding:0 12px;cursor:pointer;font-family:var(--f-mono);font-size:12px;min-height:44px}
+.phase{flex:1 1 0;min-width:110px;border:1px solid var(--line);background:var(--bg);border-radius:3px;padding:6px 9px;text-align:left;cursor:pointer;position:relative;overflow:hidden}
+.phase small{display:block;font-family:var(--f-mono);font-size:10px;color:var(--muted);letter-spacing:.04em}
+.phase b{font-size:12.5px;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.phase[aria-pressed="true"]{border-color:var(--accent);background:var(--accent-soft)}
+.phase .fill{position:absolute;left:0;bottom:0;height:3px;background:var(--accent);width:0}
+.phase[aria-pressed="true"] .fill.run{animation:fill var(--dur,2.6s) linear forwards}
+@keyframes fill{to{width:100%}}
+@media (max-width:640px){.phasebar{display:grid;grid-template-columns:1fr 1fr}.play{grid-column:1/-1}.phase{min-width:0}}
+.phasetext{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px;margin-top:10px;font-size:12.5px}
+.phasetext p{margin:0}
+.phasetext .do{border-left:3px solid var(--accent);padding-left:10px}
+@media (max-width:640px){.phasetext{grid-template-columns:minmax(0,1fr)}}
+
+/* home */
+.homehead{display:grid;grid-template-columns:1fr;gap:8px}
+.homehead label{display:block;margin-bottom:3px}
+.homehead input,.homehead select{width:100%}
+.scores{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}
+.score{border:1px solid var(--line);border-radius:3px;padding:10px;background:var(--bg);min-width:0}
+.score.h{border-top:3px solid var(--ink)} .score.c{border-top:3px solid var(--cmp)}
+.score .big{font-family:var(--f-display);font-size:40px;font-weight:800;line-height:1;font-variant-numeric:tabular-nums}
+.score .big small{font-size:15px;color:var(--muted);font-family:var(--f-mono);font-weight:400}
+.score .meta{font-family:var(--f-mono);font-size:11px;color:var(--muted);margin-top:4px;overflow-wrap:anywhere}
+.tier{display:inline-block;font-family:var(--f-mono);font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;padding:2px 7px;border-radius:99px;margin-top:6px}
+.verdict{font-size:13px;margin:12px 0 0;padding:10px;border-left:3px solid var(--accent);background:var(--bg)}
+.chartbox{margin-top:14px}
+.chartbox svg{display:block;width:100%;height:auto;overflow:visible}
+.ax{stroke:var(--line);fill:none}
+.axl{font-family:var(--f-mono);font-size:9.5px;fill:var(--muted)}
+#radar .axl,#wRadar .axl{font-size:12.5px}
+.ckey{display:flex;gap:14px;font-family:var(--f-mono);font-size:10.5px;color:var(--muted);margin-bottom:4px;flex-wrap:wrap}
+.ckey i{display:inline-block;width:14px;height:3px;margin-right:5px;vertical-align:3px;background:var(--ink)}
+.ckey i.c{background:var(--cmp)}
+
+/* lower */
+.lower{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(0,1fr);gap:18px;margin-top:18px}
+@media (max-width:1000px){.lower{grid-template-columns:minmax(0,1fr)}}
+.best{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:10px}
+.rc{border:1px solid var(--line);border-radius:3px;padding:10px 12px;background:var(--bg);cursor:pointer;min-width:0;text-align:left}
+.rc:hover{border-color:var(--ink)}
+.rc .top{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.rc .top span{font-family:var(--f-mono);font-size:12px;color:var(--muted)}
+.rc h3{font-size:14px}
+.rc .st{font-family:var(--f-mono);font-size:11px;color:var(--muted)}
+.rc p{margin:5px 0 0;font-size:12px}
+.rc .pro{color:var(--muted)} .rc .con{color:var(--accent)}
+.statebars{max-height:520px;overflow-y:auto;padding-right:4px}
+.sb{display:grid;grid-template-columns:46px 1fr 34px;gap:8px;align-items:center;font-size:12px;padding:2px 3px;border-radius:2px;cursor:pointer}
+.sb:hover{background:var(--bg)}
+.sb.home{background:var(--accent-soft)}
+.sb .ab{font-family:var(--f-mono);font-size:11px}
+.sb .bar{height:9px;background:var(--chip);border-radius:1px;position:relative;overflow:hidden}
+.sb .bar span{position:absolute;inset:0 auto 0 0}
+.sb .v{font-family:var(--f-mono);font-size:11px;text-align:right;font-variant-numeric:tabular-nums}
+
+.plangrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px}
+.threat{border:1px solid var(--line);border-radius:3px;padding:12px;background:var(--bg);min-width:0}
+.threat .th{display:flex;justify-content:space-between;align-items:baseline;gap:8px;margin-bottom:8px}
+.threat .meter{height:4px;background:var(--chip);border-radius:2px;overflow:hidden;margin:-2px 0 10px}
+.threat .meter span{display:block;height:100%}
+.threat .sev{font-family:var(--f-mono);font-size:11px;color:var(--muted);white-space:nowrap}
+.threat ul{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:6px}
+.threat li label{display:grid;grid-template-columns:16px 1fr;gap:7px;font-size:12.5px;cursor:pointer;align-items:start}
+.threat li input{margin:2px 0 0;accent-color:var(--accent)}
+.threat li input:checked + span{color:var(--muted);text-decoration:line-through}
+.threat.base{border-style:dashed}
+.planhead{display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:8px;margin-bottom:12px}
+.ring{display:flex;align-items:center;gap:10px;font-family:var(--f-mono);font-size:12px;color:var(--muted)}
+.ring svg{width:44px;height:44px}
+
+.sup{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-top:10px}
+@media (max-width:700px){.sup{grid-template-columns:minmax(0,1fr)}}
+.supc{border:1px solid var(--line);border-radius:3px;padding:10px;background:var(--bg);min-width:0}
+.supc h3{font-size:14px;margin-bottom:6px}
+.supc .row{margin-top:8px}
+.supc .row .lab{display:flex;justify-content:space-between}
+.supc .row .lab b{color:var(--ink);font-weight:500}
+.picto{display:flex;flex-wrap:wrap;gap:2px;margin-top:4px}
+.picto i{width:9px;height:9px;border-radius:1px;display:block}
+.supin{display:flex;gap:14px;align-items:end;flex-wrap:wrap}
+.supin label{display:block;margin-bottom:3px}
+.supin input{width:80px}
+
+.research{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.2fr);gap:18px}
+@media (max-width:900px){.research{grid-template-columns:minmax(0,1fr)}}
+.imp{display:grid;grid-template-columns:150px 1fr 30px;gap:8px;align-items:center;font-size:12px;padding:2px 0}
+.imp .bar{height:8px;background:var(--chip);border-radius:1px;overflow:hidden}
+.imp .bar span{display:block;height:100%;background:var(--ink)}
+.imp .v{font-family:var(--f-mono);font-size:11px;color:var(--muted);text-align:right}
+.notes{display:grid;gap:10px}
+.note{border-left:3px solid var(--line);padding:2px 0 2px 12px;font-size:13px}
+.note b{display:block}
+.note a{color:var(--accent);font-size:12px}
+.sec{margin-top:18px}
+
+
+/* tabs + world views */
+.tabs{display:flex;gap:4px;margin-top:14px;flex-wrap:wrap;border-bottom:1px solid var(--line)}
+.tab{border:1px solid transparent;border-bottom:none;background:none;padding:9px 16px;border-radius:4px 4px 0 0;cursor:pointer;font-family:var(--f-mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:-1px}
+.tab[aria-selected="true"]{background:var(--panel);border-color:var(--line);color:var(--ink);font-weight:500}
+.tab:hover{color:var(--ink)}
+.mapbox{position:relative;width:100%;border-radius:3px;overflow:hidden;background:var(--bg);touch-action:none}
+.mapbox svg{display:block;width:100%;height:auto;cursor:grab}
+.sea{fill:var(--sea)}
+.cty{stroke:var(--stroke);stroke-width:.4;vector-effect:non-scaling-stroke;cursor:pointer}
+.cty.out{cursor:default;opacity:.55}
+.cty.fine{stroke:var(--ink);stroke-opacity:.55;stroke-width:.6}
+.detstat{color:var(--accent)}
+.cty.home{stroke:var(--ink);stroke-width:1.8}
+.cty.cmp{stroke:var(--cmp);stroke-width:1.8}
+.cta{margin-top:16px;display:flex;flex-wrap:wrap;gap:12px 24px;align-items:center;justify-content:space-between;padding:16px 18px;border:2px solid var(--ink);border-radius:4px;background:var(--panel)}
+.cta .scen-desc{max-width:62ch}
+.bigbtn{font-family:var(--f-display);font-weight:800;font-size:24px;text-transform:uppercase;letter-spacing:.02em;background:var(--accent);color:#fff;border:none;border-radius:4px;padding:12px 22px;cursor:pointer;min-height:48px}
+.bigbtn:hover{filter:brightness(1.08)}
+.podium{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;align-items:end}
+@media (max-width:760px){.podium{grid-template-columns:minmax(0,1fr)}}
+.pod{position:relative;text-align:left;border:1px solid var(--line);background:var(--bg);border-radius:4px;padding:14px 14px 12px;cursor:pointer;min-width:0}
+.pod:hover{border-color:var(--ink)}
+.pod.p1{border-top:4px solid #C9A227;padding-top:22px}
+.pod .medal{position:absolute;top:10px;right:12px;width:26px;height:26px;border-radius:50%;color:#fff;font-family:var(--f-mono);font-weight:500;display:grid;place-items:center}
+.pod h3{font-size:18px;padding-right:30px}
+.pod .big{font-family:var(--f-display);font-weight:800;font-size:46px;line-height:1;margin-top:6px}
+.pod .big small{font-size:18px;color:var(--muted)}
+.pod p{margin:6px 0 0;font-size:12.5px}
+.pod .pro{color:var(--muted)} .pod .con{color:var(--accent)}
+.matrixwrap{overflow-x:auto;margin-top:16px}
+.matrix{min-width:640px}
+.mrow{display:grid;grid-template-columns:170px repeat(12,minmax(22px,1fr)) 52px;gap:3px;align-items:center;padding:1px 0;font-size:12.5px}
+.mrow[data-iso]{cursor:pointer;border-radius:2px}
+.mrow[data-iso]:hover{background:var(--bg)}
+.mhead{align-items:end;height:92px}
+.mh{position:relative;height:100%}
+.mh span{position:absolute;left:50%;bottom:4px;transform-origin:left bottom;transform:rotate(-55deg);white-space:nowrap;font-family:var(--f-mono);font-size:10.5px;color:var(--muted)}
+.mc{height:20px;border-radius:2px}
+.mn{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mv{font-family:var(--f-mono);font-size:12px;text-align:right}
+.tips{display:grid;gap:8px}
+.tipcard{border:1px solid var(--line);border-radius:3px;padding:8px 10px;background:var(--bg)}
+.tipcard .th{display:flex;justify-content:space-between;gap:8px;font-size:13px}
+.tipcard .sev{font-family:var(--f-mono);font-size:11px;color:var(--muted)}
+.tipcard .meter{height:4px;background:var(--chip);border-radius:2px;overflow:hidden;margin:5px 0}
+.tipcard .meter span{display:block;height:100%}
+.tipcard p{margin:0;font-size:12.5px;color:var(--muted)}
+footer{margin-top:26px;border-top:1px solid var(--line);padding-top:12px;font-size:12px;color:var(--muted);max-width:120ch}
+footer a{color:var(--muted)}
+@media (prefers-reduced-motion:reduce){.phase .fill.run{animation:none;width:100%}}
+/* Leaflet 1.9.4 (BSD-2) */
+/* required styles */
+
+.leaflet-pane,
+.leaflet-tile,
+.leaflet-marker-icon,
+.leaflet-marker-shadow,
+.leaflet-tile-container,
+.leaflet-pane > svg,
+.leaflet-pane > canvas,
+.leaflet-zoom-box,
+.leaflet-image-layer,
+.leaflet-layer {
+	position: absolute;
+	left: 0;
+	top: 0;
+	}
+.leaflet-container {
+	overflow: hidden;
+	}
+.leaflet-tile,
+.leaflet-marker-icon,
+.leaflet-marker-shadow {
+	-webkit-user-select: none;
+	   -moz-user-select: none;
+	        user-select: none;
+	  -webkit-user-drag: none;
+	}
+/* Prevents IE11 from highlighting tiles in blue */
+.leaflet-tile::selection {
+	background: transparent;
+}
+/* Safari renders non-retina tile on retina better with this, but Chrome is worse */
+.leaflet-safari .leaflet-tile {
+	image-rendering: -webkit-optimize-contrast;
+	}
+/* hack that prevents hw layers "stretching" when loading new tiles */
+.leaflet-safari .leaflet-tile-container {
+	width: 1600px;
+	height: 1600px;
+	-webkit-transform-origin: 0 0;
+	}
+.leaflet-marker-icon,
+.leaflet-marker-shadow {
+	display: block;
+	}
+/* .leaflet-container svg: reset svg max-width decleration shipped in Joomla! (joomla.org) 3.x */
+/* .leaflet-container img: map is broken in FF if you have max-width: 100% on tiles */
+.leaflet-container .leaflet-overlay-pane svg {
+	max-width: none !important;
+	max-height: none !important;
+	}
+.leaflet-container .leaflet-marker-pane img,
+.leaflet-container .leaflet-shadow-pane img,
+.leaflet-container .leaflet-tile-pane img,
+.leaflet-container img.leaflet-image-layer,
+.leaflet-container .leaflet-tile {
+	max-width: none !important;
+	max-height: none !important;
+	width: auto;
+	padding: 0;
+	}
+
+.leaflet-container img.leaflet-tile {
+	/* See: https://bugs.chromium.org/p/chromium/issues/detail?id=600120 */
+	mix-blend-mode: plus-lighter;
+}
+
+.leaflet-container.leaflet-touch-zoom {
+	-ms-touch-action: pan-x pan-y;
+	touch-action: pan-x pan-y;
+	}
+.leaflet-container.leaflet-touch-drag {
+	-ms-touch-action: pinch-zoom;
+	/* Fallback for FF which doesn't support pinch-zoom */
+	touch-action: none;
+	touch-action: pinch-zoom;
+}
+.leaflet-container.leaflet-touch-drag.leaflet-touch-zoom {
+	-ms-touch-action: none;
+	touch-action: none;
+}
+.leaflet-container {
+	-webkit-tap-highlight-color: transparent;
+}
+.leaflet-container a {
+	-webkit-tap-highlight-color: rgba(51, 181, 229, 0.4);
+}
+.leaflet-tile {
+	filter: inherit;
+	visibility: hidden;
+	}
+.leaflet-tile-loaded {
+	visibility: inherit;
+	}
+.leaflet-zoom-box {
+	width: 0;
+	height: 0;
+	-moz-box-sizing: border-box;
+	     box-sizing: border-box;
+	z-index: 800;
+	}
+/* workaround for https://bugzilla.mozilla.org/show_bug.cgi?id=888319 */
+.leaflet-overlay-pane svg {
+	-moz-user-select: none;
+	}
+
+.leaflet-pane         { z-index: 400; }
+
+.leaflet-tile-pane    { z-index: 200; }
+.leaflet-overlay-pane { z-index: 400; }
+.leaflet-shadow-pane  { z-index: 500; }
+.leaflet-marker-pane  { z-index: 600; }
+.leaflet-tooltip-pane   { z-index: 650; }
+.leaflet-popup-pane   { z-index: 700; }
+
+.leaflet-map-pane canvas { z-index: 100; }
+.leaflet-map-pane svg    { z-index: 200; }
+
+.leaflet-vml-shape {
+	width: 1px;
+	height: 1px;
+	}
+.lvml {
+	behavior: url(#default#VML);
+	display: inline-block;
+	position: absolute;
+	}
+
+
+/* control positioning */
+
+.leaflet-control {
+	position: relative;
+	z-index: 800;
+	pointer-events: visiblePainted; /* IE 9-10 doesn't have auto */
+	pointer-events: auto;
+	}
+.leaflet-top,
+.leaflet-bottom {
+	position: absolute;
+	z-index: 1000;
+	pointer-events: none;
+	}
+.leaflet-top {
+	top: 0;
+	}
+.leaflet-right {
+	right: 0;
+	}
+.leaflet-bottom {
+	bottom: 0;
+	}
+.leaflet-left {
+	left: 0;
+	}
+.leaflet-control {
+	float: left;
+	clear: both;
+	}
+.leaflet-right .leaflet-control {
+	float: right;
+	}
+.leaflet-top .leaflet-control {
+	margin-top: 10px;
+	}
+.leaflet-bottom .leaflet-control {
+	margin-bottom: 10px;
+	}
+.leaflet-left .leaflet-control {
+	margin-left: 10px;
+	}
+.leaflet-right .leaflet-control {
+	margin-right: 10px;
+	}
+
+
+/* zoom and fade animations */
+
+.leaflet-fade-anim .leaflet-popup {
+	opacity: 0;
+	-webkit-transition: opacity 0.2s linear;
+	   -moz-transition: opacity 0.2s linear;
+	        transition: opacity 0.2s linear;
+	}
+.leaflet-fade-anim .leaflet-map-pane .leaflet-popup {
+	opacity: 1;
+	}
+.leaflet-zoom-animated {
+	-webkit-transform-origin: 0 0;
+	    -ms-transform-origin: 0 0;
+	        transform-origin: 0 0;
+	}
+svg.leaflet-zoom-animated {
+	will-change: transform;
+}
+
+.leaflet-zoom-anim .leaflet-zoom-animated {
+	-webkit-transition: -webkit-transform 0.25s cubic-bezier(0,0,0.25,1);
+	   -moz-transition:    -moz-transform 0.25s cubic-bezier(0,0,0.25,1);
+	        transition:         transform 0.25s cubic-bezier(0,0,0.25,1);
+	}
+.leaflet-zoom-anim .leaflet-tile,
+.leaflet-pan-anim .leaflet-tile {
+	-webkit-transition: none;
+	   -moz-transition: none;
+	        transition: none;
+	}
+
+.leaflet-zoom-anim .leaflet-zoom-hide {
+	visibility: hidden;
+	}
+
+
+/* cursors */
+
+.leaflet-interactive {
+	cursor: pointer;
+	}
+.leaflet-grab {
+	cursor: -webkit-grab;
+	cursor:    -moz-grab;
+	cursor:         grab;
+	}
+.leaflet-crosshair,
+.leaflet-crosshair .leaflet-interactive {
+	cursor: crosshair;
+	}
+.leaflet-popup-pane,
+.leaflet-control {
+	cursor: auto;
+	}
+.leaflet-dragging .leaflet-grab,
+.leaflet-dragging .leaflet-grab .leaflet-interactive,
+.leaflet-dragging .leaflet-marker-draggable {
+	cursor: move;
+	cursor: -webkit-grabbing;
+	cursor:    -moz-grabbing;
+	cursor:         grabbing;
+	}
+
+/* marker & overlays interactivity */
+.leaflet-marker-icon,
+.leaflet-marker-shadow,
+.leaflet-image-layer,
+.leaflet-pane > svg path,
+.leaflet-tile-container {
+	pointer-events: none;
+	}
+
+.leaflet-marker-icon.leaflet-interactive,
+.leaflet-image-layer.leaflet-interactive,
+.leaflet-pane > svg path.leaflet-interactive,
+svg.leaflet-image-layer.leaflet-interactive path {
+	pointer-events: visiblePainted; /* IE 9-10 doesn't have auto */
+	pointer-events: auto;
+	}
+
+/* visual tweaks */
+
+.leaflet-container {
+	background: #ddd;
+	outline-offset: 1px;
+	}
+.leaflet-container a {
+	color: #0078A8;
+	}
+.leaflet-zoom-box {
+	border: 2px dotted #38f;
+	background: rgba(255,255,255,0.5);
+	}
+
+
+/* general typography */
+.leaflet-container {
+	font-family: "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font-size: 12px;
+	font-size: 0.75rem;
+	line-height: 1.5;
+	}
+
+
+/* general toolbar styles */
+
+.leaflet-bar {
+	box-shadow: 0 1px 5px rgba(0,0,0,0.65);
+	border-radius: 4px;
+	}
+.leaflet-bar a {
+	background-color: #fff;
+	border-bottom: 1px solid #ccc;
+	width: 26px;
+	height: 26px;
+	line-height: 26px;
+	display: block;
+	text-align: center;
+	text-decoration: none;
+	color: black;
+	}
+.leaflet-bar a,
+.leaflet-control-layers-toggle {
+	background-position: 50% 50%;
+	background-repeat: no-repeat;
+	display: block;
+	}
+.leaflet-bar a:hover,
+.leaflet-bar a:focus {
+	background-color: #f4f4f4;
+	}
+.leaflet-bar a:first-child {
+	border-top-left-radius: 4px;
+	border-top-right-radius: 4px;
+	}
+.leaflet-bar a:last-child {
+	border-bottom-left-radius: 4px;
+	border-bottom-right-radius: 4px;
+	border-bottom: none;
+	}
+.leaflet-bar a.leaflet-disabled {
+	cursor: default;
+	background-color: #f4f4f4;
+	color: #bbb;
+	}
+
+.leaflet-touch .leaflet-bar a {
+	width: 30px;
+	height: 30px;
+	line-height: 30px;
+	}
+.leaflet-touch .leaflet-bar a:first-child {
+	border-top-left-radius: 2px;
+	border-top-right-radius: 2px;
+	}
+.leaflet-touch .leaflet-bar a:last-child {
+	border-bottom-left-radius: 2px;
+	border-bottom-right-radius: 2px;
+	}
+
+/* zoom control */
+
+.leaflet-control-zoom-in,
+.leaflet-control-zoom-out {
+	font: bold 18px 'Lucida Console', Monaco, monospace;
+	text-indent: 1px;
+	}
+
+.leaflet-touch .leaflet-control-zoom-in, .leaflet-touch .leaflet-control-zoom-out  {
+	font-size: 22px;
+	}
+
+
+/* layers control */
+
+.leaflet-control-layers {
+	box-shadow: 0 1px 5px rgba(0,0,0,0.4);
+	background: #fff;
+	border-radius: 5px;
+	}
+.leaflet-control-layers-toggle {
+	background-image: url(images/layers.png);
+	width: 36px;
+	height: 36px;
+	}
+.leaflet-retina .leaflet-control-layers-toggle {
+	background-image: url(images/layers-2x.png);
+	background-size: 26px 26px;
+	}
+.leaflet-touch .leaflet-control-layers-toggle {
+	width: 44px;
+	height: 44px;
+	}
+.leaflet-control-layers .leaflet-control-layers-list,
+.leaflet-control-layers-expanded .leaflet-control-layers-toggle {
+	display: none;
+	}
+.leaflet-control-layers-expanded .leaflet-control-layers-list {
+	display: block;
+	position: relative;
+	}
+.leaflet-control-layers-expanded {
+	padding: 6px 10px 6px 6px;
+	color: #333;
+	background: #fff;
+	}
+.leaflet-control-layers-scrollbar {
+	overflow-y: scroll;
+	overflow-x: hidden;
+	padding-right: 5px;
+	}
+.leaflet-control-layers-selector {
+	margin-top: 2px;
+	position: relative;
+	top: 1px;
+	}
+.leaflet-control-layers label {
+	display: block;
+	font-size: 13px;
+	font-size: 1.08333em;
+	}
+.leaflet-control-layers-separator {
+	height: 0;
+	border-top: 1px solid #ddd;
+	margin: 5px -10px 5px -6px;
+	}
+
+/* Default icon URLs */
+.leaflet-default-icon-path { /* used only in path-guessing heuristic, see L.Icon.Default */
+	background-image: url(images/marker-icon.png);
+	}
+
+
+/* attribution and scale controls */
+
+.leaflet-container .leaflet-control-attribution {
+	background: #fff;
+	background: rgba(255, 255, 255, 0.8);
+	margin: 0;
+	}
+.leaflet-control-attribution,
+.leaflet-control-scale-line {
+	padding: 0 5px;
+	color: #333;
+	line-height: 1.4;
+	}
+.leaflet-control-attribution a {
+	text-decoration: none;
+	}
+.leaflet-control-attribution a:hover,
+.leaflet-control-attribution a:focus {
+	text-decoration: underline;
+	}
+.leaflet-attribution-flag {
+	display: inline !important;
+	vertical-align: baseline !important;
+	width: 1em;
+	height: 0.6669em;
+	}
+.leaflet-left .leaflet-control-scale {
+	margin-left: 5px;
+	}
+.leaflet-bottom .leaflet-control-scale {
+	margin-bottom: 5px;
+	}
+.leaflet-control-scale-line {
+	border: 2px solid #777;
+	border-top: none;
+	line-height: 1.1;
+	padding: 2px 5px 1px;
+	white-space: nowrap;
+	-moz-box-sizing: border-box;
+	     box-sizing: border-box;
+	background: rgba(255, 255, 255, 0.8);
+	text-shadow: 1px 1px #fff;
+	}
+.leaflet-control-scale-line:not(:first-child) {
+	border-top: 2px solid #777;
+	border-bottom: none;
+	margin-top: -2px;
+	}
+.leaflet-control-scale-line:not(:first-child):not(:last-child) {
+	border-bottom: 2px solid #777;
+	}
+
+.leaflet-touch .leaflet-control-attribution,
+.leaflet-touch .leaflet-control-layers,
+.leaflet-touch .leaflet-bar {
+	box-shadow: none;
+	}
+.leaflet-touch .leaflet-control-layers,
+.leaflet-touch .leaflet-bar {
+	border: 2px solid rgba(0,0,0,0.2);
+	background-clip: padding-box;
+	}
+
+
+/* popup */
+
+.leaflet-popup {
+	position: absolute;
+	text-align: center;
+	margin-bottom: 20px;
+	}
+.leaflet-popup-content-wrapper {
+	padding: 1px;
+	text-align: left;
+	border-radius: 12px;
+	}
+.leaflet-popup-content {
+	margin: 13px 24px 13px 20px;
+	line-height: 1.3;
+	font-size: 13px;
+	font-size: 1.08333em;
+	min-height: 1px;
+	}
+.leaflet-popup-content p {
+	margin: 17px 0;
+	margin: 1.3em 0;
+	}
+.leaflet-popup-tip-container {
+	width: 40px;
+	height: 20px;
+	position: absolute;
+	left: 50%;
+	margin-top: -1px;
+	margin-left: -20px;
+	overflow: hidden;
+	pointer-events: none;
+	}
+.leaflet-popup-tip {
+	width: 17px;
+	height: 17px;
+	padding: 1px;
+
+	margin: -10px auto 0;
+	pointer-events: auto;
+
+	-webkit-transform: rotate(45deg);
+	   -moz-transform: rotate(45deg);
+	    -ms-transform: rotate(45deg);
+	        transform: rotate(45deg);
+	}
+.leaflet-popup-content-wrapper,
+.leaflet-popup-tip {
+	background: white;
+	color: #333;
+	box-shadow: 0 3px 14px rgba(0,0,0,0.4);
+	}
+.leaflet-container a.leaflet-popup-close-button {
+	position: absolute;
+	top: 0;
+	right: 0;
+	border: none;
+	text-align: center;
+	width: 24px;
+	height: 24px;
+	font: 16px/24px Tahoma, Verdana, sans-serif;
+	color: #757575;
+	text-decoration: none;
+	background: transparent;
+	}
+.leaflet-container a.leaflet-popup-close-button:hover,
+.leaflet-container a.leaflet-popup-close-button:focus {
+	color: #585858;
+	}
+.leaflet-popup-scrolled {
+	overflow: auto;
+	}
+
+.leaflet-oldie .leaflet-popup-content-wrapper {
+	-ms-zoom: 1;
+	}
+.leaflet-oldie .leaflet-popup-tip {
+	width: 24px;
+	margin: 0 auto;
+
+	-ms-filter: "progid:DXImageTransform.Microsoft.Matrix(M11=0.70710678, M12=0.70710678, M21=-0.70710678, M22=0.70710678)";
+	filter: progid:DXImageTransform.Microsoft.Matrix(M11=0.70710678, M12=0.70710678, M21=-0.70710678, M22=0.70710678);
+	}
+
+.leaflet-oldie .leaflet-control-zoom,
+.leaflet-oldie .leaflet-control-layers,
+.leaflet-oldie .leaflet-popup-content-wrapper,
+.leaflet-oldie .leaflet-popup-tip {
+	border: 1px solid #999;
+	}
+
+
+/* div icon */
+
+.leaflet-div-icon {
+	background: #fff;
+	border: 1px solid #666;
+	}
+
+
+/* Tooltip */
+/* Base styles for the element that has a tooltip */
+.leaflet-tooltip {
+	position: absolute;
+	padding: 6px;
+	background-color: #fff;
+	border: 1px solid #fff;
+	border-radius: 3px;
+	color: #222;
+	white-space: nowrap;
+	-webkit-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
+	pointer-events: none;
+	box-shadow: 0 1px 3px rgba(0,0,0,0.4);
+	}
+.leaflet-tooltip.leaflet-interactive {
+	cursor: pointer;
+	pointer-events: auto;
+	}
+.leaflet-tooltip-top:before,
+.leaflet-tooltip-bottom:before,
+.leaflet-tooltip-left:before,
+.leaflet-tooltip-right:before {
+	position: absolute;
+	pointer-events: none;
+	border: 6px solid transparent;
+	background: transparent;
+	content: "";
+	}
+
+/* Directions */
+
+.leaflet-tooltip-bottom {
+	margin-top: 6px;
+}
+.leaflet-tooltip-top {
+	margin-top: -6px;
+}
+.leaflet-tooltip-bottom:before,
+.leaflet-tooltip-top:before {
+	left: 50%;
+	margin-left: -6px;
+	}
+.leaflet-tooltip-top:before {
+	bottom: 0;
+	margin-bottom: -12px;
+	border-top-color: #fff;
+	}
+.leaflet-tooltip-bottom:before {
+	top: 0;
+	margin-top: -12px;
+	margin-left: -6px;
+	border-bottom-color: #fff;
+	}
+.leaflet-tooltip-left {
+	margin-left: -6px;
+}
+.leaflet-tooltip-right {
+	margin-left: 6px;
+}
+.leaflet-tooltip-left:before,
+.leaflet-tooltip-right:before {
+	top: 50%;
+	margin-top: -6px;
+	}
+.leaflet-tooltip-left:before {
+	right: 0;
+	margin-right: -12px;
+	border-left-color: #fff;
+	}
+.leaflet-tooltip-right:before {
+	left: 0;
+	margin-left: -12px;
+	border-right-color: #fff;
+	}
+
+/* Printing */
+
+@media print {
+	/* Prevent printers from removing background-images of controls. */
+	.leaflet-control {
+		-webkit-print-color-adjust: exact;
+		print-color-adjust: exact;
+		}
+	}
+
+/* zoomable terrain map */
+#wLeaf{width:100%;aspect-ratio:975/600;min-height:340px;background:var(--sea);font-family:var(--f-body);z-index:0}
+.leaflet-container{background:var(--sea);font-family:var(--f-body)}
+.leaflet-tile-pane{filter:var(--terrain-filter)}
+.leaflet-control-attribution{font-size:10px;background:color-mix(in srgb,var(--panel) 80%,transparent)!important;color:var(--muted)}
+.leaflet-control-attribution a{color:var(--muted)}
+.mapbox .zoom{z-index:800}
+.mapbox .tip{z-index:900}
+.riskimg{image-rendering:auto}
+.mapbar2{display:flex;flex-wrap:wrap;gap:8px 10px;align-items:center;margin-bottom:8px}
+.mapbar2 input[type=text]{flex:1 1 220px;min-width:0}
+.tog:disabled{opacity:.5;cursor:not-allowed}
+#map .co{fill-opacity:var(--co-op,1)}
+#map .co.inset{fill-opacity:1}
+</style>
+
+<div class="wrap">
+<header>
+  <div>
+    <h1>DoomsDay <span>Atlas</span></h1>
+    <p class="sub" id="subline">Every US county scored for 14 disaster scenarios, built on FEMA's county risk data plus modeled threat zones. Pick a scenario, watch it play out over time, and see where you'd fare best.</p>
+  </div>
+  <div class="stamp">Scenario <b id="stampScen">—</b><br>Phase <b id="stampPhase">Overall</b><br>Home <b id="stampHome">—</b></div>
+</header>
+
+<div class="tabs" role="tablist" aria-label="Region">
+  <button class="tab" role="tab" data-tab="us" aria-selected="true">United States</button>
+  <button class="tab" role="tab" data-tab="europe" aria-selected="false">Europe</button>
+  <button class="tab" role="tab" data-tab="asia" aria-selected="false">Asia-Pacific</button>
+  <button class="tab" role="tab" data-tab="world" aria-selected="false">World</button>
+</div>
+
+<div id="view-us">
+
+<nav class="gallery" id="gallery" aria-label="Scenarios"></nav>
+
+<div class="grid">
+  <aside class="stack left">
+    <section class="panel">
+      <h2>Scenario</h2>
+      <p class="scen-name" id="scenName"></p>
+      <p class="scen-desc" id="scenDesc"></p>
+      <div class="wtools"><span class="lab">Weights 0–10</span><button class="linkbtn" id="showAllW">Show all 28 factors</button></div>
+      <p class="phnote" id="phNote" hidden></p>
+      <div id="weights"></div>
+    </section>
+    <section class="panel">
+      <h2>Filters</h2>
+      <div class="filt">
+        <label class="lab" for="minPop">Best-place lists include</label>
+        <select id="minPop">
+          <option value="0">Any county</option>
+          <option value="10000" selected>Counties with 10,000+ people</option>
+          <option value="50000">Counties with 50,000+ people</option>
+          <option value="250000">Counties with 250,000+ people</option>
+        </select>
+        <label class="lab" for="region">Region</label>
+        <select id="region">
+          <option value="all">All states</option>
+          <option value="NE">Northeast</option><option value="MW">Midwest</option>
+          <option value="S">South</option><option value="W">West</option>
+          <option value="L48">Lower 48 only</option>
+        </select>
+      </div>
+    </section>
+  </aside>
+
+  <main class="stack">
+    <section class="panel">
+      <div class="mapbar">
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+          <label for="layer" class="lab">Map shows</label>
+          <select id="layer"></select>
+        </div>
+        <div class="toggles" role="group" aria-label="Map overlays">
+          <button class="tog" id="ovT" aria-pressed="true">Likely targets</button>
+          <button class="tog" id="ovR" aria-pressed="false">Reactors</button>
+          <button class="tog" id="ovG" aria-pressed="false">Faults + volcanoes</button>
+          <button class="tog" id="ovL" aria-pressed="true">Labels</button>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center"><label class="lab" for="usOpacity">Risk layer</label><input type="range" id="usOpacity" min="20" max="100" value="78" style="width:110px"><output id="usOpacityOut" class="lab" for="usOpacity">78%</output></div>
+      </div>
+      <div id="map">
+        <div class="zoom"><button id="zin" aria-label="Zoom in">+</button><button id="zout" aria-label="Zoom out">−</button><button id="zhome" aria-label="Zoom to home" title="Zoom to home">⌂</button><button id="zreset" aria-label="Reset zoom" title="Reset">⤢</button></div>
+        <div class="tip" id="tip"></div>
+      </div>
+      <div class="legend">
+        <span id="legLo">Lower risk</span><canvas class="ramp" id="ramp" width="180" height="10"></canvas><span id="legHi">Higher risk</span>
+        <span class="key" id="ovKey"></span>
+        <span style="margin-left:auto">Click a county to set home · Shift-click to compare · Scroll or pinch to zoom</span>
+      </div>
+      <div class="phases" id="phases">
+        <div class="phasebar" id="phasebar"></div>
+        <div class="phasetext"><p id="phWhat"></p><p class="do" id="phDo"></p></div>
+      </div>
+    </section>
+  </main>
+
+  <aside class="right stack">
+    <section class="panel">
+      <h2>Where you live</h2>
+      <div class="homehead">
+        <div><label class="lab" for="homeIn">Home county</label><input type="text" id="homeIn" list="countyList" autocomplete="off" placeholder="Type a county, e.g. Travis County, TX"></div>
+        <div><label class="lab" for="cmpIn">Compare with</label><input type="text" id="cmpIn" list="countyList" autocomplete="off" placeholder="Best county for this scenario"></div>
+        <datalist id="countyList"></datalist>
+      </div>
+      <div class="scores">
+        <div class="score h"><div class="big" id="hScore">–</div><div class="meta" id="hMeta"></div><span class="tier" id="hTier"></span></div>
+        <div class="score c"><div class="big" id="cScore">–</div><div class="meta" id="cMeta"></div><span class="tier" id="cTier"></span></div>
+      </div>
+      <p class="verdict" id="verdict"></p>
+      <div class="chartbox">
+        <div class="ckey"><span><i></i><span id="kH">Home</span></span><span><i class="c"></i><span id="kC">Compare</span></span></div>
+        <svg id="radar" viewBox="-50 0 440 300" role="img" aria-label="Radar chart of top threats, home versus compare"></svg>
+      </div>
+      <div class="chartbox" id="phaseChartBox">
+        <h2 style="margin:6px 0 4px">How you fare as it unfolds · % of counties you beat</h2>
+        <svg id="phaseChart" viewBox="0 0 340 150" role="img" aria-label="Safety percentile by phase"></svg>
+      </div>
+    </section>
+  </aside>
+</div>
+
+<div class="lower">
+  <section class="panel">
+    <h2 id="bestTitle">Best counties for this scenario</h2>
+    <div class="best" id="best"></div>
+  </section>
+  <section class="panel">
+    <h2>States ranked · population-weighted</h2>
+    <div class="statebars" id="statebars"></div>
+  </section>
+</div>
+
+<section class="panel sec">
+  <div class="planhead">
+    <div><h2 style="margin:0 0 4px">Your preparedness plan</h2><h3 id="planTitle"></h3></div>
+    <div class="ring" id="ring"></div>
+  </div>
+  <div class="plangrid" id="plan"></div>
+</section>
+</div>
+
+<div id="view-global" hidden>
+<nav class="gallery" id="wGallery" aria-label="Scenarios"></nav>
+
+<section class="cta" id="wCta" hidden>
+  <div>
+    <h2 style="margin:0 0 4px">Safest place on Earth</h2>
+    <p class="scen-desc">Ranks every country of 1M+ people across all 12 scenarios at once and shows where you'd have the best odds overall.</p>
+  </div>
+  <button class="bigbtn" id="wFind">Find the safest place on Earth</button>
+</section>
+<section class="panel sec safest" id="wSafest" hidden>
+  <div class="planhead">
+    <div><h2 style="margin:0 0 4px">Safest places on Earth · all scenarios</h2><h3 id="wSafeSub">Average safety percentile across every scenario, countries of 1M+ people</h3></div>
+    <button class="linkbtn" id="wSafeClose">Close</button>
+  </div>
+  <div class="podium" id="wPodium"></div>
+  <div class="matrixwrap"><div class="matrix" id="wMatrix"></div></div>
+  <p class="scen-desc" style="margin-top:10px" id="wSafeNote"></p>
+</section>
+
+<div class="grid">
+  <aside class="stack left">
+    <section class="panel">
+      <h2>Scenario</h2>
+      <p class="scen-name" id="wScenName"></p>
+      <p class="scen-desc" id="wScenDesc"></p>
+      <p class="phnote" id="wPhNote" hidden></p>
+      <div class="wtools"><span class="lab">Weights 0–10</span><button class="linkbtn" id="wShowAll">Show all 25 factors</button></div>
+      <div id="wWeights"></div>
+    </section>
+    <section class="panel">
+      <h2>Filters</h2>
+      <div class="filt">
+        <label class="lab" for="wMinPop">Best-place lists include</label>
+        <select id="wMinPop">
+          <option value="0">Every country and territory</option>
+          <option value="1000000" selected>Countries with 1M+ people</option>
+          <option value="10000000">Countries with 10M+ people</option>
+        </select>
+      </div>
+    </section>
+  </aside>
+
+  <main class="stack">
+    <section class="panel">
+      <div class="mapbar">
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+          <label for="wLayer" class="lab">Map shows</label>
+          <select id="wLayer"></select>
+        </div>
+        <div class="toggles" role="group" aria-label="Map overlays">
+          <button class="tog" id="wovD" aria-pressed="true">Fine detail</button>
+          <button class="tog" id="wovS" aria-pressed="false" disabled>Street-level detail (online)</button>
+          <button class="tog" id="wovT" aria-pressed="true">Likely targets</button>
+          <button class="tog" id="wovR" aria-pressed="false">Reactors</button>
+          <button class="tog" id="wovV" aria-pressed="false">Volcanoes</button>
+          <button class="tog" id="wovF" aria-pressed="false">Flashpoints</button>
+        </div>
+      </div>
+      <div class="mapbar2">
+        <label class="lab" for="wSearch">Go to</label>
+        <input type="text" id="wSearch" placeholder="Country name or lat, lon (e.g. 46.8, 8.2)" autocomplete="off">
+        <label class="lab" for="wOpacity">Risk layer</label>
+        <input type="range" id="wOpacity" min="0" max="100" value="68" style="width:120px"><output id="wOpacityOut" for="wOpacity" class="lab">68%</output>
+      </div>
+      <div id="wMap" class="mapbox">
+        <div class="zoom"><button id="wzin" aria-label="Zoom in">+</button><button id="wzout" aria-label="Zoom out">−</button><button id="wzhome" aria-label="Zoom to your country" title="Zoom to your country">⌂</button><button id="wzreset" aria-label="Reset zoom" title="Reset">⤢</button></div>
+        <div class="tip" id="wTip"></div>
+      </div>
+      <div class="legend">
+        <span id="wLegLo">Lower risk</span><canvas class="ramp" id="wRamp" width="180" height="10"></canvas><span id="wLegHi">Higher risk</span>
+        <span class="key" id="wOvKey"></span>
+        <span id="wDetStatus" class="detstat"></span><span id="wZoomNote" class="detstat"></span><span style="margin-left:auto">Drag to pan · Scroll or pinch to zoom · Click to set your country · Shift-click to compare</span>
+      </div>
+      <div class="phases" id="wPhases">
+        <div class="phasebar" id="wPhaseBar"></div>
+        <div class="phasetext"><p id="wPhWhat"></p><p class="do" id="wPhDo"></p></div>
+      </div>
+    </section>
+  </main>
+
+  <aside class="right stack">
+    <section class="panel">
+      <h2>Where you live</h2>
+      <div class="homehead">
+        <div><label class="lab" for="wHome">Your country</label><select id="wHome"></select></div>
+        <div><label class="lab" for="wCmp">Compare with</label><select id="wCmp"></select></div>
+      </div>
+      <div class="scores">
+        <div class="score h"><div class="big" id="wHScore">–</div><div class="meta" id="wHMeta"></div><span class="tier" id="wHTier"></span></div>
+        <div class="score c"><div class="big" id="wCScore">–</div><div class="meta" id="wCMeta"></div><span class="tier" id="wCTier"></span></div>
+      </div>
+      <p class="verdict" id="wVerdict"></p>
+      <div class="chartbox">
+        <div class="ckey"><span><i></i><span id="wkH">Home</span></span><span><i class="c"></i><span id="wkC">Compare</span></span></div>
+        <svg id="wRadar" viewBox="-50 0 440 300" role="img" aria-label="Radar chart of top threats, your country versus compare"></svg>
+      </div>
+      <div class="chartbox" id="wPhaseChartBox">
+        <h2 style="margin:6px 0 4px">How you fare as it unfolds · % of countries you beat</h2>
+        <svg id="wPhaseChart" viewBox="0 0 340 150" role="img" aria-label="Safety percentile by phase"></svg>
+      </div>
+      <div class="tips" id="wTips"></div>
+    </section>
+  </aside>
+</div>
+
+<div class="lower">
+  <section class="panel">
+    <h2 id="wBestTitle">Best countries for this scenario</h2>
+    <div class="best" id="wBest"></div>
+  </section>
+  <section class="panel">
+    <h2 id="wBarsTitle">Countries ranked</h2>
+    <div class="statebars" id="wBars"></div>
+  </section>
+</div>
+</div>
+
+<section class="panel sec">
+  <div class="planhead">
+    <div><h2 style="margin:0 0 4px">Supplies to store</h2><h3>Water and food for your household</h3></div>
+    <div class="supin">
+      <div><label class="lab" for="people">People</label><input type="number" id="people" min="1" max="20" value="2"></div>
+      <div><label class="lab" for="pets">Dogs / large pets</label><input type="number" id="pets" min="0" max="10" value="0"></div>
+    </div>
+  </div>
+  <div class="sup" id="sup"></div>
+</section>
+
+<section class="panel sec">
+  <h2>What the research says about survivability</h2>
+  <div class="research">
+    <div>
+      <h3 style="margin-bottom:4px">Factors that matter across all 14 scenarios</h3>
+      <p class="scen-desc" style="margin-bottom:10px">Total weight each factor carries summed over every scenario preset. Low density, local food, water and distance from targets come up again and again.</p>
+      <div id="importance"></div>
+    </div>
+    <div class="notes" id="notes"></div>
+  </div>
+</section>
+
+<footer>
+  <p><b>Data.</b> Natural hazards, population, farm output, social vulnerability and community resilience come from the <a href="https://resilience.climate.gov/datasets/FEMA::national-risk-index-counties" target="_blank" rel="noopener">FEMA National Risk Index</a> (county level). Each hazard score blends how often it strikes with how much it destroys when it does, log-scaled to 0–10 nationally. Threat zones (nuclear targets, fallout, reactors, Yellowstone ash, Cascadia, New Madrid, geomagnetic storms, metro exodus) are distance models built for this tool from public sources; fallout uses a simple westerly-wind plume, and real fallout depends on the weather that day. Grid, water stress, growing season and the 2050 climate trend are statewide estimates. Connecticut and Valdez-Cordova, AK are approximated from FEMA's newer boundaries. Use this to frame decisions, then confirm locally before you move.</p>
+  <p><b>Europe, Asia-Pacific and World.</b> Country scores come from the <a href="https://drmkc.jrc.ec.europa.eu/inform-index/INFORM-Risk/Results-and-data" target="_blank" rel="noopener">INFORM Risk Index Mid-2026</a> (EU Joint Research Centre) and <a href="https://data.worldbank.org/" target="_blank" rel="noopener">World Bank</a> indicators for farmland, grain output, water stress and power access. Threat zones are sampled on a 1-degree grid across each country, so large countries are scored on all their territory. Taiwan is estimated (INFORM does not cover it) and small territories borrow their governing country's scores; both show hatched on the map. INFORM only publishes countries, so Europe is scored country by country rather than by region.</p>
+</footer>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/topojson/3.0.2/topojson.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js"></script>
+<script>
+const TOPO = __TOPO__;
+const CD = __COUNTIES__;
+const $ = id => document.getElementById(id);
+
+// ---------- factors ----------
+const G_NAT='Natural hazards', G_MOD='Threat zones', G_SOC='People & food', G_INF='Grid, water & climate';
+const F = [
+ {k:'eq',n:'Earthquake',g:G_NAT,p:['Strap the water heater and tall furniture to studs','Learn where the gas shutoff is; keep a wrench by it','Store 2 weeks of water; quakes break water mains']},
+ {k:'hu',n:'Hurricane',g:G_NAT,p:['Know your evacuation zone and two routes out','Pre-cut plywood or install storm shutters','Generator with stabilized fuel, tested monthly']},
+ {k:'to',n:'Tornado',g:G_NAT,p:['Pick a shelter: basement or windowless interior room','NOAA weather radio with battery backup','Helmets and hard-soled shoes in the shelter']},
+ {k:'st',n:'Severe storms',g:G_NAT,p:['Trim trees that overhang the house','Surge protectors and a backup power plan','Check that your policy covers hail and wind']},
+ {k:'wf',n:'Wildfire',g:G_NAT,p:['Clear 100 ft of defensible space','P100/N95 masks and a HEPA purifier for smoke','Go-bag by the door all fire season']},
+ {k:'fl',n:'River flooding',g:G_NAT,p:['Check the FEMA flood map for your address','Buy flood insurance now (30-day wait)','Raise the furnace, water heater and panel']},
+ {k:'cf',n:'Coastal flooding',g:G_NAT,p:['Check the NOAA sea-level-rise viewer for your address','Know your storm-surge zone','Weigh a 30-year mortgage against 2050 projections']},
+ {k:'dr',n:'Drought',g:G_NAT,p:['Rain catchment and 50+ gallons of storage','Drought-tolerant food garden','Know if your water is well, river or aquifer']},
+ {k:'ht',n:'Heat waves',g:G_NAT,p:['Backup cooling: cooling center, battery fans','Electrolytes; know heat-stroke signs','Reflective window film or exterior shades']},
+ {k:'ws',n:'Winter storms & cold',g:G_NAT,p:['Indoor-safe backup heat and a CO detector','Insulate pipes; know how to drain them','Winter kit in the car']},
+ {k:'vo',n:'Volcanic',g:G_NAT,p:['Ash masks and sealed goggles','Know how to seal HVAC intakes','Evacuation routes that avoid river valleys (lahars)']},
+ {k:'ts',n:'Tsunami',g:G_NAT,p:['Know a high-ground route you can walk in 15 min','Long shaking near the coast means go now; don’t wait for sirens']},
+ {k:'ls',n:'Landslide',g:G_NAT,p:['Watch for new cracks, tilting trees, sticking doors','Expect debris flows after wildfires','Avoid building at the base of steep slopes']},
+ {k:'nk',n:'Nuclear target proximity',g:G_MOD,p:['Know your distance to the nearest likely target','Pick a below-ground shelter spot','Plan to shelter in place; roads jam in minutes']},
+ {k:'fo',n:'Fallout (downwind)',g:G_MOD,p:['Shelter 24–72 hrs in a basement center: dose drops 90% by hour 7, 99% by day 2','Potassium iodide, plastic sheeting, duct tape','Battery or crank radio for instructions']},
+ {k:'np',n:'Nuclear reactor nearby',g:G_MOD,p:['Check if you’re inside a 10-mile emergency zone','Potassium iodide (KI) for each person','Know the official evacuation route']},
+ {k:'ys',n:'Yellowstone ash',g:G_MOD,p:['N95/P100 masks and goggles for ash','Roof rake: 10 cm of wet ash can collapse a roof','3+ months of food; ash kills crops']},
+ {k:'cz',n:'Cascadia megaquake zone',g:G_MOD,p:['Bolt the house to its foundation','Plan for weeks alone: bridges and roads will be out','Near the coast, walk inland and uphill right after shaking']},
+ {k:'nm',n:'New Madrid quake zone',g:G_MOD,p:['Brace masonry chimneys; secure heavy items','Stock fuel and water; pipelines cross the zone','Most Midwest homes lack quake insurance']},
+ {k:'gm',n:'Geomagnetic storm / EMP',g:G_MOD,p:['Solar + battery that can run off-grid','Spare radio and electronics in a metal box (Faraday cage)','Plan for long outages; big transformers take a year to replace']},
+ {k:'rf',n:'Metro exodus pressure',g:G_MOD,p:['Decide now: leave early or stay put','Keep a low profile; don’t advertise supplies','Organize a neighbor watch']},
+ {k:'pd',n:'Population density',g:G_SOC,p:['N95s and 30 days of supplies to avoid crowds','Agree on a rural fallback location with family','Routes out that avoid interstates']},
+ {k:'fd',n:'Low local food production',g:G_SOC,p:['3-month pantry of shelf-stable staples','Non-hybrid seeds and a garden','Know local farms and ranchers']},
+ {k:'sv',n:'Social vulnerability',g:G_SOC,p:['Check on elderly and disabled neighbors','Emergency savings and cash on hand','Sign up for local emergency alerts']},
+ {k:'cr',n:'Low community resilience',g:G_SOC,p:['Join or start a CERT team','Learn first aid and CPR','Know your local emergency shelters']},
+ {k:'gr',n:'Power grid fragility',g:G_INF,p:['Generator or solar sized for fridge and well pump','2 weeks of no-cook food and a manual can opener','Cash in small bills']},
+ {k:'wa',n:'Water stress',g:G_INF,p:['Gravity water filter plus purification tablets','1 gal per person per day for 14 days','Locate natural water within walking distance']},
+ {k:'gs',n:'Short growing season',g:G_INF,p:['Grow cold-hardy crops: potatoes, kale, cabbage','Build a cold frame or greenhouse','Store 6–12 months of grains and legumes']},
+ {k:'cl',n:'2050 climate trend',g:G_INF,p:['Factor 2050 projections into buy or rent decisions','Track insurer exits as an early warning']}
+];
+const KEYS=F.map(f=>f.k), FI=Object.fromEntries(F.map(f=>[f.k,f]));
+const SRC={[G_NAT]:'FEMA NRI',[G_MOD]:'modeled',[G_SOC]:'FEMA NRI',[G_INF]:'state est.'};
+
+// statewide estimates: grid fragility, water stress, short growing season, 2050 trend
+const STATE_EST=`AL 5 2 2 6|AK 7 1 9 6|AZ 5 10 2 9|AR 5 3 3 5|CA 6 9 2 8|CO 4 8 7 7|CT 4 2 5 4|DE 4 2 3 5|DC 4 2 3 5|FL 6 4 0 9|GA 5 4 2 6|HI 8 4 0 6|ID 3 6 7 6|IL 4 2 4 5|IN 5 2 5 5|IA 4 2 5 5|KS 4 6 4 6|KY 5 2 4 5|LA 6 2 1 8|ME 4 1 7 3|MD 4 3 4 5|MA 4 2 5 4|MI 6 1 6 4|MN 4 1 8 4|MS 6 2 2 7|MO 5 3 4 6|MT 4 5 8 6|NE 3 5 6 6|NV 5 10 6 9|NH 4 1 7 3|NJ 5 3 4 6|NM 4 9 5 8|NY 5 2 6 5|NC 5 3 3 6|ND 4 4 8 5|OH 5 2 5 5|OK 5 6 3 7|OR 4 5 4 6|PA 5 2 5 5|RI 4 2 4 4|SC 5 3 2 6|SD 3 4 7 5|TN 5 2 3 5|TX 9 8 2 8|UT 4 8 6 7|VT 3 1 7 3|VA 4 2 4 5|WA 3 5 5 5|WV 6 1 5 4|WI 4 1 7 4|WY 3 5 9 6`;
+const SE={}; STATE_EST.split('|').forEach(r=>{const [a,...v]=r.split(' ');SE[a]={gr:+v[0],wa:+v[1],gs:+v[2],cl:+v[3]};});
+const STNAME={AL:'Alabama',AK:'Alaska',AZ:'Arizona',AR:'Arkansas',CA:'California',CO:'Colorado',CT:'Connecticut',DE:'Delaware',DC:'District of Columbia',FL:'Florida',GA:'Georgia',HI:'Hawaii',ID:'Idaho',IL:'Illinois',IN:'Indiana',IA:'Iowa',KS:'Kansas',KY:'Kentucky',LA:'Louisiana',ME:'Maine',MD:'Maryland',MA:'Massachusetts',MI:'Michigan',MN:'Minnesota',MS:'Mississippi',MO:'Missouri',MT:'Montana',NE:'Nebraska',NV:'Nevada',NH:'New Hampshire',NJ:'New Jersey',NM:'New Mexico',NY:'New York',NC:'North Carolina',ND:'North Dakota',OH:'Ohio',OK:'Oklahoma',OR:'Oregon',PA:'Pennsylvania',RI:'Rhode Island',SC:'South Carolina',SD:'South Dakota',TN:'Tennessee',TX:'Texas',UT:'Utah',VT:'Vermont',VA:'Virginia',WA:'Washington',WV:'West Virginia',WI:'Wisconsin',WY:'Wyoming'};
+const REGION={NE:'CT ME MA NH RI VT NJ NY PA',MW:'IL IN MI OH WI IA KS MN MO NE ND SD',S:'DE DC FL GA MD NC SC VA WV AL KY MS TN AR LA OK TX',W:'AZ CO ID MT NV NM UT WY AK CA HI OR WA'};
+const REG_OF={}; Object.entries(REGION).forEach(([r,s])=>s.split(' ').forEach(a=>REG_OF[a]=r));
+
+// ---------- geometry ----------
+const features=topojson.feature(TOPO,TOPO.objects.counties).features;
+const stateFeats=topojson.feature(TOPO,TOPO.objects.states).features;
+const path=d3.geoPath();
+const proj=d3.geoAlbersUsa().scale(1300).translate([487.5,305]);
+const KM_PX=6371/1300;
+const regionOf=id=>id.startsWith('02')?'AK':id.startsWith('15')?'HI':'L48';
+const kmScale=r=>r==='AK'?KM_PX/0.35:KM_PX;
+
+// ---------- counties ----------
+const C=[], CI={};
+features.forEach(f=>{
+  const r=CD.c[f.id]; if(!r) return;
+  const [st,name,pop,area,...vals]=r;
+  const v={}; CD.keys.forEach((k,i)=>v[k]=vals[i]/10);
+  Object.assign(v,SE[st]||{gr:5,wa:5,gs:5,cl:5});
+  const c={id:f.id,st,name,pop,area,v,f,reg:regionOf(f.id),xy:path.centroid(f)};
+  c.ll=proj.invert(c.xy)||[0,0];
+  c.label=`${name}${/County|Parish|Borough|city|Census Area|Municipality/.test(name)?'':(st==='LA'?' Parish':st==='AK'?'':' County')}, ${st}`;
+  C.push(c); CI[c.id]=c;
+});
+
+// ---------- modeled threat zones ----------
+const TARGETS=[
+ ...[[-111.3,47.5],[-109.9,47.1],[-110.2,47.9],[-111.7,46.9],[-109.3,46.6]].map(c=>({n:'Malmstrom ICBM field, MT',t:'silo',c})),
+ ...[[-101.3,48.3],[-100.6,48.0],[-102.1,48.5],[-101.9,47.8],[-100.9,47.6]].map(c=>({n:'Minot ICBM field, ND',t:'silo',c})),
+ ...[[-104.3,41.4],[-103.8,41.0],[-104.9,41.6],[-104.6,40.9],[-103.4,41.3],[-105.0,42.0]].map(c=>({n:'F.E. Warren ICBM field, WY/CO/NE',t:'silo',c})),
+ {n:'Whiteman AFB (B-2), MO',t:'base',c:[-93.55,38.73]},{n:'Barksdale AFB (B-52), LA',t:'base',c:[-93.66,32.5]},
+ {n:'Minot AFB (B-52), ND',t:'base',c:[-101.36,48.42]},{n:'Ellsworth AFB (B-1/B-21), SD',t:'base',c:[-103.1,44.15]},
+ {n:'Dyess AFB (B-1), TX',t:'base',c:[-99.85,32.42]},{n:'Offutt AFB / STRATCOM, NE',t:'base',c:[-95.91,41.12]},
+ {n:'Kings Bay sub base, GA',t:'base',c:[-81.56,30.8]},{n:'Bangor sub base, WA',t:'base',c:[-122.71,47.72]},
+ {n:'Groton sub base, CT',t:'base',c:[-72.09,41.39]},{n:'Norfolk naval base, VA',t:'base',c:[-76.3,36.95]},
+ {n:'San Diego naval base, CA',t:'base',c:[-117.12,32.68]},{n:'Pearl Harbor, HI',t:'base',c:[-157.95,21.35]},
+ {n:'Cheyenne Mountain / NORAD, CO',t:'base',c:[-104.85,38.74]},{n:'Kirtland AFB, NM',t:'base',c:[-106.6,35.04]},
+ {n:'Pantex weapons plant, TX',t:'base',c:[-101.56,35.31]},{n:'Raven Rock, PA',t:'base',c:[-77.42,39.73]},
+ {n:'Vandenberg SFB, CA',t:'base',c:[-120.57,34.74]},{n:'Fort Greely missile defense, AK',t:'base',c:[-145.7,63.98]},
+ {n:'JB Elmendorf-Richardson, AK',t:'base',c:[-149.8,61.25]},{n:'Fairchild AFB, WA',t:'base',c:[-117.65,47.62]},
+ {n:'Washington, DC',t:'city',c:[-77.04,38.9]},{n:'New York',t:'city',c:[-74.0,40.71]},{n:'Los Angeles',t:'city',c:[-118.24,34.05]},
+ {n:'Chicago',t:'city',c:[-87.63,41.88]},{n:'Houston',t:'city',c:[-95.37,29.76]},{n:'Dallas–Fort Worth',t:'city',c:[-96.9,32.8]},
+ {n:'Philadelphia',t:'city',c:[-75.16,39.95]},{n:'Atlanta',t:'city',c:[-84.39,33.75]},{n:'Miami',t:'city',c:[-80.19,25.76]},
+ {n:'San Francisco Bay',t:'city',c:[-122.27,37.8]},{n:'Seattle',t:'city',c:[-122.33,47.6]},{n:'Boston',t:'city',c:[-71.06,42.36]},
+ {n:'Phoenix',t:'city',c:[-112.07,33.45]},{n:'Detroit',t:'city',c:[-83.05,42.33]},{n:'Denver',t:'city',c:[-104.99,39.74]}
+].map(t=>({...t,xy:proj(t.c),reg:t.c[0]<-140&&t.c[1]>50?'AK':t.c[0]<-150?'HI':'L48'})).filter(t=>t.xy);
+const REACTORS=[[33.39,-112.86],[35.21,-120.85],[35.31,-93.23],[41.31,-72.17],[27.35,-80.25],[25.43,-80.33],[33.14,-81.76],[31.93,-82.34],[42.07,-89.28],[41.24,-88.23],[41.25,-88.67],[41.39,-88.27],[41.73,-90.31],[40.17,-88.83],[38.24,-95.69],[30.76,-91.33],[29.99,-90.47],[38.43,-76.44],[41.96,-83.26],[41.98,-86.57],[42.32,-86.31],[45.33,-93.85],[44.62,-92.63],[32.01,-91.05],[38.76,-91.78],[40.36,-95.64],[42.90,-70.85],[39.46,-75.54],[43.52,-76.41],[43.28,-77.31],[33.96,-78.01],[35.63,-78.96],[35.43,-80.95],[41.60,-83.09],[41.80,-81.14],[40.62,-80.43],[40.22,-75.59],[39.76,-76.27],[41.09,-76.15],[35.05,-81.07],[34.79,-82.90],[34.40,-80.16],[34.30,-81.32],[35.23,-85.09],[35.60,-84.79],[32.30,-97.79],[28.80,-96.05],[38.06,-77.79],[37.17,-76.70],[46.47,-119.33],[44.28,-87.54],[34.70,-87.12],[31.22,-85.11]].map(([la,lo])=>proj([lo,la])).filter(Boolean);
+const FAULTS=[
+ {n:'San Andreas',c:[[-124.3,40.3],[-123.7,39.0],[-122.5,37.7],[-121.5,36.8],[-120.4,35.8],[-119.0,34.9],[-117.6,34.3],[-116.5,33.9],[-115.6,33.2]]},
+ {n:'Cascadia subduction zone',c:[[-124.7,48.4],[-124.4,46.5],[-124.4,44.5],[-124.5,42.5],[-124.3,40.5]]},
+ {n:'Wasatch',c:[[-111.9,42.0],[-111.8,41.0],[-111.75,40.4],[-111.8,39.7]]},
+ {n:'New Madrid',c:[[-90.3,35.6],[-89.9,36.2],[-89.5,36.6],[-89.2,37.1]]}
+].map(f=>({...f,xy:f.c.map(c=>proj(c)).filter(Boolean)}));
+const VOLC=[{n:'Mt Rainier',c:[-121.76,46.85]},{n:'Mt St Helens',c:[-122.18,46.19]},{n:'Mt Hood',c:[-121.7,45.37]},{n:'Mt Shasta',c:[-122.19,41.41]},{n:'Yellowstone caldera',c:[-110.67,44.43],big:1},{n:'Long Valley caldera',c:[-118.9,37.7]},{n:'Kilauea',c:[-155.29,19.41]}].map(v=>({...v,xy:proj(v.c)}));
+
+function segDist(p,a,b){const dx=b[0]-a[0],dy=b[1]-a[1];const t=Math.max(0,Math.min(1,((p[0]-a[0])*dx+(p[1]-a[1])*dy)/(dx*dx+dy*dy)));return Math.hypot(p[0]-a[0]-t*dx,p[1]-a[1]-t*dy);}
+function lineDist(p,pts){let m=Infinity;for(let i=0;i<pts.length-1;i++)m=Math.min(m,segDist(p,pts[i],pts[i+1]));return m;}
+(function model(){
+  const WIND=-12*Math.PI/180, wx=Math.cos(WIND), wy=Math.sin(WIND); // prevailing westerlies, drifting slightly north
+  const TW={silo:{p:1,tau:55,fo:10},base:{p:.9,tau:40,fo:3},city:{p:.85,tau:50,fo:1.2}};
+  const ysXY=proj([-110.67,44.43]), cz=FAULTS[1].xy, nm=FAULTS[3].xy;
+  const metros=C.filter(c=>c.pop>900000);
+  const GM_BOOST={MN:3,WI:3,MI:2.5,IA:1.5,ME:2.5,NH:2.5,VT:2.5,MA:2,NY:2.5,PA:2,NJ:2,MD:2,VA:2.5,NC:2,SC:2,GA:1.5,DE:1.5,CT:2,RI:2,CO:2,WA:2,OR:1.5,AK:4};
+  let foMax=0;
+  C.forEach(c=>{
+    const km=kmScale(c.reg); let nk=0, fo=0;
+    TARGETS.forEach(t=>{
+      if(t.reg!==c.reg) return;
+      const dx=(c.xy[0]-t.xy[0])*km, dy=(c.xy[1]-t.xy[1])*km, d=Math.hypot(dx,dy), w=TW[t.t];
+      nk=Math.max(nk,w.p*Math.exp(-Math.max(0,d-10)/w.tau));
+      const a=dx*wx+dy*wy, cr=-dx*wy+dy*wx;
+      if(a>-40){const aa=Math.max(a,0), s=16+0.085*aa; fo+=w.fo*Math.exp(-aa/480)*Math.exp(-(cr*cr)/(2*s*s));}
+    });
+    c.v.nk=10*nk; c._fo=fo; foMax=Math.max(foMax,fo);
+    let np=0; if(c.reg==='L48') REACTORS.forEach(r=>{const d=Math.hypot(c.xy[0]-r[0],c.xy[1]-r[1])*km;np=Math.max(np,d<16?10:10*Math.exp(-(d-16)/110));});
+    c.v.np=np;
+    if(c.reg==='L48'){
+      const dx=(c.xy[0]-ysXY[0])*km, dy=(c.xy[1]-ysXY[1])*km, d=Math.hypot(dx,dy);
+      const cos=d?(dx*wx+dy*wy)/d:0, de=d*(1-0.2*cos);
+      const logT=2.6-de/700; c.v.ys=Math.max(0,Math.min(10,(logT+1)/3.6*10)); c.ashCm=Math.pow(10,logT);
+      c.v.cz=10*Math.exp(-lineDist(c.xy,cz)*km/170);
+      c.v.nm=10*Math.exp(-lineDist(c.xy,nm)*km/260);
+    } else {c.v.ys=0;c.v.cz=c.st==='AK'?3:0;c.v.nm=0;c.ashCm=0;}
+    const lat=c.ll[1]; c.v.gm=Math.max(0,Math.min(10,(lat-24)/26*6+(GM_BOOST[c.st]||0)));
+    let rf=0; metros.forEach(m=>{if(m.reg!==c.reg)return;const d=Math.hypot(c.xy[0]-m.xy[0],c.xy[1]-m.xy[1])*km;rf=Math.max(rf,(1+Math.log10(m.pop/900000))*Math.exp(-d/120));});
+    c.v.rf=Math.min(10,7*rf);
+  });
+  const I0=0.12; C.forEach(c=>{c.v.fo=10*Math.log(1+c._fo/I0)/Math.log(1+foMax/I0);});
+})();
+
+// ---------- scenarios ----------
+const W0=()=>Object.fromEntries(KEYS.map(k=>[k,0]));
+const P=o=>Object.assign(W0(),o);
+const SCEN=[
+ {id:'nuclear',label:'Nuclear war',tag:'Conflict',desc:'Full US–Russia exchange. Distance from ICBM fields, bases and big metros matters first, then downwind fallout, then whether your area can feed and heat itself once supply chains stop.',
+  w:P({nk:10,fo:9,pd:6,rf:6,fd:5,gr:5,ws:4,gs:4,wa:3,np:3,cr:3}),
+  phases:[
+   {t:'Hour 0–1',n:'Strikes',w:P({nk:10,pd:4,np:2}),what:'Hundreds of warheads hit missile fields, bomber and submarine bases, command centers and major cities within about 30 minutes.',do:'Get inside a solid building now: basement or the center of a large building, away from windows. Don’t try to drive out.'},
+   {t:'Hour 1 – Week 2',n:'Fallout',w:P({fo:10,nk:5,np:3,cr:2}),what:'Ground bursts on the missile fields send heavy fallout east across the Plains and Midwest on the jet stream. Dose rates fall fast, by about 10x for every 7x in time.',do:'Shelter 24–72 hours minimum, longer if officials say so. Dose falls about 90% by hour 7 and 99% by day 2.'},
+   {t:'Week 2 – Month 6',n:'Supply collapse',w:P({fd:8,gr:7,wa:6,pd:7,rf:7,ws:5,ht:3,cr:5,sv:4}),what:'No grid, no fuel deliveries, no trucks. Cities run out of food in days; people leave metros in large numbers.',do:'Ration stored food and water, purify everything, stay out of crowds, and work with neighbors.'},
+   {t:'Year 1–3',n:'Nuclear winter',w:P({gs:9,fd:9,ws:7,wa:5,pd:5,rf:4}),what:'Soot in the stratosphere cools summers and shortens growing seasons. Xia et al. (2022) estimate a large war would cut US crop calories by over 80%.',do:'Grow cold-hardy food under cover, preserve every harvest, and pool skills and land locally.'}]},
+ {id:'nwinter',label:'Nuclear winter & famine',tag:'Conflict',desc:'You survive the blasts, but years of colder, darker summers collapse crop yields. Short growing seasons and little local food are the main killers.',
+  w:P({gs:10,fd:10,ws:7,pd:6,wa:5,rf:5,cr:4,dr:3})},
+ {id:'drought',label:'Mega-drought',tag:'Climate',desc:'A multi-decade drought. Water supply, heat and fire dominate, then food and the long-term climate trend.',
+  w:P({dr:10,wa:10,ht:7,wf:7,fd:6,cl:5,gr:3}),
+  phases:[
+   {t:'Year 1',n:'Dry year',w:P({dr:10,wa:6,wf:5,ht:4}),what:'Reservoirs drop, burn bans start, farms cut back irrigation.',do:'Cut water use, install catchment, harden the house against embers.'},
+   {t:'Year 3',n:'Reservoirs fail',w:P({wa:10,dr:8,wf:8,ht:6,fd:5}),what:'Municipal rationing, wells run dry, fire seasons stretch year-round.',do:'Secure an independent water source and filtration; keep go-bags ready.'},
+   {t:'Year 10',n:'New normal',w:P({wa:10,cl:8,fd:8,ht:8,dr:8,pd:3}),what:'Farm regions shift; desert cities face hard limits on growth and water.',do:'Decide whether to relocate before property values reprice.'}]},
+ {id:'climate',label:'Climate 2050',tag:'Climate',desc:'Where things are heading by mid-century: sea-level rise, stronger storms, heat, fire and water stress.',
+  w:P({cl:10,cf:9,ht:8,hu:7,fl:7,wf:7,dr:6,wa:6,st:3,gr:3})},
+ {id:'grid',label:'Grid collapse / cyberattack',tag:'Infrastructure',desc:'Weeks to months without power from a cyberattack or cascading failure. Cold and heat kill first, then food and water run out.',
+  w:P({gr:10,ws:8,ht:7,pd:8,fd:7,wa:5,rf:6,cr:5,sv:4}),
+  phases:[
+   {t:'Week 1',n:'Lights out',w:P({ws:9,ht:9,gr:8,sv:5}),what:'No heat or cooling, no pumps, no card payments. Hospitals run on generators.',do:'Run your backup heat or cooling safely, use cash, and check on vulnerable neighbors.'},
+   {t:'Month 1',n:'Shelves empty',w:P({fd:8,wa:8,pd:8,gr:8}),what:'Stores empty, water pressure fails in many cities, fuel is scarce.',do:'Switch to stored water and food; filter and boil anything else.'},
+   {t:'Month 3+',n:'Breakdown',w:P({pd:10,rf:9,fd:9,cr:6,sv:5}),what:'People leave cities; order depends on how organized each community is.',do:'Stay low-profile and work with your neighbors.'}]},
+ {id:'solar',label:'Solar superstorm / EMP',tag:'Space weather',desc:'A Carrington-class geomagnetic storm or high-altitude EMP burns out transformers. USGS maps put the worst ground currents in the Upper Midwest, the East, Denver and the Pacific Northwest.',
+  w:P({gm:10,gr:8,ws:6,pd:5,fd:5,wa:3,rf:4})},
+ {id:'pandemic',label:'Severe pandemic',tag:'Biological',desc:'A deadly, fast-spreading outbreak. Density drives spread; vulnerable populations and weak local systems make it worse.',
+  w:P({pd:10,sv:6,cr:5,rf:4,fd:3})},
+ {id:'collapse',label:'Societal breakdown',tag:'Society',desc:'Long-term breakdown of trade and order. Self-sufficiency and low density are the strongest protection.',
+  w:P({pd:10,rf:8,fd:9,wa:7,gr:6,sv:5,cr:5,nk:2,ws:3,ht:3})},
+ {id:'yellowstone',label:'Yellowstone supereruption',tag:'Geologic',desc:'A super-eruption on the scale of 640,000 years ago. USGS models show meters of ash in the northern Rockies, centimeters across the Midwest and millimeters on the coasts.',
+  w:P({ys:10,fd:7,gs:6,wa:5,ws:4,gr:3,pd:3}),
+  phases:[
+   {t:'Day 1–7',n:'Ashfall',w:P({ys:10}),what:'An umbrella cloud spreads ash in every direction, more than 1,500 km even upwind.',do:'Stay indoors, seal openings, wear masks, and clear wet ash from roofs.'},
+   {t:'Month 1–6',n:'Infrastructure',w:P({ys:8,wa:7,gr:6,fd:5}),what:'Ash clogs water treatment, shorts power lines and grounds flights nationwide.',do:'Use stored water, protect generators from ash, stock up while supply lasts.'},
+   {t:'Year 1–10',n:'Volcanic winter',w:P({gs:8,fd:9,ys:5,ws:6}),what:'Sulfate aerosols cool the planet for years; harvests fail across the grain belt.',do:'Rely on stored grain and indoor or cold-hardy growing.'}]},
+ {id:'cascadia',label:'Cascadia M9 megaquake',tag:'Geologic',desc:'A magnitude-9 rupture off Oregon and Washington with a tsunami reaching the coast in 15–30 minutes. FEMA plans for weeks without outside help.',
+  w:P({cz:10,ts:7,eq:6,ls:5,cf:4,gr:3})},
+ {id:'newmadrid',label:'New Madrid M7.7',tag:'Geologic',desc:'A repeat of the 1811–12 quakes in the central US, where soft soils spread strong shaking far and few buildings are built for it.',
+  w:P({nm:10,eq:5,fl:3,gr:3,pd:3})},
+ {id:'meltdown',label:'Reactor disaster',tag:'Technological',desc:'A Fukushima-class release. NRC plans around a 10-mile evacuation zone and a 50-mile zone for food and water contamination.',
+  w:P({np:10,pd:3,wa:2})},
+ {id:'natural',label:'All natural hazards',tag:'Baseline',desc:'The everyday baseline: combined odds of quakes, storms, floods, fire, heat and cold.',
+  w:P({eq:6,hu:6,to:6,st:4,wf:6,fl:6,cf:5,dr:5,ht:5,ws:5,vo:3,ts:3,ls:3})},
+ {id:'custom',label:'Custom',tag:'Your mix',desc:'Your own mix. Drag any slider to build a scenario.',w:null}
+];
+const SI=Object.fromEntries(SCEN.map(s=>[s.id,s]));
+function SI_HAS(id){return !!id&&Object.prototype.hasOwnProperty.call(SI,id);}
+
+const RISK=['#2E7D6B','#8DB878','#E9D26A','#E6873A','#B42F2A'];
+const riskInterp=d3.interpolateRgbBasis(RISK);
+const TIERS=[[.2,'Safest 20%',RISK[0],'#fff'],[.4,'Safer',RISK[1],'#17252A'],[.6,'Middle',RISK[2],'#17252A'],[.8,'Riskier','#C96A1F','#fff'],[1.01,'Riskiest 20%',RISK[4],'#fff']];
+
+// ---------- state ----------
+const store={get(k,d){try{const v=localStorage.getItem('dda2-'+k);return v==null?d:JSON.parse(v)}catch(e){return d}},set(k,v){try{localStorage.setItem('dda2-'+k,JSON.stringify(v))}catch(e){}}};
+const hashScen=(location.hash||'').slice(1);
+let scen=SI_HAS(hashScen)?hashScen:store.get('scen','nuclear'); if(!SI_HAS(scen)) scen='nuclear';
+let W=(hashScen&&SI_HAS(hashScen)&&SCEN.find(x=>x.id===hashScen).w)?{...SCEN.find(x=>x.id===hashScen).w}:null;
+W=W||store.get('w',null)||{...(SI[scen].w||SI.nuclear.w)}; KEYS.forEach(k=>{if(typeof W[k]!=='number')W[k]=0;});
+let phase=-1, playing=null;
+let home=store.get('home','06037'); if(!CI[home]) home='06037';
+let cmp=store.get('cmp',null); if(cmp&&!CI[cmp]) cmp=null;
+let layer='score', showAllW=false, minPop=10000, region='all';
+let checked=store.get('checked',{});
+const ov={t:true,r:false,g:false,l:true};
+
+const activeW=()=>phase>=0&&SI[scen].phases?SI[scen].phases[phase].w:W;
+function scoreWith(w){
+  const ks=KEYS.filter(k=>w[k]>0), tw=ks.reduce((s,k)=>s+w[k],0)||1;
+  const s=new Float64Array(C.length);
+  for(let i=0;i<C.length;i++){let a=0;const v=C[i].v;for(const k of ks)a+=w[k]*v[k];s[i]=a/tw;}
+  return s;
+}
+let R;
+function compute(){
+  const s=scoreWith(activeW());
+  const order=d3.range(C.length).sort((a,b)=>s[a]-s[b]);
+  const rank=new Int32Array(C.length); order.forEach((i,r)=>rank[i]=r+1);
+  const ext=d3.extent(s);
+  const idx=Object.fromEntries(C.map((c,i)=>[c.id,i]));
+  R={s,order,rank,ext,idx,of:id=>({score:s[idx[id]],rank:rank[idx[id]],pct:(rank[idx[id]]-1)/(C.length-1)})};
+}
+const passes=c=>c.pop>=minPop&&(region==='all'||(region==='L48'?c.reg==='L48':REG_OF[c.st]===region));
+function bestId(excl){for(const i of R.order){const c=C[i];if(passes(c)&&c.id!==excl)return c.id;}return C[R.order[0]].id;}
+const tierOf=p=>TIERS.find(t=>p<t[0]);
+const norm=v=>(v-R.ext[0])/((R.ext[1]-R.ext[0])||1);
+
+// ---------- gallery ----------
+const galEl=$('gallery');
+const p2d=features.map(f=>CD.c[f.id]?{id:f.id,p:new Path2D(path(f))}:null).filter(Boolean);
+SCEN.forEach(s=>{
+  const b=document.createElement('button');b.className='gcard';b.id='g-'+s.id;b.dataset.id=s.id;
+  b.innerHTML=`<canvas width="300" height="188" aria-hidden="true"></canvas><b>${s.label}</b><span>${s.tag}${s.phases?' · '+s.phases.length+' phases':''}</span>`;
+  b.onclick=()=>selectScen(s.id);
+  galEl.appendChild(b);
+});
+function drawMini(s){
+  const cv=$('g-'+s.id).querySelector('canvas'), ctx=cv.getContext('2d');
+  const w=s.w||W, sc=scoreWith(w), ext=d3.extent(sc), byId={};
+  C.forEach((c,i)=>byId[c.id]=sc[i]);
+  ctx.setTransform(1,0,0,1,0,0);ctx.clearRect(0,0,cv.width,cv.height);ctx.scale(cv.width/975,cv.height/610);
+  p2d.forEach(o=>{const v=byId[o.id];if(v==null)return;ctx.fillStyle=riskInterp((v-ext[0])/((ext[1]-ext[0])||1));ctx.fill(o.p);});
+}
+function drawGallery(){let i=0;(function next(){if(i>=SCEN.length)return;drawMini(SCEN[i++]);setTimeout(next,0);})();}
+
+// ---------- weights ----------
+const wEl=$('weights');
+[G_NAT,G_MOD,G_SOC,G_INF].forEach(g=>{
+  const d=document.createElement('div');d.className='wgroup';d.dataset.g=g;d.innerHTML=`<h4>${g}<em>${SRC[g]}</em></h4>`;
+  F.filter(f=>f.g===g).forEach(f=>{
+    const r=document.createElement('div');r.className='wrow';r.id='row-'+f.k;
+    r.innerHTML=`<label for="w-${f.k}">${f.n}</label><input type="range" min="0" max="10" step="1" id="w-${f.k}"><output id="o-${f.k}" for="w-${f.k}"></output>`;
+    r.querySelector('input').addEventListener('input',e=>{W[f.k]=+e.target.value;scen='custom';phase=-1;stopPlay();scheduleUpdate();});
+    d.appendChild(r);
+  });
+  wEl.appendChild(d);
+});
+$('showAllW').onclick=()=>{showAllW=!showAllW;syncWeights();};
+function syncWeights(){
+  KEYS.forEach(k=>{$('w-'+k).value=W[k];$('o-'+k).textContent=W[k];$('row-'+k).classList.toggle('off',W[k]===0);});
+  document.querySelectorAll('.wgroup').forEach(g=>{g.classList.toggle('hideoff',!showAllW);g.classList.toggle('empty',!showAllW&&!g.querySelector('.wrow:not(.off)'));});
+  $('showAllW').textContent=showAllW?'Hide unused factors':'Show all 28 factors';
+}
+
+// ---------- map ----------
+const mapEl=$('map'), tip=$('tip');
+const svg=d3.select(mapEl).append('svg').attr('viewBox','0 0 975 610').attr('role','img').attr('aria-label','US county map colored by scenario risk');
+const gz=svg.append('g');
+gz.append('image').attr('href','data/us-terrain.jpg').attr('x',0).attr('y',0).attr('width',975).attr('height',610).attr('preserveAspectRatio','none').attr('pointer-events','none');
+const coPaths=gz.append('g').selectAll('path').data(C).join('path').attr('class',c=>'co'+(c.reg!=='L48'?' inset':'')).attr('d',c=>path(c.f))
+  .on('mousemove',(e,c)=>showTip(e,c)).on('mouseleave',()=>tip.style.opacity=0)
+  .on('click',(e,c)=>{if(e.shiftKey||e.altKey||e.metaKey){cmp=c.id===home?null:c.id;}else{home=c.id;if(cmp===home)cmp=null;}update();});
+gz.append('path').datum(topojson.mesh(TOPO,TOPO.objects.states,(a,b)=>a!==b)).attr('class','stmesh').attr('d',path);
+const gHi=gz.append('g').attr('pointer-events','none');
+const gLbl=gz.append('g');
+gLbl.selectAll('text').data(stateFeats.filter(f=>!['10','11','09','44','34','24','25','33','50'].includes(f.id))).join('text').attr('class','lbl')
+  .attr('transform',f=>{const c=path.centroid(f);const o={'12':[10,8],'22':[-8,0],'26':[10,16]}[f.id]||[0,0];return `translate(${c[0]+o[0]},${c[1]+o[1]+3})`;})
+  .text(f=>{const n=f.properties.name;return Object.keys(STNAME).find(a=>STNAME[a]===n)||'';});
+const OVC={silo:'#7A2E8E',base:'#B42F2A',city:'var(--ink)',reactor:'#D4A017',geo:'#C9481A'};
+const gT=gz.append('g').attr('pointer-events','none'), gR=gz.append('g').attr('pointer-events','none'), gG=gz.append('g').attr('pointer-events','none');
+TARGETS.forEach(t=>{const g=gT.append('g').attr('class','mk').attr('data-x',t.xy[0]).attr('data-y',t.xy[1]);g.append('circle').attr('r',t.t==='silo'?3.4:3).style('fill',OVC[t.t]).attr('stroke','var(--stroke)').attr('stroke-width',1).attr('vector-effect','non-scaling-stroke');});
+REACTORS.forEach(r=>{gR.append('g').attr('class','mk').attr('data-x',r[0]).attr('data-y',r[1]).append('rect').attr('x',-3).attr('y',-3).attr('width',6).attr('height',6).attr('transform','rotate(45)').attr('fill',OVC.reactor).attr('stroke','var(--stroke)').attr('stroke-width',1).attr('vector-effect','non-scaling-stroke');});
+const line=d3.line();
+FAULTS.forEach(f=>gG.append('path').attr('d',line(f.xy)).attr('fill','none').attr('stroke',OVC.geo).attr('stroke-width',2.4).attr('stroke-dasharray','6 3').attr('stroke-linecap','round').attr('vector-effect','non-scaling-stroke'));
+VOLC.forEach(v=>{if(!v.xy)return;const s=v.big?8:5.5;gG.append('g').attr('class','mk').attr('data-x',v.xy[0]).attr('data-y',v.xy[1]).append('path').attr('d',`M0,${-s}L${s},${s*.7}L${-s},${s*.7}Z`).attr('fill',OVC.geo).attr('stroke','var(--stroke)').attr('stroke-width',1).attr('vector-effect','non-scaling-stroke');});
+
+let zk=1;
+const zoom=d3.zoom().scaleExtent([1,14]).translateExtent([[-50,-50],[1025,660]]).on('zoom',e=>{
+  zk=e.transform.k; gz.attr('transform',e.transform);
+  gz.selectAll('.mk').attr('transform',function(){return `translate(${this.dataset.x},${this.dataset.y}) scale(${1/Math.sqrt(zk)})`;});
+  gLbl.selectAll('text').style('font-size',(9.5/zk)+'px').style('stroke-width',(2.5/zk)+'px');
+});
+svg.call(zoom).on('dblclick.zoom',null);
+gz.selectAll('.mk').attr('transform',function(){return `translate(${this.dataset.x},${this.dataset.y})`;});
+$('zin').onclick=()=>svg.transition().duration(300).call(zoom.scaleBy,1.8);
+$('zout').onclick=()=>svg.transition().duration(300).call(zoom.scaleBy,1/1.8);
+$('zreset').onclick=()=>svg.transition().duration(400).call(zoom.transform,d3.zoomIdentity);
+function zoomTo(id,k=5){const c=CI[id];svg.transition().duration(700).call(zoom.transform,d3.zoomIdentity.translate(487.5-k*c.xy[0],305-k*c.xy[1]).scale(k));}
+$('zhome').onclick=()=>zoomTo(home);
+
+function topThreats(c,w,n=3){return KEYS.filter(k=>w[k]>0).map(k=>({k,c:w[k]*c.v[k],v:c.v[k],w:w[k]})).sort((a,b)=>b.c-a.c).slice(0,n);}
+function showTip(e,c){
+  const r=R.of(c.id), box=mapEl.getBoundingClientRect();
+  const val=layer==='score'?`Risk ${r.score.toFixed(1)} · safer than ${Math.round((1-r.pct)*100)}% of counties`:`${FI[layer].n}: ${c.v[layer].toFixed(1)}/10`;
+  const extra=layer==='ys'&&c.ashCm?` · ~${c.ashCm>=100?(c.ashCm/100).toFixed(1)+' m':c.ashCm>=1?c.ashCm.toFixed(0)+' cm':(c.ashCm*10).toFixed(0)+' mm'} ash`:'';
+  tip.innerHTML=`<b>${c.label}</b><div class="m">${c.pop.toLocaleString()} people</div><div class="m">${val}${extra}</div><div class="m" style="margin-top:3px">Top: ${topThreats(c,activeW()).map(x=>FI[x.k].n).join(', ')||'—'}</div>`;
+  let x=e.clientX-box.left, y=e.clientY-box.top;
+  x=Math.max(95,Math.min(box.width-95,x)); if(y<90){tip.style.transform='translate(-50%,16px)';}else tip.style.transform='';
+  tip.style.left=x+'px';tip.style.top=y+'px';tip.style.opacity=1;
+}
+const layerEl=$('layer');
+layerEl.innerHTML=`<option value="score">Scenario risk</option>`+[G_NAT,G_MOD,G_SOC,G_INF].map(g=>`<optgroup label="${g}">${F.filter(f=>f.g===g).map(f=>`<option value="${f.k}">${f.n}</option>`).join('')}</optgroup>`).join('');
+layerEl.onchange=()=>{layer=layerEl.value;paintMap();};
+function paintMap(){
+  const col=layer==='score'?(c,i)=>riskInterp(norm(R.s[i])):(c)=>riskInterp(c.v[layer]/10);
+  coPaths.attr('fill',col);
+  $('legLo').textContent=layer==='score'?'Lowest risk ('+R.ext[0].toFixed(1)+')':'0 · none';$('legHi').textContent=layer==='score'?'Highest ('+R.ext[1].toFixed(1)+')':'10 · severe';
+  gHi.selectAll('*').remove();
+  [[cmpAb(),'cmp'],[home,'home']].forEach(([id,cl])=>{gHi.append('path').attr('d',path(CI[id].f)).attr('class','co '+cl).attr('fill','none');});
+  gT.attr('display',ov.t?null:'none');gR.attr('display',ov.r?null:'none');gG.attr('display',ov.g?null:'none');gLbl.attr('display',ov.l?null:'none');
+  const k=[];
+  if(ov.t)k.push(`<span><i style="background:${OVC.silo}"></i>ICBM field</span><span><i style="background:${OVC.base}"></i>Military</span><span><i style="background:${OVC.city}"></i>Metro</span>`);
+  if(ov.r)k.push(`<span><i style="background:${OVC.reactor};border-radius:1px;transform:rotate(45deg) scale(.8)"></i>Reactor</span>`);
+  if(ov.g)k.push(`<span><i style="background:${OVC.geo};border-radius:1px;height:3px;width:14px;vertical-align:2px"></i>Fault</span><span><i style="background:${OVC.geo};border-radius:0;clip-path:polygon(50% 0,100% 100%,0 100%)"></i>Volcano</span>`);
+  $('ovKey').innerHTML=k.join('');
+}
+(function(){const c=$('ramp').getContext('2d');for(let i=0;i<180;i++){c.fillStyle=riskInterp(i/179);c.fillRect(i,0,1,10);}})();
+[['ovT','t'],['ovR','r'],['ovG','g'],['ovL','l']].forEach(([id,k])=>{const b=$(id);b.onclick=()=>{ov[k]=!ov[k];b.setAttribute('aria-pressed',ov[k]);paintMap();};});
+
+// ---------- phases ----------
+function renderPhases(){
+  const s=SI[scen], box=$('phases');
+  box.hidden=!s.phases;
+  if(!s.phases){return;}
+  const items=[{t:'All phases',n:'Overall'}].concat(s.phases);
+  $('phasebar').innerHTML=`<button class="play" id="playBtn" aria-label="${playing?'Pause':'Play'} scenario timeline">${playing?'❚❚ Pause':'▶ Play'}</button>`+items.map((p,i)=>`<button class="phase" data-i="${i-1}" aria-pressed="${phase===i-1}"><small>${p.t}</small><b>${p.n}</b><span class="fill${playing&&phase===i-1?' run':''}"></span></button>`).join('');
+  $('playBtn').onclick=()=>playing?stopPlay():startPlay();
+  document.querySelectorAll('.phase').forEach(b=>b.onclick=()=>{stopPlay();phase=+b.dataset.i;update();});
+  const p=phase>=0?s.phases[phase]:null;
+  $('phWhat').innerHTML=p?`<b>${p.t}: ${p.n}.</b> ${p.what}`:`<b>Overall.</b> Combined view of every phase. Press play to watch the scenario unfold; the map re-scores for what matters most at each stage.`;
+  $('phDo').innerHTML=p?`<b>What to do:</b> ${p.do}`:`<b>Tip:</b> the chart under your scores shows how your county’s standing shifts from phase to phase.`;
+}
+function startPlay(){const s=SI[scen];if(!s.phases)return;playing=true;phase=0;update();playing=setInterval(()=>{phase=phase+1>=s.phases.length?0:phase+1;update();},2600);update();}
+function stopPlay(){if(playing){clearInterval(playing);playing=null;}}
+
+// ---------- home panel ----------
+$('countyList').innerHTML=C.slice().sort((a,b)=>a.label.localeCompare(b.label)).map(c=>`<option value="${c.label}">`).join('');
+const BYLABEL=Object.fromEntries(C.map(c=>[c.label.toLowerCase(),c.id]));
+function bindCounty(el,set){
+  const go=()=>{const id=BYLABEL[el.value.trim().toLowerCase()];if(id){set(id);update();}};
+  el.addEventListener('change',go);el.addEventListener('keydown',e=>{if(e.key==='Enter')go();});
+}
+bindCounty($('homeIn'),id=>{home=id;if(cmp===home)cmp=null;setTimeout(()=>zoomTo(id),0);});
+bindCounty($('cmpIn'),id=>{cmp=id===home?null:id;});
+$('cmpIn').addEventListener('input',e=>{if(!e.target.value.trim()){cmp=null;update();}});
+function cmpAb(){return cmp&&cmp!==home?cmp:bestId(home);}
+function fmtScore(pre,id){
+  const r=R.of(id), t=tierOf(r.pct), c=CI[id];
+  $(pre+'Score').innerHTML=`${r.score.toFixed(1)}<small> /10</small>`;
+  $(pre+'Meta').textContent=`${c.label} · #${r.rank.toLocaleString()} of ${C.length.toLocaleString()}`;
+  const tg=$(pre+'Tier');tg.textContent=t[1];tg.style.background=t[2];tg.style.color=t[3];
+}
+function renderHome(){
+  const c=cmpAb(), H=CI[home], K=CI[c], w=activeW();
+  if(document.activeElement!==$('homeIn'))$('homeIn').value=H.label;
+  if(document.activeElement!==$('cmpIn'))$('cmpIn').value=cmp?K.label:'';
+  $('cmpIn').placeholder=`Best match: ${K.label}`;
+  fmtScore('h',home);fmtScore('c',c);
+  $('kH').textContent=H.label;$('kC').textContent=K.label+(cmp?'':' (best)');
+  const hr=R.of(home), cr=R.of(c), top=topThreats(H,w,2).map(x=>FI[x.k].n.toLowerCase()), diff=hr.score-cr.score;
+  const lbl=(phase>=0&&SI[scen].phases?SI[scen].phases[phase].n+' phase of ':'')+SI[scen].label.toLowerCase();
+  $('verdict').innerHTML=diff>0.05
+    ?`For the <b>${lbl}</b>, ${H.label} is safer than ${Math.round((1-hr.pct)*100)}% of US counties. ${K.label} scores ${diff.toFixed(1)} points lower risk. Your biggest drivers: ${top.join(' and ')}.`
+    :`For the <b>${lbl}</b>, ${H.label} already scores as well as ${K.label} (safer than ${Math.round((1-hr.pct)*100)}% of counties). Your top remaining risks: ${top.join(' and ')}.`;
+  drawRadar(H,K,w); drawPhaseChart(H,K);
+}
+function drawRadar(H,K,w){
+  const ks=KEYS.filter(k=>w[k]>0).sort((a,b)=>(w[b]*Math.max(H.v[b],K.v[b]))-(w[a]*Math.max(H.v[a],K.v[a]))).slice(0,8);
+  const el=d3.select('#radar');el.selectAll('*').remove();
+  if(ks.length<3){el.append('text').attr('x',170).attr('y',150).attr('text-anchor','middle').attr('class','axl').text('Weight at least 3 factors to see the radar');return;}
+  const cx=170,cy=150,rad=92,n=ks.length,ang=i=>-Math.PI/2+i*2*Math.PI/n;
+  [2.5,5,7.5,10].forEach(v=>el.append('polygon').attr('class','ax').attr('points',ks.map((_,i)=>[cx+Math.cos(ang(i))*rad*v/10,cy+Math.sin(ang(i))*rad*v/10].join(',')).join(' ')));
+  ks.forEach((k,i)=>{
+    el.append('line').attr('class','ax').attr('x1',cx).attr('y1',cy).attr('x2',cx+Math.cos(ang(i))*rad).attr('y2',cy+Math.sin(ang(i))*rad);
+    const lx=cx+Math.cos(ang(i))*(rad+12), ly=cy+Math.sin(ang(i))*(rad+12), co=Math.cos(ang(i));
+    const name=FI[k].n.length>22?FI[k].n.slice(0,21)+'…':FI[k].n;
+    el.append('text').attr('class','axl').attr('x',lx).attr('y',ly+3).attr('text-anchor',Math.abs(co)<.2?'middle':co>0?'start':'end').text(name);
+  });
+  el.append('text').attr('class','axl').attr('x',cx+3).attr('y',cy-rad*.5+3).text('5');
+  el.append('text').attr('class','axl').attr('x',cx+3).attr('y',cy-rad+10).text('10');
+  [[K,'var(--cmp)'],[H,'var(--ink)']].forEach(([c,col])=>{
+    const pts=ks.map((k,i)=>[cx+Math.cos(ang(i))*rad*c.v[k]/10,cy+Math.sin(ang(i))*rad*c.v[k]/10]);
+    el.append('polygon').attr('points',pts.map(p=>p.join(',')).join(' ')).attr('fill',col).attr('fill-opacity',.12).attr('stroke',col).attr('stroke-width',2);
+    pts.forEach(p=>el.append('circle').attr('cx',p[0]).attr('cy',p[1]).attr('r',2.6).attr('fill',col));
+  });
+}
+function drawPhaseChart(H,K){
+  const s=SI[scen], box=$('phaseChartBox');
+  box.hidden=!s.phases; if(!s.phases)return;
+  const pts=s.phases.map(p=>{const sc=scoreWith(p.w);const pct=id=>{const v=sc[R.idx[id]];let below=0;for(let i=0;i<sc.length;i++)if(sc[i]>v)below++;return below/(sc.length-1)*100;};return {n:p.n,h:pct(H.id),c:pct(K.id)};});
+  const el=d3.select('#phaseChart');el.selectAll('*').remove();
+  const m={l:34,r:12,t:10,b:38},Wd=340-m.l-m.r,Ht=150-m.t-m.b;
+  const x=d3.scalePoint().domain(pts.map(p=>p.n)).range([m.l,m.l+Wd]).padding(.3), y=d3.scaleLinear().domain([0,100]).range([m.t+Ht,m.t]);
+  [0,50,100].forEach(v=>{el.append('line').attr('class','ax').attr('x1',m.l).attr('x2',m.l+Wd).attr('y1',y(v)).attr('y2',y(v)).attr('stroke-dasharray',v===50?'3 3':null);el.append('text').attr('class','axl').attr('x',m.l-6).attr('y',y(v)+3).attr('text-anchor','end').text(v+'%');});
+  pts.forEach((p,i)=>{const t=el.append('text').attr('class','axl').attr('text-anchor','middle').attr('font-weight',i===phase?'600':null);const ws=p.n.split(' ');(ws.length>1?[ws[0],ws.slice(1).join(' ')]:ws).forEach((w,j)=>t.append('tspan').attr('x',x(p.n)).attr('y',m.t+Ht+12+j*10).text(w));});
+  if(phase>=0)el.append('rect').attr('x',x(pts[phase].n)-22).attr('y',m.t).attr('width',44).attr('height',Ht).attr('fill','var(--accent-soft)').lower();
+  [['c','var(--cmp)'],['h','var(--ink)']].forEach(([k,col])=>{
+    el.append('path').attr('d',d3.line().x(p=>x(p.n)).y(p=>y(p[k]))(pts)).attr('fill','none').attr('stroke',col).attr('stroke-width',2);
+    pts.forEach((p,i)=>el.append('circle').attr('cx',x(p.n)).attr('cy',y(p[k])).attr('r',4).attr('fill',col).attr('stroke','var(--panel)').attr('stroke-width',1.5).style('cursor','pointer').on('click',()=>{stopPlay();phase=i;update();}).append('title').text(`${p.n}: safer than ${Math.round(p[k])}% of counties`));
+  });
+  
+}
+
+// ---------- lists ----------
+function renderBest(){
+  const w=activeW(), list=[]; for(const i of R.order){if(passes(C[i]))list.push(C[i]);if(list.length>=12)break;}
+  const regLbl={all:'',NE:' in the Northeast',MW:' in the Midwest',S:' in the South',W:' in the West',L48:' in the lower 48'}[region];
+  $('bestTitle').textContent=`Best counties for this scenario${regLbl}${minPop?` · ${minPop.toLocaleString()}+ people`:''}`;
+  $('best').innerHTML=list.map((c,n)=>{
+    const con=topThreats(c,w,2).filter(x=>x.v>=4), strong=KEYS.filter(k=>w[k]>=5).sort((a,b)=>c.v[a]-c.v[b]).slice(0,3).filter(k=>c.v[k]<=3);
+    return `<button class="rc" data-id="${c.id}"><div class="top"><h3>${n+1}. ${c.name}</h3><span>${R.of(c.id).score.toFixed(1)}</span></div>
+      <div class="st">${STNAME[c.st]||c.st} · ${c.pop.toLocaleString()} people</div>
+      <p class="pro">${strong.length?'Low '+strong.map(k=>FI[k].n.toLowerCase()).join(', '):'No standout strengths'}</p>
+      <p class="con">${con.length?'Watch: '+con.map(x=>FI[x.k].n.toLowerCase()+' '+x.v.toFixed(0)+'/10').join(', '):'No major weak points'}</p></button>`;
+  }).join('')||'<p class="scen-desc">No counties match these filters.</p>';
+  document.querySelectorAll('#best .rc').forEach(b=>b.onclick=()=>{cmp=b.dataset.id===home?null:b.dataset.id;update();zoomTo(b.dataset.id,4);});
+}
+function renderStates(){
+  const agg={}; C.forEach((c,i)=>{const a=agg[c.st]||(agg[c.st]={p:0,s:0,best:null});a.p+=c.pop;a.s+=R.s[i]*c.pop;});
+  C.forEach((c,i)=>{if(c.pop<minPop)return;const a=agg[c.st];if(!a.best||R.s[i]<R.s[R.idx[a.best]])a.best=c.id;});
+  const rows=Object.entries(agg).map(([st,a])=>({st,v:a.s/(a.p||1),best:a.best})).sort((a,b)=>a.v-b.v);
+  const ex=d3.extent(rows,r=>r.v);
+  $('statebars').innerHTML=rows.map((r,i)=>`<div class="sb${CI[home].st===r.st?' home':''}" data-best="${r.best||''}" title="${STNAME[r.st]}: lowest-risk county ${r.best?CI[r.best].name:'—'}"><span class="ab">${i+1}. ${r.st}</span><span class="bar"><span style="width:${8+92*(r.v-ex[0])/((ex[1]-ex[0])||1)}%;background:${riskInterp((r.v-R.ext[0])/((R.ext[1]-R.ext[0])||1))}"></span></span><span class="v">${r.v.toFixed(1)}</span></div>`).join('');
+  document.querySelectorAll('.sb').forEach(el=>el.onclick=()=>{if(el.dataset.best&&el.dataset.best!==home){cmp=el.dataset.best;update();}});
+}
+
+// ---------- plan ----------
+const BASE=['Water: 1 gallon per person per day, 14 days','Food: 2 weeks of shelf-stable meals','30-day supply of prescriptions; first-aid kit','Battery/crank radio, flashlights, spare batteries','Copies of IDs, deeds and insurance in a waterproof bag','Family plan: meeting point and an out-of-state contact'];
+function renderPlan(){
+  const H=CI[home], th=topThreats(H,W,5).filter(x=>x.c>0);
+  $('planTitle').textContent=`${H.label} · ${SI[scen].label}`;
+  const card=(id,title,sev,v,items,base)=>`<div class="threat${base?' base':''}"><div class="th"><h3>${title}</h3><span class="sev">${sev}</span></div>${v!=null?`<div class="meter"><span style="width:${v*10}%;background:${riskInterp(v/10)}"></span></div>`:''}<ul>${items.map((t,i)=>{const key=id+':'+i;return `<li><label><input type="checkbox" data-key="${key}" ${checked[key]?'checked':''}><span>${t}</span></label></li>`}).join('')}</ul></div>`;
+  $('plan').innerHTML=th.map(x=>card(x.k,FI[x.k].n,`${x.v.toFixed(1)}/10 · weight ${x.w}`,x.v,FI[x.k].p)).join('')+card('base','Baseline kit','everyone',null,BASE,true);
+  $('plan').querySelectorAll('input').forEach(i=>i.onchange=()=>{checked[i.dataset.key]=i.checked;store.set('checked',checked);ring();});
+  ring();
+}
+function ring(){
+  const all=[...document.querySelectorAll('#plan input')], done=all.filter(i=>i.checked).length, f=all.length?done/all.length:0, r=18, L=2*Math.PI*r;
+  $('ring').innerHTML=`<svg viewBox="0 0 44 44" aria-hidden="true"><circle cx="22" cy="22" r="${r}" fill="none" stroke="var(--chip)" stroke-width="5"/><circle cx="22" cy="22" r="${r}" fill="none" stroke="var(--accent)" stroke-width="5" stroke-dasharray="${L*f} ${L}" transform="rotate(-90 22 22)" stroke-linecap="round"/></svg><span><b style="color:var(--ink)">${done}</b> of ${all.length} done</span>`;
+}
+
+// ---------- supplies ----------
+function renderSupplies(){
+  const ppl=Math.max(1,Math.min(20,+$('people').value||1)), pets=Math.max(0,Math.min(10,+$('pets').value||0));
+  const horizons=[['72 hours','Evacuation or first shelter',3],['2 weeks','FEMA’s recommended home supply',14],['3 months','Long outage or collapse',90]];
+  $('sup').innerHTML=horizons.map(([t,s,d])=>{
+    const gal=Math.ceil(ppl*d+pets*0.5*d), kcal=ppl*2000*d, lbs=Math.ceil(kcal/1600), petLbs=Math.ceil(pets*0.75*d);
+    const sq=(n,col,per)=>`<div class="picto" aria-hidden="true">${Array.from({length:Math.min(150,Math.ceil(n/per))},()=>`<i style="background:${col}"></i>`).join('')}</div>`;
+    return `<div class="supc"><h3>${t}</h3><div class="lab" style="text-transform:none;letter-spacing:0">${s}</div>
+      <div class="row"><div class="lab"><span>Water</span><b>${gal.toLocaleString()} gal</b></div>${sq(gal,'#2F6F9F',5)}</div>
+      <div class="row"><div class="lab"><span>Dry food (rice, beans, oats)</span><b>${lbs.toLocaleString()} lb</b></div>${sq(lbs,'#C9481A',5)}</div>
+      ${pets?`<div class="row"><div class="lab"><span>Pet food</span><b>${petLbs} lb</b></div>${sq(petLbs,'#8DB878',5)}</div>`:''}
+      <div class="row lab" style="text-transform:none;letter-spacing:0">${(kcal/1000).toLocaleString()}k calories · each square = 5 gal or 5 lb</div></div>`;
+  }).join('');
+}
+['people','pets'].forEach(id=>$(id).addEventListener('input',renderSupplies));
+
+// ---------- research ----------
+function renderResearch(){
+  const tot=W0(); SCEN.filter(s=>s.w).forEach(s=>KEYS.forEach(k=>tot[k]+=s.w[k]));
+  const rows=KEYS.map(k=>({k,v:tot[k]})).filter(r=>r.v>0).sort((a,b)=>b.v-a.v).slice(0,14), mx=rows[0].v;
+  $('importance').innerHTML=rows.map(r=>`<div class="imp"><span>${FI[r.k].n}</span><span class="bar"><span style="width:${r.v/mx*100}%"></span></span><span class="v">${r.v}</span></div>`).join('');
+  const N=[
+   ['Distance from targets beats everything in the first hour','Blast and fire zones are set by what gets hit: the three ICBM fields, bomber and sub bases, command centers and the largest metros.','https://www.ready.gov/nuclear-explosion','Ready.gov: Nuclear explosion'],
+   ['Fallout falls fast: the 7–10 rule','Radiation from fallout drops about 10x for every 7x in time. Sheltering in a basement for the first 1–2 days avoids most of the dose.','https://www.ready.gov/nuclear-explosion','Ready.gov guidance'],
+   ['Food is the long-term killer after a nuclear war','A US–Russia war could put enough soot in the stratosphere to cut crop yields for years; Xia et al. estimate over 5 billion deaths from famine worldwide.','https://www.nature.com/articles/s43016-022-00573-0','Xia et al. 2022, Nature Food'],
+   ['Yellowstone ash reaches almost everywhere','Modeled ash is decimeters to meters in the northern Rockies, centimeters in the Midwest, and millimeters on the coasts.','https://agupubs.onlinelibrary.wiley.com/doi/full/10.1002/2014GC005469','Mastin et al. 2014, USGS'],
+   ['Space weather hits the North and East hardest','Once-a-century geomagnetic storms drive the strongest ground currents in the Upper Midwest, the East Coast, Denver and the Pacific Northwest.','https://agupubs.onlinelibrary.wiley.com/doi/full/10.1002/2017GL076042','Love et al. 2018, USGS'],
+   ['FEMA’s own list of worst cases','The National THIRA names catastrophic scenarios including cyberattacks on infrastructure, pandemics, space weather, earthquakes and nuclear detonation.','https://www.fema.gov/sites/default/files/2020-06/fema_national-thira-overview-methodology_2019_0.pdf','FEMA 2019 National THIRA'],
+   ['Reactor zones are 10 and 50 miles','The NRC plans evacuation within 10 miles of a plant and food and water protection within 50 miles.','https://www.nrc.gov/about-nrc/emerg-preparedness/about-emerg-preparedness/planning-zones.html','NRC emergency planning zones']
+  ];
+  $('notes').innerHTML=N.map(n=>`<div class="note"><b>${n[0]}</b>${n[1]} <a href="${n[2]}" target="_blank" rel="noopener">${n[3]}</a></div>`).join('');
+}
+
+// ---------- wiring ----------
+$('minPop').onchange=e=>{minPop=+e.target.value;update();};
+$('region').onchange=e=>{region=e.target.value;update();};
+function selectScen(id){stopPlay();scen=id;phase=-1;if(SI[id].w)W={...SI[id].w};update();drawMini(SI.custom);try{history.replaceState(null,'','#'+id);}catch(e){}}
+let pending=false;function scheduleUpdate(){if(pending)return;pending=true;requestAnimationFrame(()=>{pending=false;update();});}
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&playing){stopPlay();update();}});
+let lastCustomDraw=0;
+function update(){
+  compute();
+  document.querySelectorAll('.gcard').forEach(b=>b.setAttribute('aria-pressed',b.dataset.id===scen));
+  $('scenName').textContent=SI[scen].label;$('scenDesc').textContent=SI[scen].desc;
+  $('stampScen').textContent=SI[scen].label;
+  $('stampPhase').textContent=phase>=0&&SI[scen].phases?SI[scen].phases[phase].n:'Overall';
+  $('stampHome').textContent=CI[home].label;
+  const ph=phase>=0&&SI[scen].phases?SI[scen].phases[phase]:null;
+  $('phNote').hidden=!ph; if(ph)$('phNote').innerHTML=`Map is showing the <b>${ph.n}</b> phase, which uses its own weights: ${KEYS.filter(k=>ph.w[k]>0).sort((a,b)=>ph.w[b]-ph.w[a]).slice(0,4).map(k=>FI[k].n.toLowerCase()).join(', ')}. Sliders set the overall mix.`;
+  syncWeights(); paintMap(); renderPhases(); renderHome(); renderBest(); renderStates(); renderPlan();
+  if(scen==='custom'&&Date.now()-lastCustomDraw>400){lastCustomDraw=Date.now();drawMini(SI.custom);}
+  store.set('scen',scen);store.set('w',W);store.set('home',home);store.set('cmp',cmp);
+}
+renderSupplies(); renderResearch(); update(); drawGallery();
+window.__usRefresh=update;
+const usOp=v=>{document.getElementById('map').style.setProperty('--co-op',v/100);document.getElementById('usOpacityOut').textContent=v+'%';};
+document.getElementById('usOpacity').addEventListener('input',e=>usOp(+e.target.value));usOp(78);
+</script>
+<script>
+// ================= Europe · Asia-Pacific · World =================
+(function(){
+const WT=__WORLDTOPO__, WD=__WORLD__;
+const $=id=>document.getElementById(id);
+const G={nat:'Natural hazards',mod:'Threat zones',gov:'Conflict & governance',soc:'People & resources'};
+const SRC2={[G.nat]:'INFORM 2026',[G.mod]:'modeled',[G.gov]:'INFORM 2026',[G.soc]:'INFORM + World Bank'};
+const F2=[
+ {k:'eq',n:'Earthquake',g:G.nat,t:'Secure heavy furniture; store 2 weeks of water'},
+ {k:'ts',n:'Tsunami',g:G.nat,t:'Know a high-ground route you can walk in 15 minutes'},
+ {k:'fl',n:'River flooding',g:G.nat,t:'Check flood maps before you rent or buy'},
+ {k:'cf',n:'Coastal flooding',g:G.nat,t:'Know your storm-surge zone; plan for sea-level rise'},
+ {k:'tc',n:'Tropical cyclones',g:G.nat,t:'Shutters, a 7-day supply and a known shelter'},
+ {k:'dr',n:'Drought',g:G.nat,t:'Rain catchment and a backup water source'},
+ {k:'ep',n:'Epidemic exposure',g:G.nat,t:'Masks, 30 days of supplies, vaccinations current'},
+ {k:'nk',n:'Nuclear target exposure',g:G.mod,t:'Know the nearest base or capital; pick a below-ground shelter spot'},
+ {k:'fo',n:'Fallout exposure',g:G.mod,t:'Shelter 24–72 hrs in a basement center; keep potassium iodide'},
+ {k:'np',n:'Nuclear reactors',g:G.mod,t:'Know if you live within 16 km (10 mi) of a plant'},
+ {k:'vo',n:'Volcanoes',g:G.mod,t:'Ash masks and goggles; know lahar-safe routes'},
+ {k:'fp',n:'War flashpoints',g:G.mod,t:'Keep passports current and a plan to leave early'},
+ {k:'gm',n:'Geomagnetic storm exposure',g:G.mod,t:'Off-grid power and spare electronics in a metal box'},
+ {k:'gs',n:'Nuclear/volcanic winter cooling',g:G.mod,t:'Store 6–12 months of grain; grow cold-hardy crops'},
+ {k:'cp',n:'Conflict probability',g:G.gov,t:'Watch for early warning signs; keep cash and documents ready'},
+ {k:'ci',n:'Current conflict',g:G.gov,t:'Register with your embassy; know evacuation routes'},
+ {k:'gov',n:'Weak governance',g:G.gov,t:'Build local networks; don’t count on fast official help'},
+ {k:'pd',n:'Population density',g:G.soc,t:'Have a rural fallback location agreed with family'},
+ {k:'fd',n:'Food self-sufficiency gap',g:G.soc,t:'3-month pantry; this country relies on imports'},
+ {k:'fs',n:'Food insecurity today',g:G.soc,t:'Keep a deeper pantry than usual'},
+ {k:'wa',n:'Water stress',g:G.soc,t:'Gravity filter and 14 days of stored water'},
+ {k:'sev',n:'Socio-economic vulnerability',g:G.soc,t:'Emergency savings and cash on hand'},
+ {k:'hc',n:'Weak health care',g:G.soc,t:'Serious first-aid kit and 90 days of medicines'},
+ {k:'gr',n:'Grid & infrastructure fragility',g:G.soc,t:'Generator or solar plus no-cook food'},
+ {k:'inf',n:'Low coping infrastructure',g:G.soc,t:'Plan to be self-reliant for weeks'}
+];
+const K2=F2.map(f=>f.k), FI2=Object.fromEntries(F2.map(f=>[f.k,f]));
+const W0=()=>Object.fromEntries(K2.map(k=>[k,0])), P=o=>Object.assign(W0(),o);
+const SC2=[
+ {id:'nuclear',label:'Nuclear war',tag:'Conflict',desc:'A large nuclear exchange between the US, Russia and China, with NATO and allied bases hit. Distance from targets matters first, then fallout, then whether your country can feed itself through the cold years that follow.',
+  w:P({nk:10,fo:9,gs:6,fd:6,pd:5,gov:4,wa:3,gr:3,np:2}),
+  phases:[
+   {t:'Hour 0–1',n:'Strikes',w:P({nk:10,pd:4,np:2}),what:'Missile fields, bomber and submarine bases, NATO nuclear-sharing bases, command centers and capitals are hit within about 30 minutes.',do:'Get inside a solid building, underground if you can, away from windows.'},
+   {t:'Hour 1 – Week 2',n:'Fallout',w:P({fo:10,nk:5,np:3}),what:'Fallout drifts downwind of ground bursts: east across Europe, Russia and North America on the westerlies.',do:'Shelter 24–72 hours minimum. Dose drops about 90% by hour 7 and 99% by day 2.'},
+   {t:'Month 1–6',n:'Trade collapse',w:P({fd:8,gr:7,wa:6,gov:6,pd:6,hc:4}),what:'Global shipping, fuel and fertilizer trade stops. Countries that import food feel it first.',do:'Ration stored food, purify water, and work with neighbors.'},
+   {t:'Year 1–3',n:'Nuclear winter',w:P({gs:10,fd:10,wa:4,pd:4}),what:'Soot cools the planet for years. Xia et al. (2022) find the Southern Hemisphere and big food exporters, such as Australia, New Zealand and Argentina, fare best.',do:'Grow cold-hardy food under cover and preserve every harvest.'}]},
+ {id:'nwinter',label:'Nuclear winter & famine',tag:'Conflict',desc:'Survive the blasts, then face years of short, cold growing seasons. Latitude, farmland and food exports decide who eats.',w:P({gs:10,fd:10,wa:5,pd:5,gov:4,sev:3})},
+ {id:'war',label:'Regional war / WW3',tag:'Conflict',desc:'A major conventional war erupts at one of today’s flashpoints: Taiwan Strait, Korea, Ukraine and the Baltic, Kashmir, or the Middle East and Gulf.',w:P({fp:10,cp:8,ci:7,nk:6,gov:3})},
+ {id:'climate',label:'Climate 2050',tag:'Climate',desc:'Stronger cyclones, coastal flooding, drought and water stress by mid-century, made worse where people are already vulnerable.',w:P({cf:9,tc:8,dr:8,fl:7,wa:7,fd:4,sev:4,hc:3})},
+ {id:'drought',label:'Mega-drought',tag:'Climate',desc:'A multi-year drought across major farming regions. Water supply and food self-sufficiency decide the outcome.',w:P({dr:10,wa:10,fd:7,gov:3})},
+ {id:'pandemic',label:'Severe pandemic',tag:'Biological',desc:'A fast, deadly outbreak. Exposure, density and the strength of health systems and government decide the toll.',w:P({ep:10,pd:8,hc:8,gov:5,sev:4})},
+ {id:'collapse',label:'Societal breakdown',tag:'Society',desc:'A long breakdown of trade and order. Strong institutions, food and water at home, and peace matter most.',w:P({gov:10,ci:7,cp:7,fd:8,wa:6,sev:6,pd:5,gr:4})},
+ {id:'solar',label:'Solar superstorm / EMP',tag:'Space weather',desc:'A Carrington-class storm burns out transformers. High magnetic latitudes (northern Europe, Canada, northern US, Russia) are most exposed.',w:P({gm:10,gr:7,inf:5,pd:3,fd:3})},
+ {id:'supervolcano',label:'Supervolcano winter',tag:'Geologic',desc:'A super-eruption at Yellowstone, Toba or Campi Flegrei cools the planet for years, much like nuclear winter but with ash near the source.',w:P({gs:10,fd:9,vo:5,wa:4,pd:3})},
+ {id:'ring',label:'Quake, tsunami & volcano',tag:'Geologic',desc:'The Ring of Fire and other plate boundaries: Japan, Indonesia, the Philippines, Chile, New Zealand, Italy and Greece.',w:P({eq:10,ts:9,vo:8,cf:4,inf:4})},
+ {id:'meltdown',label:'Reactor disaster',tag:'Technological',desc:'A Chernobyl or Fukushima-class release. Countries dense with reactors carry the most exposure.',w:P({np:10,pd:3})},
+ {id:'natural',label:'All natural hazards',tag:'Baseline',desc:'INFORM’s natural hazards combined: earthquakes, tsunamis, floods, cyclones, drought and epidemics.',w:P({eq:6,ts:5,fl:6,cf:6,tc:6,dr:6,ep:4})},
+ {id:'custom',label:'Custom',tag:'Your mix',desc:'Your own mix. Drag any slider.',w:null}
+];
+const SI2=Object.fromEntries(SC2.map(s=>[s.id,s]));
+const RISK=['#2E7D6B','#8DB878','#E9D26A','#E6873A','#B42F2A'], riskInterp=d3.interpolateRgbBasis(RISK);
+const TIERS=[[.2,'Safest 20%',RISK[0],'#fff'],[.4,'Safer',RISK[1],'#17252A'],[.6,'Middle',RISK[2],'#17252A'],[.8,'Riskier','#C96A1F','#fff'],[1.01,'Riskiest 20%',RISK[4],'#fff']];
+const tierOf=p=>TIERS.find(t=>p<t[0]);
+
+// ---- countries ----
+const C=[], CI={};
+Object.entries(WD.c).forEach(([iso,r])=>{
+  const [name,reg,sub,ids,lat,lon,pop,flag,est,...vals]=r;
+  const v={}; WD.keys.forEach((k,i)=>v[k]=vals[i]<0?null:vals[i]/10);
+  const c={iso,name,reg,sub,ids,lat,lon,pop,flag,est,v}; C.push(c); CI[iso]=c;
+});
+// fill gaps with the global median so a missing indicator neither helps nor hurts
+K2.forEach(k=>{const vs=C.map(c=>c.v[k]).filter(x=>x!=null).sort((a,b)=>a-b);const med=vs.length?vs[Math.floor(vs.length/2)]:5;C.forEach(c=>{if(c.v[k]==null){c.v[k]=med;c.gap=(c.gap||0)+1;}});});
+const NAME2ISO={'Kosovo':'XKX','N. Cyprus':'CYP','Somaliland':'SOM'};
+const feats=topojson.feature(WT,WT.objects.countries).features.filter(f=>f.properties.name!=='Antarctica');
+// a few shapes in the high-res file are wound inside out (e.g. Maldives) and would cover the globe; flip them
+feats.forEach(f=>{const g=f.geometry;const fix=poly=>{if(d3.geoArea({type:'Polygon',coordinates:poly})>2*Math.PI)poly.forEach(r=>r.reverse());};if(g.type==='Polygon')fix(g.coordinates);else if(g.type==='MultiPolygon')g.coordinates.forEach(fix);});
+const ID2ISO={}; C.forEach(c=>c.ids.forEach(id=>{if(id)ID2ISO[id]=c.iso;}));
+feats.forEach(f=>{f.iso=ID2ISO[f.id]||NAME2ISO[f.properties.name]||null;});
+
+const RG={
+ europe:{label:'Europe',inR:c=>c.reg==='Europe'||['TUR','CYP','GEO','ARM','AZE'].includes(c.iso),proj:()=>d3.geoConicConformal().rotate([-15,0]).parallels([40,65]),box:[[-24,34],[45,34],[45,71],[-24,71],[10,72]],bounds:[[35,-24],[71,45]],home:'DEU'},
+ asia:{label:'Asia-Pacific',inR:c=>['Eastern Asia','South-eastern Asia','Australia and New Zealand','Melanesia','Micronesia','Polynesia'].includes(c.sub),proj:()=>d3.geoMercator().rotate([-150,0]),box:[[75,-48],[-128,-48],[-128,54],[75,54],[150,54],[150,-48]],bounds:[[-47,75],[53,230]],home:'JPN'},
+ world:{label:'World',inR:()=>true,proj:()=>d3.geoNaturalEarth1(),box:null,bounds:[[-55,-165],[75,190]],home:'USA'}
+};
+const store={get(k,d){try{const v=localStorage.getItem('dda3-'+k);return v==null?d:JSON.parse(v)}catch(e){return d}},set(k,v){try{localStorage.setItem('dda3-'+k,JSON.stringify(v))}catch(e){}}};
+let region=null, scen=store.get('scen','nuclear'); if(!SI2[scen])scen='nuclear';
+let W=store.get('w',null)||{...(SI2[scen].w||SI2.nuclear.w)}; K2.forEach(k=>{if(typeof W[k]!=='number')W[k]=0;});
+let phase=-1, playing=null, showAll=false, minPop=1000000, layer='score';
+const homes=store.get('homes',{}), cmps={};
+const ov={t:true,r:false,v:false,f:false};
+let R=null, overall=null;
+
+const activeW=()=>phase>=0&&SI2[scen].phases?SI2[scen].phases[phase].w:W;
+const inRegion=c=>RG[region].inR(c);
+const eligible=c=>inRegion(c)&&c.pop>=minPop&&c.flag>0;
+function scoreArr(w,list){const ks=K2.filter(k=>w[k]>0),tw=ks.reduce((s,k)=>s+w[k],0)||1;return list.map(c=>{let a=0;for(const k of ks)a+=w[k]*c.v[k];return a/tw;});}
+function compute(){
+  const list=C.filter(inRegion), s=scoreArr(activeW(),list), by={};
+  list.forEach((c,i)=>by[c.iso]={score:s[i]});
+  const rk=list.filter(c=>c.flag>0).sort((a,b)=>by[a.iso].score-by[b.iso].score);
+  rk.forEach((c,i)=>{by[c.iso].rank=i+1;by[c.iso].pct=rk.length>1?i/(rk.length-1):0;});
+  R={list,by,ranked:rk,n:rk.length,ext:d3.extent(s)};
+}
+const norm=v=>(v-R.ext[0])/((R.ext[1]-R.ext[0])||1);
+const home=()=>{const h=homes[region];return h&&CI[h]&&inRegion(CI[h])?h:RG[region].home;};
+function bestIso(ex){const e=R.ranked.find(c=>c.pop>=minPop&&c.iso!==ex);return e?e.iso:R.ranked[0].iso;}
+const cmpIso=()=>{const c=cmps[region];return c&&c!==home()&&R.by[c]?c:bestIso(home());};
+const topThreats=(c,w,n=3)=>K2.filter(k=>w[k]>0).map(k=>({k,c:w[k]*c.v[k],v:c.v[k],w:w[k]})).sort((a,b)=>b.c-a.c).slice(0,n);
+
+// ---- map: zoomable terrain basemap (Leaflet) with the risk layer drawn over it ----
+const mapEl=$('wMap'), tip=$('wTip');
+const leafEl=document.createElement('div'); leafEl.id='wLeaf'; mapEl.insertBefore(leafEl,mapEl.firstChild);
+const map=L.map(leafEl,{zoomControl:false,worldCopyJump:true,minZoom:1,maxZoom:11,zoomSnap:.25,zoomDelta:.5,wheelPxPerZoomLevel:90,preferCanvas:true,attributionControl:true});
+map.attributionControl.setPrefix(false);
+const terrain=L.tileLayer('tiles/{z}/{x}/{y}.jpg',{tileSize:1024,zoomOffset:-2,minNativeZoom:2,maxNativeZoom:6,maxZoom:11,
+  attribution:'Terrain: AWS Terrain Tiles (SRTM, GMTED, ETOPO1) · Risk: INFORM 2026, World Bank'}).addTo(map);
+const street=L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png',{subdomains:'abc',maxZoom:17,opacity:1,attribution:'Map: © OpenTopoMap (CC-BY-SA), © OpenStreetMap contributors'});
+let streetOK=false, streetOn=false;
+(function probe(){const im=new Image();im.onload=()=>{streetOK=true;$('wovS').disabled=false;$('wovS').title='Online topographic map with roads and towns, down to street level';};
+  im.onerror=()=>{$('wovS').disabled=true;$('wovS').title='Online street maps are blocked in this viewer. Open index.html from your computer or your own website to use them.';};
+  im.src='https://a.tile.opentopomap.org/3/4/2.png';})();
+const overlay=L.imageOverlay('data:image/gif;base64,R0lGODlhAQABAAAAACw=',[[0,0],[1,1]],{opacity:.68,interactive:false,className:'riskimg'}).addTo(map);
+const markers={t:L.layerGroup(),r:L.layerGroup(),v:L.layerGroup(),f:L.layerGroup()};
+const TC={silo:'#7A2E8E',base:'#B42F2A',city:'#17252A'};
+WD.targets.forEach(([t,la,lo])=>L.circleMarker([la,lo],{radius:t==='silo'?4.5:3.8,color:'#fff',weight:1.2,fillColor:TC[t],fillOpacity:1,interactive:false}).addTo(markers.t));
+WD.reactors.forEach(([la,lo])=>L.circleMarker([la,lo],{radius:3.4,color:'#3a2a00',weight:1,fillColor:'#F2C230',fillOpacity:1,interactive:false}).addTo(markers.r));
+WD.volcanoes.forEach(([la,lo])=>L.circleMarker([la,lo],{radius:4.2,color:'#fff',weight:1.2,fillColor:'#C9481A',fillOpacity:1,interactive:false}).addTo(markers.v));
+WD.flash.forEach(([la,lo])=>{L.circle([la,lo],{radius:250000,color:'#B42F2A',weight:1.5,dashArray:'4 3',fillColor:'#B42F2A',fillOpacity:.12,interactive:false}).addTo(markers.f);});
+const borders=topojson.mesh(WT,WT.objects.countries,(a,b)=>a!==b), coasts=topojson.mesh(WT,WT.objects.countries,(a,b)=>a===b);
+
+const CELL=2.5, MODK=['nk','fo','np','vo','fp','gm','gs'];
+let detail=true, DET=null, detJob=0, worker=null, workerCb=null, proj=null;
+const detCompute=function(d){
+  const {ll,mask,T,Rx,V,F}=d, n=mask.length, out={};
+  for(const k of ['nk','fo','np','vo','fp','gm','gs'])out[k]=new Float32Array(n);
+  const TW={silo:[1,90,10],base:[.9,55,3],city:[.85,60,1.2]}, RAD=Math.PI/180;
+  const P0=80.8*RAD, L0=-72.7*RAD, sP0=Math.sin(P0), cP0=Math.cos(P0), LN=Math.log(1+15/0.05);
+  for(let i=0;i<n;i++){
+    if(!mask[i])continue;
+    const lo=ll[2*i], la=ll[2*i+1], cl=Math.cos(la*RAD);
+    let nk=0, fo=0;
+    for(let j=0;j<T.length;j++){
+      const t=T[j], tw=TW[t[0]]; let dlo=lo-t[2]; dlo=((dlo+540)%360)-180;
+      const dx=dlo*111.2*cl, dy=(la-t[1])*111.2, d2=dx*dx+dy*dy;
+      if(d2<tw[1]*tw[1]*36){const v=tw[0]*Math.exp(-Math.max(0,Math.sqrt(d2)-10)/tw[1]); if(v>nk)nk=v;}
+      const a=dx*(Math.abs(t[1])>=25?1:-1);
+      if(a>-40&&a<2600&&dy<700&&dy>-700){const aa=a>0?a:0, s=25+0.09*aa; fo+=tw[2]*Math.exp(-aa/600)*Math.exp(-(dy*dy)/(2*s*s));}
+    }
+    out.nk[i]=10*nk; out.fo[i]=Math.min(10,10*Math.log(1+fo/0.05)/LN);
+    const near=(pts,cut,f)=>{let m=0;for(let j=0;j<pts.length;j++){const p=pts[j];const dlo=((lo-p[1]+540)%360)-180;const dx=dlo*111.2*cl,dy=(la-p[0])*111.2,d2=dx*dx+dy*dy;if(d2>cut*cut)continue;const v=f(Math.sqrt(d2));if(v>m)m=v;}return m;};
+    out.np[i]=near(Rx,700,x=>x<16?10:10*Math.exp(-(x-16)/110));
+    out.vo[i]=near(V,900,x=>10*Math.exp(-x/160));
+    out.fp[i]=near(F,3000,x=>10*Math.exp(-x/550));
+    const s=Math.sin(la*RAD)*sP0+cl*cP0*Math.cos(lo*RAD-L0), ml=Math.asin(Math.max(-1,Math.min(1,s)))/RAD;
+    out.gm[i]=Math.max(0,Math.min(10,(Math.abs(ml)-25)/35*10));
+    out.gs[i]=Math.max(0,Math.min(10,(Math.abs(la)-12)/45*10))*(la>=0?1:.65);
+  }
+  return out;
+};
+try{
+  worker=new Worker(URL.createObjectURL(new Blob([`const detCompute=${detCompute.toString()};self.onmessage=e=>{const out=detCompute(e.data);self.postMessage({id:e.data.id,out},Object.values(out).map(a=>a.buffer));};`],{type:'text/javascript'})));
+  worker.onmessage=e=>workerCb&&workerCb(e.data); worker.onerror=()=>{worker=null;};
+}catch(e){worker=null;}
+const LUT=d3.range(256).map(i=>d3.rgb(riskInterp(i/255)));
+function detStatus(t){const el=$('wDetStatus');if(el)el.textContent=t;}
+function viewProj(){
+  const z=map.getZoom(), c=map.getCenter(), p0=map.latLngToContainerPoint([0,c.lng]);
+  return d3.geoMercator().rotate([-c.lng,0]).scale(256*Math.pow(2,z)/(2*Math.PI)).translate([p0.x,p0.y]);
+}
+function detRender(){
+  if(!region||!map._loaded)return;
+  const size=map.getSize(), W=size.x, H=size.y; if(!W||!H)return;
+  proj=viewProj();
+  const nx=Math.ceil(W/CELL), ny=Math.ceil(H/CELL), n=nx*ny;
+  const cv=document.createElement('canvas');cv.width=nx;cv.height=ny;
+  const ctx=cv.getContext('2d',{willReadFrequently:true}); ctx.setTransform(1/CELL,0,0,1/CELL,0,0);
+  const gp=d3.geoPath(proj,ctx), list=[];
+  feats.forEach(f=>{const c=CI[f.iso];if(!c||!inRegion(c))return;let i=list.indexOf(c);if(i<0){i=list.length;list.push(c);}ctx.beginPath();gp(f);ctx.fillStyle=`rgb(${(i&15)*17},${((i>>4)&15)*17},255)`;ctx.fill();});
+  const px=ctx.getImageData(0,0,nx,ny).data, cid=new Int16Array(n).fill(-1), mask=new Uint8Array(n), ll=new Float32Array(2*n);
+  for(let i=0;i<n;i++){const r=px[4*i],g=px[4*i+1];if(px[4*i+3]<250||px[4*i+2]!==255||r%17||g%17)continue;const idx=r/17+(g/17)*16;if(idx<list.length)cid[i]=idx;}
+  for(let i=0;i<n;i++)if(cid[i]<0&&px[4*i+3]>40){cid[i]=(i%nx>0&&cid[i-1]>=0)?cid[i-1]:(i>=nx&&cid[i-nx]>=0?cid[i-nx]:-1);}
+  for(let i=0;i<n;i++){if(cid[i]<0)continue;const p=proj.invert([((i%nx)+.5)*CELL,(Math.floor(i/nx)+.5)*CELL]);if(!p||!isFinite(p[0])||!isFinite(p[1])){cid[i]=-1;continue;}ll[2*i]=p[0];ll[2*i+1]=p[1];mask[i]=1;}
+  const nw=map.containerPointToLatLng([0,0]), se=map.containerPointToLatLng([W,H]);
+  const base={W,H,nx,ny,cid,list,proj,bounds:[nw,se],out:{}};
+  const job=++detJob;
+  if(!detail){DET=base;paintMap();return;}
+  const done=out=>{if(job!==detJob)return;base.out=out;DET=base;detStatus('');paintMap();};
+  detStatus('Sharpening detail…');
+  const data={id:job,ll,mask,T:WD.targets,Rx:WD.reactors,V:WD.volcanoes,F:WD.flash};
+  if(worker){workerCb=m=>{if(m.id===job)done(m.out);};worker.postMessage(data,[ll.buffer,mask.buffer]);}
+  else setTimeout(()=>done(detCompute(data)),0);
+}
+function paintOverlay(){
+  if(!DET)return;
+  const {W,H,nx,ny,cid,list,out,proj:pj}=DET, n=nx*ny, w=activeW();
+  const mode=layer==='overall'&&overall?'overall':layer==='score'?'score':'single';
+  const ks=K2.filter(k=>w[k]>0), tw=ks.reduce((s,k)=>s+w[k],0)||1, val=new Float32Array(n).fill(NaN), fine=detail&&mode!=='overall';
+  const cval=c=>mode==='overall'?(overall.by[c.iso]==null?NaN:1-overall.by[c.iso]):mode==='single'?c.v[layer]:R.by[c.iso].score;
+  for(let i=0;i<n;i++){const ci=cid[i];if(ci<0)continue;const c=list[ci];
+    if(!fine){val[i]=cval(c);continue;}
+    if(mode==='single'){val[i]=out[layer]?out[layer][i]:c.v[layer];continue;}
+    let a=0;for(const k of ks)a+=w[k]*(out[k]?out[k][i]:c.v[k]);val[i]=a/tw;}
+  let lo=0,hi=10;
+  if(mode==='overall'){lo=0;hi=1;}
+  else if(mode==='score'){if(fine){const s=[];for(let i=0;i<n;i+=3)if(val[i]===val[i])s.push(val[i]);s.sort((a,b)=>a-b);lo=s[Math.floor(s.length*.02)]??0;hi=s[Math.floor(s.length*.98)]??10;}else{lo=R.ext[0];hi=R.ext[1];}}
+  DET.val=val;DET.lo=lo;DET.hi=hi;
+  const sm=document.createElement('canvas');sm.width=nx;sm.height=ny;const sctx=sm.getContext('2d'),img=sctx.createImageData(nx,ny),D=img.data,sp=(hi-lo)||1;
+  for(let i=0;i<n;i++){const v=val[i];if(v!==v)continue;const q=LUT[Math.max(0,Math.min(255,Math.round((v-lo)/sp*255)))];D[4*i]=q.r;D[4*i+1]=q.g;D[4*i+2]=q.b;D[4*i+3]=255;}
+  sctx.putImageData(img,0,0);
+  const dpr=Math.min(2,window.devicePixelRatio||1), cv=document.createElement('canvas');cv.width=Math.round(W*dpr);cv.height=Math.round(H*dpr);
+  const ctx=cv.getContext('2d'); ctx.imageSmoothingEnabled=true; ctx.drawImage(sm,0,0,cv.width,cv.height);
+  ctx.scale(dpr,dpr); const gp=d3.geoPath(pj,ctx); const dark=matchMedia('(prefers-color-scheme: dark)').matches&&document.documentElement.dataset.theme!=='light'||document.documentElement.dataset.theme==='dark';
+  ctx.lineJoin='round';
+  ctx.beginPath();gp(borders);ctx.strokeStyle=dark?'rgba(255,255,255,.75)':'rgba(23,37,42,.7)';ctx.lineWidth=map.getZoom()>4?1.1:.8;ctx.stroke();
+  ctx.beginPath();gp(coasts);ctx.strokeStyle=dark?'rgba(255,255,255,.45)':'rgba(23,37,42,.45)';ctx.lineWidth=.6;ctx.stroke();
+  const css=getComputedStyle(document.documentElement);
+  [[cmpIso(),css.getPropertyValue('--cmp').trim()||'#2F6F9F'],[home(),dark?'#fff':'#17252A']].forEach(([iso,col])=>{feats.filter(f=>f.iso===iso).forEach(f=>{ctx.beginPath();gp(f);ctx.strokeStyle=col;ctx.lineWidth=2.6;ctx.stroke();});});
+  overlay.setUrl(cv.toDataURL('image/png')); overlay.setBounds(L.latLngBounds(DET.bounds[1],DET.bounds[0]));
+  if(mode==='score'&&fine){$('wLegLo').textContent='Lowest risk ('+lo.toFixed(1)+')';$('wLegHi').textContent='Highest ('+hi.toFixed(1)+')';}
+}
+function cellAt(e){
+  if(!DET)return null; const p=map.mouseEventToContainerPoint(e.originalEvent||e);
+  // map may have moved since the last render; convert through lat/lng
+  const ll=map.containerPointToLatLng(p), q=DET.proj([ll.lng,ll.lat]); if(!q)return null;
+  const x=Math.floor(q[0]/CELL), y=Math.floor(q[1]/CELL); if(x<0||y<0||x>=DET.nx||y>=DET.ny)return null;
+  const i=y*DET.nx+x, ci=DET.cid[i]; return ci<0?null:{c:DET.list[ci],v:DET.val?DET.val[i]:null,ll};
+}
+map.on('mousemove',e=>{const h=cellAt(e);if(!h){tip.style.opacity=0;return;}showTip(e.originalEvent,h);});
+map.on('mouseout',()=>tip.style.opacity=0);
+map.on('click',e=>{const h=cellAt(e);if(!h)return;const c=h.c,ev=e.originalEvent;if(ev.shiftKey||ev.altKey||ev.metaKey){cmps[region]=c.iso===home()?null:c.iso;}else{homes[region]=c.iso;store.set('homes',homes);if(cmps[region]===c.iso)cmps[region]=null;}update();});
+let moveT=null; map.on('moveend zoomend resize',()=>{clearTimeout(moveT);moveT=setTimeout(detRender,120);});
+map.on('zoomend',()=>{const z=map.getZoom();$('wZoomNote').textContent=!streetOn&&z>6.5?'Zoomed past the built-in terrain detail. Turn on street-level detail for more.':'';});
+function showTip(ev,h){
+  const c=h.c, box=mapEl.getBoundingClientRect(), r=R.by[c.iso]; let val;
+  if(layer==='overall'&&overall)val=overall.by[c.iso]!=null?`Overall: safer than ${Math.round(overall.by[c.iso]*100)}% of countries`:'Not ranked (under 1M people)';
+  else if(layer==='score')val=r.rank?`Risk ${r.score.toFixed(1)} · #${r.rank} of ${R.n}`:`Risk ${r.score.toFixed(1)}`;
+  else val=`${FI2[layer].n}: ${c.v[layer].toFixed(1)}/10 (national)`;
+  const spot=detail&&layer!=='overall'&&h.v!=null&&h.v===h.v?`<div class="m">At this spot: ${h.v.toFixed(1)}${layer==='score'?' risk':'/10'}</div>`:'';
+  tip.innerHTML=`<b>${c.name}</b><div class="m">${h.ll.lat.toFixed(2)}°, ${h.ll.lng.toFixed(2)}°${c.pop?' · '+(c.pop/1e6).toFixed(1)+'M people':''}</div><div class="m">${val}</div>${spot}<div class="m" style="margin-top:3px">Top: ${topThreats(c,activeW()).map(x=>FI2[x.k].n).join(', ')}</div>${c.est?`<div class="m" style="opacity:.7;margin-top:3px">${c.est}</div>`:''}`;
+  let x=ev.clientX-box.left,y=ev.clientY-box.top; x=Math.max(110,Math.min(box.width-110,x));
+  tip.style.transform=y<110?'translate(-50%,18px)':''; tip.style.left=x+'px'; tip.style.top=y+'px'; tip.style.opacity=1;
+}
+function buildMap(){
+  setTimeout(()=>{map.invalidateSize();map.fitBounds(RG[region].bounds,{animate:false});detRender();},0);
+}
+function paintMap(){
+  paintOverlay();
+  Object.entries(markers).forEach(([k,g])=>{if(ov[k])g.addTo(map);else g.remove();});
+  const k=[];
+  if(ov.t)k.push(`<span><i style="background:#7A2E8E"></i>Missile field</span><span><i style="background:#B42F2A"></i>Military</span><span><i style="background:#17252A;box-shadow:0 0 0 1px #fff"></i>City</span>`);
+  if(ov.r)k.push(`<span><i style="background:#F2C230"></i>Reactor</span>`);
+  if(ov.v)k.push(`<span><i style="background:#C9481A"></i>Volcano</span>`);
+  if(ov.f)k.push(`<span><i style="background:#B42F2A;opacity:.4"></i>Flashpoint (250 km)</span>`);
+  $('wOvKey').innerHTML=k.join('');
+  if(layer==='overall'){$('wLegLo').textContent='Safest overall';$('wLegHi').textContent='Least safe';}
+  else if(layer==='single'||(layer!=='score')){$('wLegLo').textContent='0 · none';$('wLegHi').textContent='10 · severe';}
+  else if(!detail){$('wLegLo').textContent='Lowest risk ('+R.ext[0].toFixed(1)+')';$('wLegHi').textContent='Highest ('+R.ext[1].toFixed(1)+')';}
+}
+(function(){const c=$('wRamp').getContext('2d');for(let i=0;i<180;i++){c.fillStyle=riskInterp(i/179);c.fillRect(i,0,1,10);}})();
+$('wovD').onclick=()=>{detail=!detail;$('wovD').setAttribute('aria-pressed',detail);detRender();};
+[['wovT','t'],['wovR','r'],['wovV','v'],['wovF','f']].forEach(([id,k])=>{$(id).onclick=()=>{ov[k]=!ov[k];$(id).setAttribute('aria-pressed',ov[k]);paintMap();};});
+$('wovS').onclick=()=>{if(!streetOK)return;streetOn=!streetOn;$('wovS').setAttribute('aria-pressed',streetOn);if(streetOn){street.addTo(map);terrain.setOpacity(0);map.setMaxZoom(17);}else{street.remove();terrain.setOpacity(1);map.setMaxZoom(11);}map.fire('zoomend');};
+$('wOpacity').addEventListener('input',e=>{overlay.setOpacity(+e.target.value/100);$('wOpacityOut').textContent=e.target.value+'%';});
+function zoomTo(iso){const fs=feats.filter(f=>f.iso===iso);if(!fs.length)return;const b=d3.geoBounds({type:'FeatureCollection',features:fs});let [[w,s],[e,n]]=b;if(e<w)e+=360;map.flyToBounds([[s,w],[n,e]],{maxZoom:6,duration:.8,padding:[20,20]});}
+$('wzin').onclick=()=>map.zoomIn(1);
+$('wzout').onclick=()=>map.zoomOut(1);
+$('wzreset').onclick=()=>map.flyToBounds(RG[region].bounds,{duration:.6});
+$('wzhome').onclick=()=>zoomTo(home());
+$('wSearch').addEventListener('keydown',e=>{if(e.key!=='Enter')return;const m=e.target.value.trim().match(/^(-?\d+(?:\.\d+)?)[,\s]+(-?\d+(?:\.\d+)?)$/);if(m){map.flyTo([+m[1],+m[2]],7.5,{duration:.8});return;}const q=e.target.value.trim().toLowerCase();const c=C.find(x=>x.name.toLowerCase()===q)||C.find(x=>x.name.toLowerCase().startsWith(q));if(c)zoomTo(c.iso);});
+
+// ---- gallery ----
+SC2.forEach(s=>{const b=document.createElement('button');b.className='gcard';b.id='wg-'+s.id;b.dataset.id=s.id;
+  b.innerHTML=`<canvas width="300" height="172" aria-hidden="true"></canvas><b>${s.label}</b><span>${s.tag}${s.phases?' · '+s.phases.length+' phases':''}</span>`;
+  b.onclick=()=>selectScen(s.id); $('wGallery').appendChild(b);});
+let p2d=[];
+function prepMini(){const pr=RG[region].proj();if(RG[region].box)pr.fitExtent([[2,2],[298,170]],{type:'MultiPoint',coordinates:RG[region].box});else pr.fitExtent([[2,2],[298,170]],{type:'Sphere'});const pa=d3.geoPath(pr);p2d=feats.filter(f=>f.iso&&CI[f.iso]&&inRegion(CI[f.iso])).map(f=>({iso:f.iso,p:new Path2D(pa(f)||'')}));}
+function drawMini(s){
+  const cv=$('wg-'+s.id).querySelector('canvas'), ctx=cv.getContext('2d'), list=C.filter(inRegion), sc=scoreArr(s.w||W,list), ext=d3.extent(sc), by={};
+  list.forEach((c,i)=>by[c.iso]=sc[i]); ctx.clearRect(0,0,cv.width,cv.height);
+  p2d.forEach(o=>{ctx.fillStyle=riskInterp((by[o.iso]-ext[0])/((ext[1]-ext[0])||1));ctx.fill(o.p);});
+}
+function drawGallery(){prepMini();let i=0;(function n(){if(i>=SC2.length)return;drawMini(SC2[i++]);setTimeout(n,0);})();}
+
+// ---- weights ----
+[G.nat,G.mod,G.gov,G.soc].forEach(g=>{
+  const d=document.createElement('div');d.className='wgroup';d.innerHTML=`<h4>${g}<em>${SRC2[g]}</em></h4>`;
+  F2.filter(f=>f.g===g).forEach(f=>{const r=document.createElement('div');r.className='wrow';r.id='wrow-'+f.k;
+    r.innerHTML=`<label for="ww-${f.k}">${f.n}</label><input type="range" min="0" max="10" step="1" id="ww-${f.k}"><output id="wo-${f.k}" for="ww-${f.k}"></output>`;
+    r.querySelector('input').addEventListener('input',e=>{W[f.k]=+e.target.value;scen='custom';phase=-1;stopPlay();schedule();});d.appendChild(r);});
+  $('wWeights').appendChild(d);
+});
+$('wShowAll').onclick=()=>{showAll=!showAll;syncWeights();};
+function syncWeights(){
+  K2.forEach(k=>{$('ww-'+k).value=W[k];$('wo-'+k).textContent=W[k];$('wrow-'+k).classList.toggle('off',W[k]===0);});
+  document.querySelectorAll('#wWeights .wgroup').forEach(g=>{g.classList.toggle('hideoff',!showAll);g.classList.toggle('empty',!showAll&&!g.querySelector('.wrow:not(.off)'));});
+  $('wShowAll').textContent=showAll?'Hide unused factors':'Show all 25 factors';
+}
+const layerEl=$('wLayer');
+function fillLayers(){layerEl.innerHTML=`<option value="score">Scenario risk</option>${region==='world'&&overall?'<option value="overall">Overall survivability (all scenarios)</option>':''}`+[G.nat,G.mod,G.gov,G.soc].map(g=>`<optgroup label="${g}">${F2.filter(f=>f.g===g).map(f=>`<option value="${f.k}">${f.n}</option>`).join('')}</optgroup>`).join('');layerEl.value=layer;if(layerEl.value!==layer){layer='score';layerEl.value='score';}}
+layerEl.onchange=()=>{layer=layerEl.value;paintMap();};
+
+// ---- phases ----
+function renderPhases(){
+  const s=SI2[scen]; $('wPhases').hidden=!s.phases; if(!s.phases)return;
+  const items=[{t:'All phases',n:'Overall'}].concat(s.phases);
+  $('wPhaseBar').innerHTML=`<button class="play" id="wPlay">${playing?'❚❚ Pause':'▶ Play'}</button>`+items.map((p,i)=>`<button class="phase" data-i="${i-1}" aria-pressed="${phase===i-1}"><small>${p.t}</small><b>${p.n}</b><span class="fill${playing&&phase===i-1?' run':''}"></span></button>`).join('');
+  $('wPlay').onclick=()=>playing?(stopPlay(),update()):startPlay();
+  document.querySelectorAll('#wPhaseBar .phase').forEach(b=>b.onclick=()=>{stopPlay();phase=+b.dataset.i;update();});
+  const p=phase>=0?s.phases[phase]:null;
+  $('wPhWhat').innerHTML=p?`<b>${p.t}: ${p.n}.</b> ${p.what}`:'<b>Overall.</b> Combined view of every phase. Press play to watch it unfold; the map re-scores for what matters at each stage.';
+  $('wPhDo').innerHTML=p?`<b>What to do:</b> ${p.do}`:'<b>Tip:</b> the chart under your scores shows how your country’s standing shifts from phase to phase.';
+}
+function startPlay(){const s=SI2[scen];if(!s.phases)return;phase=0;playing=setInterval(()=>{phase=(phase+1)%s.phases.length;update();},2600);update();}
+function stopPlay(){if(playing){clearInterval(playing);playing=null;}}
+
+// ---- your country ----
+function fillSelects(){
+  const opts=C.filter(inRegion).sort((a,b)=>a.name.localeCompare(b.name));
+  $('wHome').innerHTML=opts.map(c=>`<option value="${c.iso}">${c.name}</option>`).join('');
+}
+$('wHome').onchange=e=>{homes[region]=e.target.value;store.set('homes',homes);if(cmps[region]===e.target.value)cmps[region]=null;update();zoomTo(e.target.value,region==='world'?4:2.5);};
+$('wCmp').onchange=e=>{cmps[region]=e.target.value==='auto'?null:e.target.value;update();};
+function fmt(pre,iso){const r=R.by[iso],c=CI[iso];
+  $(pre+'Score').innerHTML=`${r.score.toFixed(1)}<small> /10</small>`;
+  $(pre+'Meta').textContent=r.rank?`${c.name} · #${r.rank} of ${R.n}`:`${c.name} · not ranked`;
+  const t=r.pct!=null?tierOf(r.pct):null,tg=$(pre+'Tier');tg.hidden=!t;if(t){tg.textContent=t[1];tg.style.background=t[2];tg.style.color=t[3];}}
+function renderHome(){
+  const h=home(), c=cmpIso(), H=CI[h], K=CI[c], w=activeW();
+  $('wHome').value=h;
+  const auto=bestIso(h);
+  $('wCmp').innerHTML=`<option value="auto">Safest for scenario (${CI[auto].name})</option>`+C.filter(x=>inRegion(x)&&x.iso!==h).sort((a,b)=>a.name.localeCompare(b.name)).map(x=>`<option value="${x.iso}">${x.name}</option>`).join('');
+  $('wCmp').value=cmps[region]&&cmps[region]!==h?cmps[region]:'auto';
+  fmt('wH',h);fmt('wC',c);
+  $('wkH').textContent=H.name;$('wkC').textContent=K.name+(cmps[region]?'':' (best)');
+  const hr=R.by[h],cr=R.by[c],diff=hr.score-cr.score,top=topThreats(H,w,2).map(x=>FI2[x.k].n.toLowerCase());
+  const lbl=(phase>=0&&SI2[scen].phases?SI2[scen].phases[phase].n+' phase of ':'')+SI2[scen].label.toLowerCase();
+  const beat=hr.pct!=null?` ${H.name} is safer than ${Math.round((1-hr.pct)*100)}% of countries in ${RG[region].label==='World'?'the world':RG[region].label}.`:'';
+  $('wVerdict').innerHTML=`For <b>${lbl}</b>:${beat} `+(diff>0.05?`${K.name} scores ${diff.toFixed(1)} points lower risk. Your biggest drivers: ${top.join(' and ')}.`:`You already score as well as ${K.name}. Top remaining risks: ${top.join(' and ')}.`)+(H.est?` <span style="color:var(--muted)">(${H.est}.)</span>`:'');
+  radar(H,K,w); phaseChart(H,K);
+  $('wTips').innerHTML='<h2 style="margin:12px 0 6px">Prepare for your top threats</h2>'+topThreats(H,W,3).map(x=>`<div class="tipcard"><div class="th"><b>${FI2[x.k].n}</b><span class="sev">${x.v.toFixed(1)}/10</span></div><div class="meter"><span style="width:${x.v*10}%;background:${riskInterp(x.v/10)}"></span></div><p>${FI2[x.k].t}</p></div>`).join('');
+}
+function radar(H,K,w){
+  const ks=K2.filter(k=>w[k]>0).sort((a,b)=>w[b]*Math.max(H.v[b],K.v[b])-w[a]*Math.max(H.v[a],K.v[a])).slice(0,8);
+  const el=d3.select('#wRadar');el.selectAll('*').remove();
+  if(ks.length<3){el.append('text').attr('x',170).attr('y',150).attr('text-anchor','middle').attr('class','axl').text('Weight at least 3 factors to see the radar');return;}
+  const cx=170,cy=150,rad=92,n=ks.length,ang=i=>-Math.PI/2+i*2*Math.PI/n;
+  [2.5,5,7.5,10].forEach(v=>el.append('polygon').attr('class','ax').attr('points',ks.map((_,i)=>[cx+Math.cos(ang(i))*rad*v/10,cy+Math.sin(ang(i))*rad*v/10].join(',')).join(' ')));
+  ks.forEach((k,i)=>{el.append('line').attr('class','ax').attr('x1',cx).attr('y1',cy).attr('x2',cx+Math.cos(ang(i))*rad).attr('y2',cy+Math.sin(ang(i))*rad);
+    const co=Math.cos(ang(i)),nm=FI2[k].n.length>22?FI2[k].n.slice(0,21)+'…':FI2[k].n;
+    el.append('text').attr('class','axl').attr('x',cx+co*(rad+12)).attr('y',cy+Math.sin(ang(i))*(rad+12)+3).attr('text-anchor',Math.abs(co)<.2?'middle':co>0?'start':'end').text(nm);});
+  [[K,'var(--cmp)'],[H,'var(--ink)']].forEach(([c,col])=>{const pts=ks.map((k,i)=>[cx+Math.cos(ang(i))*rad*c.v[k]/10,cy+Math.sin(ang(i))*rad*c.v[k]/10]);
+    el.append('polygon').attr('points',pts.map(p=>p.join(',')).join(' ')).attr('fill',col).attr('fill-opacity',.12).attr('stroke',col).attr('stroke-width',2);
+    pts.forEach(p=>el.append('circle').attr('cx',p[0]).attr('cy',p[1]).attr('r',2.6).attr('fill',col));});
+}
+function pctIn(w,iso){const list=C.filter(c=>inRegion(c)&&c.flag>0),s=scoreArr(w,list),i=list.findIndex(c=>c.iso===iso);if(i<0)return null;let worse=0;for(const x of s)if(x>s[i])worse++;return worse/(list.length-1)*100;}
+function phaseChart(H,K){
+  const s=SI2[scen];$('wPhaseChartBox').hidden=!s.phases;if(!s.phases)return;
+  const pts=s.phases.map(p=>({n:p.n,h:pctIn(p.w,H.iso)??0,c:pctIn(p.w,K.iso)??0}));
+  const el=d3.select('#wPhaseChart');el.selectAll('*').remove();
+  const m={l:34,r:12,t:10,b:38},Wd=340-m.l-m.r,Ht=150-m.t-m.b;
+  const x=d3.scalePoint().domain(pts.map(p=>p.n)).range([m.l,m.l+Wd]).padding(.3),y=d3.scaleLinear().domain([0,100]).range([m.t+Ht,m.t]);
+  if(phase>=0)el.append('rect').attr('x',x(pts[phase].n)-22).attr('y',m.t).attr('width',44).attr('height',Ht).attr('fill','var(--accent-soft)');
+  [0,50,100].forEach(v=>{el.append('line').attr('class','ax').attr('x1',m.l).attr('x2',m.l+Wd).attr('y1',y(v)).attr('y2',y(v)).attr('stroke-dasharray',v===50?'3 3':null);el.append('text').attr('class','axl').attr('x',m.l-6).attr('y',y(v)+3).attr('text-anchor','end').text(v+'%');});
+  pts.forEach((p,i)=>{const t=el.append('text').attr('class','axl').attr('text-anchor','middle').attr('font-weight',i===phase?'600':null);const ws=p.n.split(' ');(ws.length>1?[ws[0],ws.slice(1).join(' ')]:ws).forEach((w,j)=>t.append('tspan').attr('x',x(p.n)).attr('y',m.t+Ht+12+j*10).text(w));});
+  [['c','var(--cmp)'],['h','var(--ink)']].forEach(([k,col])=>{el.append('path').attr('d',d3.line().x(p=>x(p.n)).y(p=>y(p[k]))(pts)).attr('fill','none').attr('stroke',col).attr('stroke-width',2);
+    pts.forEach((p,i)=>el.append('circle').attr('cx',x(p.n)).attr('cy',y(p[k])).attr('r',4).attr('fill',col).attr('stroke','var(--panel)').attr('stroke-width',1.5).style('cursor','pointer').on('click',()=>{stopPlay();phase=i;update();}));});
+}
+
+// ---- lists ----
+function renderLists(){
+  const w=activeW(), best=R.ranked.filter(c=>c.pop>=minPop).slice(0,12);
+  $('wBestTitle').textContent=`Best countries for this scenario · ${RG[region].label}${minPop?` · ${(minPop/1e6)}M+ people`:''}`;
+  $('wBest').innerHTML=best.map((c,n)=>{const con=topThreats(c,w,2).filter(x=>x.v>=4),strong=K2.filter(k=>w[k]>=5).sort((a,b)=>c.v[a]-c.v[b]).slice(0,3).filter(k=>c.v[k]<=3);
+    return `<button class="rc" data-iso="${c.iso}"><div class="top"><h3>${n+1}. ${c.name}</h3><span>${R.by[c.iso].score.toFixed(1)}</span></div><div class="st">${c.sub} · ${c.pop?(c.pop/1e6).toFixed(1)+'M people':''}${c.est?' · estimated':''}</div>
+      <p class="pro">${strong.length?'Low '+strong.map(k=>FI2[k].n.toLowerCase()).join(', '):'No standout strengths'}</p><p class="con">${con.length?'Watch: '+con.map(x=>FI2[x.k].n.toLowerCase()+' '+x.v.toFixed(0)+'/10').join(', '):'No major weak points'}</p></button>`;}).join('')||'<p class="scen-desc">No countries match this filter.</p>';
+  document.querySelectorAll('#wBest .rc').forEach(b=>b.onclick=()=>{cmps[region]=b.dataset.iso===home()?null:b.dataset.iso;update();zoomTo(b.dataset.iso,region==='world'?4:2.5);});
+  const rows=R.ranked.filter(c=>c.pop>=minPop), ex=d3.extent(rows,c=>R.by[c.iso].score);
+  $('wBarsTitle').textContent=`${RG[region].label} ranked · ${rows.length} countries`;
+  $('wBars').innerHTML=rows.map((c,i)=>{const v=R.by[c.iso].score;return `<div class="sb${c.iso===home()?' home':''}" data-iso="${c.iso}" title="${c.name}"><span class="ab">${i+1}. ${c.iso}</span><span class="bar"><span style="width:${8+92*(v-ex[0])/((ex[1]-ex[0])||1)}%;background:${riskInterp(norm(v))}"></span></span><span class="v">${v.toFixed(1)}</span></div>`;}).join('');
+  document.querySelectorAll('#wBars .sb').forEach(el=>el.onclick=()=>{if(el.dataset.iso!==home()){cmps[region]=el.dataset.iso;update();}});
+}
+
+// ---- safest place on Earth ----
+function findSafest(){
+  const scs=SC2.filter(s=>s.w), list=C.filter(c=>c.flag>0&&c.pop>=1000000), mat={};
+  scs.forEach(s=>{const sc=scoreArr(s.w,list);const order=list.map((c,i)=>[c.iso,sc[i]]).sort((a,b)=>a[1]-b[1]);order.forEach(([iso],r)=>{(mat[iso]||(mat[iso]={}))[s.id]=1-r/(order.length-1);});});
+  const avg=list.map(c=>({c,v:d3.mean(scs,s=>mat[c.iso][s.id]),worst:d3.min(scs,s=>mat[c.iso][s.id])})).sort((a,b)=>b.v-a.v);
+  overall={by:Object.fromEntries(avg.map(a=>[a.c.iso,a.v])),top:avg,mat,scs};
+  const top=avg.slice(0,15), medal=['#C9A227','#9AA4A8','#B0713A'];
+  $('wPodium').innerHTML=top.slice(0,3).map((a,i)=>{const strengths=scs.filter(s=>a.c&&mat[a.c.iso][s.id]>=.85).map(s=>s.label);const weak=scs.slice().sort((x,y)=>mat[a.c.iso][x.id]-mat[a.c.iso][y.id])[0];
+    return `<button class="pod p${i+1}" data-iso="${a.c.iso}"><span class="medal" style="background:${medal[i]}">${i+1}</span><h3>${a.c.name}</h3><div class="big">${Math.round(a.v*100)}<small>%</small></div><div class="lab" style="text-transform:none;letter-spacing:0">safer than this share of countries, averaged over 12 scenarios</div><p class="pro">Top 15% in ${strengths.length} of 12 scenarios</p><p class="con">Weakest: ${weak.label.toLowerCase()} (${Math.round(mat[a.c.iso][weak.id]*100)}%)</p></button>`;}).join('');
+  const short={nuclear:'Nuclear war',nwinter:'Nuke winter',war:'WW3',climate:'Climate',drought:'Drought',pandemic:'Pandemic',collapse:'Collapse',solar:'Solar/EMP',supervolcano:'Supervolcano',ring:'Quake/tsunami',meltdown:'Reactor',natural:'Natural'};
+  $('wMatrix').innerHTML=`<div class="mrow mhead"><span></span>${scs.map(s=>`<span class="mh"><span>${short[s.id]}</span></span>`).join('')}<span class="mh"><span>Average</span></span></div>`+
+    top.map((a,i)=>`<div class="mrow" data-iso="${a.c.iso}"><span class="mn">${i+1}. ${a.c.name}</span>${scs.map(s=>{const p=mat[a.c.iso][s.id];return `<span class="mc" style="background:${riskInterp(1-p)}" title="${a.c.name} · ${s.label}: safer than ${Math.round(p*100)}%"></span>`;}).join('')}<span class="mv">${Math.round(a.v*100)}%</span></div>`).join('');
+  $('wSafeNote').innerHTML=`Each square is one scenario: green means near the top of ${list.length} countries, red near the bottom. Ranking treats all 12 scenarios as equally likely. Hover a square for detail; click a row to compare that country with yours.`;
+  $('wSafest').hidden=false;
+  document.querySelectorAll('#wPodium .pod,#wMatrix .mrow[data-iso]').forEach(el=>el.onclick=()=>{cmps[region]=el.dataset.iso===home()?null:el.dataset.iso;update();zoomTo(el.dataset.iso,4);});
+  layer='overall'; fillLayers(); update();
+  $('wSafest').scrollIntoView({behavior:'smooth',block:'start'});
+}
+$('wFind').onclick=findSafest;
+$('wSafeClose').onclick=()=>{$('wSafest').hidden=true;if(layer==='overall'){layer='score';fillLayers();paintMap();}};
+
+// ---- wiring ----
+let pend=false;function schedule(){if(pend)return;pend=true;requestAnimationFrame(()=>{pend=false;update();});}
+function selectScen(id){stopPlay();scen=id;phase=-1;if(SI2[id].w)W={...SI2[id].w};if(layer==='overall'){layer='score';fillLayers();}update();drawMini(SI2.custom);}
+$('wMinPop').onchange=e=>{minPop=+e.target.value;update();};
+let lastCustom=0;
+function update(){
+  if(!region)return;
+  compute();
+  document.querySelectorAll('#wGallery .gcard').forEach(b=>b.setAttribute('aria-pressed',b.dataset.id===scen));
+  $('wScenName').textContent=SI2[scen].label;$('wScenDesc').textContent=SI2[scen].desc;
+  const ph=phase>=0&&SI2[scen].phases?SI2[scen].phases[phase]:null;
+  $('wPhNote').hidden=!ph;if(ph)$('wPhNote').innerHTML=`Map is showing the <b>${ph.n}</b> phase, which uses its own weights. Sliders set the overall mix.`;
+  $('stampScen').textContent=SI2[scen].label;$('stampPhase').textContent=ph?ph.n:'Overall';$('stampHome').textContent=CI[home()].name;
+  syncWeights();paintMap();renderPhases();renderHome();renderLists();
+  if(scen==='custom'&&Date.now()-lastCustom>400){lastCustom=Date.now();drawMini(SI2.custom);}
+  store.set('scen',scen);store.set('w',W);
+}
+window.__showRegion=function(r){
+  region=r; stopPlay(); phase=-1;
+  if(layer==='overall'&&r!=='world')layer='score';
+  $('wCta').hidden=r!=='world'; if(r!=='world')$('wSafest').hidden=true;
+  fillSelects(); fillLayers(); buildMap(); update(); drawGallery();
+};
+})();
+
+// ================= tabs =================
+(function(){
+  const views={us:'view-us',europe:'view-global',asia:'view-global',world:'view-global'};
+  const SUB={us:'Every US county scored for 14 disaster scenarios, built on FEMA’s county risk data plus modeled threat zones.',europe:'Every European country scored for 12 scenarios from the EU’s INFORM Risk Index, World Bank data and modeled threat zones.',asia:'East Asia, Southeast Asia, Australia, New Zealand and the Pacific islands, scored for 12 scenarios.',world:'All 190+ countries scored for 12 scenarios. Press the button to find the safest place on Earth.'};
+  let cur=null;
+  function show(t){
+    if(t===cur)return; cur=t;
+    document.querySelectorAll('.tab').forEach(b=>b.setAttribute('aria-selected',b.dataset.tab===t));
+    document.getElementById('view-us').hidden=t!=='us'; document.getElementById('view-global').hidden=t==='us';
+    document.getElementById('subline').textContent=SUB[t]+' Pick a scenario, watch it play out, and see where you’d fare best.';
+    if(t==='us'){window.__usRefresh&&window.__usRefresh();} else window.__showRegion(t);
+    try{localStorage.setItem('dda3-tab',JSON.stringify(t));}catch(e){}
+    try{if(['europe','asia','world'].includes(t))history.replaceState(null,'','#'+t);else if(['europe','asia','world'].includes(location.hash.slice(1)))history.replaceState(null,'','#us');}catch(e){}
+  }
+  document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>show(b.dataset.tab));
+  const h=location.hash.slice(1); let t='us';
+  if(['us','europe','asia','world'].includes(h))t=h; else if(!h){try{t=JSON.parse(localStorage.getItem('dda3-tab'))||'us';}catch(e){}}
+  show(views[t]?t:'us');
+})();
+</script>
+
