@@ -7,17 +7,20 @@ An interactive map of disaster survivability. Every US county, Canadian province
 - **Scenario playback:** watch a scenario unfold phase by phase; the map re-scores at each stage.
 - **Your location:** compare your county or country with the best match, with radar and timeline charts, a preparedness checklist and a supplies calculator.
 - **Live layer:** this week's earthquakes (USGS) and active wildfires, volcanoes and storms (NASA EONET) pulse on the maps, with a live ticker and the current Doomsday Clock. Live data loads on the public site; the claude.ai viewer blocks it.
+- **Plan my escape:** the safest reachable places within about 2, 6 and 12 hours of home (6 h, 12 h and a day between countries), drawn on the map, with real road routes where available (OSRM) and a warning when the route passes near a likely target.
+- **Fallout winds:** plumes follow a year-round, winter, spring, summer or fall jet stream, or today's 500 hPa forecast from Open-Meteo.
+- **Built for phones:** map-first layout, swipeable tabs and toggles, tap the map for details with Set as home / Compare buttons.
 - **Safest place on Earth:** ranks every country of 1M+ people across all 12 global scenarios.
 
 ## Run it
 
-Open `index.html` in a browser. Keep the `tiles/` and `data/` folders next to it; the terrain maps load from there.
-
-To get the online street-level layer (OpenTopoMap) as well, serve the folder from any web host, for example GitHub Pages, or locally:
+The page loads its data from `data/na-bundle.json` and `data/world-bundle.json`, so it needs a web server (browsers block those requests from a file on disk). Use GitHub Pages, any static host, or locally:
 
 ```bash
 python3 -m http.server 8000
 ```
+
+Then open http://localhost:8000. Live events, live winds, road routes and street-level maps need an internet connection.
 
 ## Rebuild the data
 
@@ -26,7 +29,8 @@ python3 -m http.server 8000
 ```bash
 python3 build_world.py --fetch      # countries: INFORM + World Bank -> data/world.json
 python3 build_terrain.py SRC SRC7 --fetch # terrain tiles -> tiles/ (+ sharper tiles/5 for North America, Europe, SE Asia, Africa); needs numpy, Pillow
-python3 build.py --fetch             # US counties from FEMA, then writes index.html
+python3 build_na.py --fetch          # Canada + Mexico: USGS quakes, NOAA hurricanes, Smithsonian volcanoes, census -> data/na-units.json
+python3 build.py --fetch             # US counties from FEMA; writes index.html and the data bundles
 ```
 
 `data/na-admin1.json` (Canada and Mexico boundaries) is made once with `node tools/make_na_admin.js can.geojson mex.geojson` from geoBoundaries files.
@@ -41,9 +45,11 @@ python3 build.py --fetch             # US counties from FEMA, then writes index.
 - [USGS earthquake feed](https://earthquake.usgs.gov/earthquakes/feed/) and [NASA EONET](https://eonet.gsfc.nasa.gov/): live events
 - [AWS Terrain Tiles](https://registry.opendata.aws/terrain-tiles/) (SRTM, GMTED, ETOPO1): elevation for the shaded relief
 - [world-atlas](https://github.com/topojson/world-atlas) and [us-atlas](https://github.com/topojson/us-atlas): map boundaries (Natural Earth, US Census)
+- [USGS ComCat](https://earthquake.usgs.gov/fdsnws/event/1/), [NOAA HURDAT2](https://www.nhc.noaa.gov/data/#hurdat), [Smithsonian GVP](https://volcano.si.edu/), Statistics Canada 2021 Census, INEGI 2020 Census: Canada and Mexico hazards and population
+- [Open-Meteo](https://open-meteo.com/) (live winds) and [OSRM](https://project-osrm.org/) (road routes)
 - [geoBoundaries](https://www.geoboundaries.org/): Canadian province (Statistics Canada Open Licence) and Mexican state boundaries
 - Research behind the scenarios: Xia et al. 2022 (nuclear famine), Mastin et al. 2014 (Yellowstone ash), Love et al. 2018 (geoelectric hazards), FEMA 2019 National THIRA, NRC emergency planning zones
 
 ## Limits
 
-Threat zones (nuclear targets, fallout, reactors, ash, fault zones, geomagnetic exposure) are simple distance models built from public sources, not simulations; real fallout depends on the weather that day. US grid, water stress, growing season and 2050 climate trend are statewide estimates. Canadian and Mexican hazard and resource profiles are estimates per province or state, since FEMA covers only the US; threat zones there are modeled from each area's main population center. Outside the US, hazard and resource data are national averages. Taiwan is estimated (INFORM does not cover it) and small territories borrow their governing country's scores. Use this to frame decisions, then check local sources before you move.
+Threat zones (nuclear targets, fallout, reactors, ash, fault zones, geomagnetic exposure) are simple distance models built from public sources, not simulations; real fallout depends on the weather that day. US grid, water stress, growing season and 2050 climate trend are statewide estimates. Canadian and Mexican earthquake, hurricane and volcano scores are measured from USGS, NOAA and Smithsonian catalogs and calibrated to FEMA's US scale; their other hazard and resource factors are still estimates per province or state; threat zones there are modeled from each area's main population center. Outside the US, hazard and resource data are national averages. Taiwan is estimated (INFORM does not cover it) and small territories borrow their governing country's scores. Use this to frame decisions, then check local sources before you move.

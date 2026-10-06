@@ -124,7 +124,7 @@ input[type=range]{width:100%;accent-color:var(--accent);margin:0}
 .score .meta{font-family:var(--f-mono);font-size:11px;color:var(--muted);margin-top:4px;overflow-wrap:anywhere}
 .tier{display:inline-block;font-family:var(--f-mono);font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;padding:2px 7px;border-radius:99px;margin-top:6px}
 .verdict{font-size:13px;margin:12px 0 0;padding:10px;border-left:3px solid var(--accent);background:var(--bg)}
-.chartbox{margin-top:14px}
+.chartbox{margin-top:14px;overflow:hidden}
 .chartbox svg{display:block;width:100%;height:auto;overflow:visible}
 .ax{stroke:var(--line);fill:none}
 .axl{font-family:var(--f-mono);font-size:9.5px;fill:var(--muted)}
@@ -281,6 +281,78 @@ input[type=range]{width:100%;accent-color:var(--accent);margin:0}
 .sharemsg{font-size:12px;color:var(--muted);flex:1 1 100%}
 .sharebox{width:100%;font:inherit;font-size:12px;background:var(--bg);color:var(--ink);border:1px solid var(--line);border-radius:3px;padding:6px}
 @media (prefers-reduced-motion:reduce){.dclock .sh,.livedot,.livefx i::after,.strikefx i,#map .striking .mk .ring,#map .live .lp,.ticker #tickerText.in{animation:none}}
+
+/* loading */
+.loadmsg{margin:10px 0 0;padding:10px 12px;border:1px solid var(--accent);background:var(--accent-soft);border-radius:3px;font-size:13px}
+.loadmsg code{font-family:var(--f-mono);font-size:12px}
+.mapbox{min-height:340px}
+body.busy .mapbox::before{content:"Loading map data\2026";position:absolute;inset:0;display:grid;place-items:center;font-family:var(--f-mono);font-size:12px;color:var(--muted);z-index:2;background:var(--bg)}
+/* wind + escape */
+.windsel{font:inherit;font-size:13px}
+.windmsg{font-size:11.5px;color:var(--muted)}
+.windarrow{display:flex;flex-direction:column;align-items:center;pointer-events:none}
+.windarrow i{font-style:normal;font-size:20px;font-weight:700;color:#7A2E8E;text-shadow:0 0 3px #fff,0 0 3px #fff;line-height:1;display:block}
+.windarrow b{font-family:var(--f-mono);font-size:9px;color:#7A2E8E;text-shadow:0 0 3px #fff}
+.esctop{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;margin-bottom:8px}
+.escape{display:grid;gap:8px}
+.esc{border:1px solid var(--line);border-left:3px solid var(--accent);border-radius:3px;padding:9px 11px;background:var(--bg)}
+.esc.none{border-left-color:var(--line)}
+.esc h3{font-size:14px;margin:3px 0 4px}
+.esch{display:flex;justify-content:space-between;gap:8px;font-family:var(--f-mono);font-size:11px;color:var(--muted)}
+.esch b{color:var(--accent);font-weight:500;text-transform:uppercase;letter-spacing:.06em}
+.esc p{margin:4px 0 0;font-size:12.5px}
+.escbar{height:4px;background:var(--chip);border-radius:2px;overflow:hidden}
+.escbar span{display:block;height:100%;background:#2E7D6B}
+.warn{color:var(--accent)}
+.escbtns,.ract{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
+.ract{display:inline-flex;margin:0 0 0 8px;vertical-align:middle}
+.rbtn{border:1px solid var(--ink);background:transparent;border-radius:3px;padding:6px 10px;font-size:12px;cursor:pointer;min-height:34px}
+.rbtn:hover{background:var(--ink);color:var(--panel)}
+.roadmsg{color:var(--muted);font-size:12px}
+.escnote{font-size:11.5px;color:var(--muted);margin:8px 0 0}
+.escpin{background:var(--accent);color:#fff;border-radius:3px;display:grid!important;place-items:center;font-family:var(--f-mono);font-size:11px;box-shadow:0 1px 3px rgba(0,0,0,.3)}
+.wfold{display:none}
+
+/* ================= phones ================= */
+@media (max-width:820px){
+  .wrap{padding-block:10px 28px}
+  header{padding-bottom:8px}
+  h1{font-size:30px}
+  .sub{font-size:13px}
+  .stamp{display:none}
+  .pulsebar{gap:8px}
+  .dclock svg{width:30px;height:30px}.dclock b{font-size:16px}
+  .ticker{flex-basis:100%;font-size:12px}
+  .tabs{position:sticky;top:env(safe-area-inset-top,0px);z-index:1200;background:var(--bg);flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;margin-inline:-16px;padding-inline:16px}
+  .tabs::-webkit-scrollbar{display:none}
+  .tab{flex:none;padding:12px 14px;min-height:44px}
+  .gallery{margin-top:10px}
+  .gcard{min-width:150px}
+  .grid{display:flex;flex-direction:column;gap:12px;align-items:stretch}
+  .grid>main{order:1}.grid>.right{order:2;display:flex;flex-direction:column;gap:12px}.grid>.left{order:3}
+  .panel{padding:12px}
+  #wLeaf,#naLeaf{aspect-ratio:auto;height:62vh;min-height:360px}
+  .mapbar{gap:8px}
+  .mapbar>*,.mapbar2>*{min-width:0;max-width:100%}
+  .toggles{flex:1 1 100%;min-width:0;flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;margin-inline:-12px;padding:2px 12px 6px}
+  .windsel{max-width:100%}
+  .toggles::-webkit-scrollbar{display:none}
+  .tog{flex:none;min-height:36px;padding:6px 12px;font-size:12.5px}
+  .mapbar2 input[type=text]{flex-basis:100%}
+  .zoom button{width:40px;height:40px;font-size:18px}
+  .legend{font-size:10.5px}
+  .legend>span[style*="margin-left:auto"]{display:none}
+  .readout{font-size:12.5px}
+  .wfold{display:inline-block;font-size:13px;padding:6px 0}
+  .wlab{display:none}
+  .wfold[aria-expanded="false"]~#showAllW,.wfold[aria-expanded="false"]~#wShowAll{display:none}
+  .left .panel:first-child:has(.wfold[aria-expanded="false"]) #weights,.left .panel:first-child:has(.wfold[aria-expanded="false"]) #wWeights{display:none}
+  .lower{gap:12px}
+  .statebars{max-height:360px}
+  .sharebtn,.rbtn,.play{min-height:42px}
+  select,input[type=text],input[type=number]{font-size:16px} /* stops iOS zooming on focus */
+  .leaflet-control-attribution{font-size:9px;max-width:70%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+}
 footer{margin-top:26px;border-top:1px solid var(--line);padding-top:12px;font-size:12px;color:var(--muted);max-width:120ch}
 footer a{color:var(--muted)}
 @media (prefers-reduced-motion:reduce){.phase .fill.run{animation:none;width:100%}}
@@ -980,6 +1052,7 @@ svg.leaflet-image-layer.leaflet-interactive path {
   <div class="ticker" id="ticker" hidden><span class="livedot" aria-hidden="true"></span><b>Live</b><span id="tickerText" aria-live="polite"></span></div>
 </div>
 
+<p class="loadmsg" id="loadmsg" role="alert" hidden></p>
 <div class="tabs" role="tablist" aria-label="Region">
   <button class="tab" role="tab" data-tab="us" aria-selected="true">North America</button>
   <button class="tab" role="tab" data-tab="europe" aria-selected="false">Europe</button>
@@ -998,7 +1071,7 @@ svg.leaflet-image-layer.leaflet-interactive path {
       <h2>Scenario</h2>
       <p class="scen-name" id="scenName"></p>
       <p class="scen-desc" id="scenDesc"></p>
-      <div class="wtools"><span class="lab">Weights 0–10</span><button class="linkbtn" id="showAllW">Show all 28 factors</button></div>
+      <div class="wtools"><button class="linkbtn wfold" aria-expanded="false" data-for="weights">Adjust weights</button><span class="lab wlab">Weights 0–10</span><button class="linkbtn" id="showAllW">Show all 28 factors</button></div>
       <p class="phnote" id="phNote" hidden></p>
       <div id="weights"></div>
     </section>
@@ -1039,6 +1112,7 @@ svg.leaflet-image-layer.leaflet-interactive path {
           <button class="tog" id="ovL" aria-pressed="true">Labels</button>
           <button class="tog" id="ovS" aria-pressed="false" disabled>Street-level detail (online)</button>
         </div>
+        <div class="mapbar2"><label class="lab" for="naWind">Fallout winds</label><select id="naWind" class="windsel"><option value="avg">Year-round average</option><option value="winter">Winter</option><option value="spring">Spring</option><option value="summer">Summer</option><option value="fall">Fall</option><option value="live">Today (live forecast)</option></select><span class="windmsg"></span></div>
         <div style="display:flex;gap:8px;align-items:center"><label class="lab" for="usOpacity">Risk layer</label><input type="range" id="usOpacity" min="20" max="100" value="78" style="width:110px"><output id="usOpacityOut" class="lab" for="usOpacity">78%</output></div>
       </div>
       <div id="map" class="mapbox">
@@ -1050,7 +1124,7 @@ svg.leaflet-image-layer.leaflet-interactive path {
         <span class="key" id="ovKey"></span>
         <span id="naZoomNote" class="detstat"></span><span style="margin-left:auto">Drag to pan · Scroll or pinch to zoom · Click to set home · Shift-click to compare</span>
       </div>
-      <div class="readout" id="readout" aria-live="polite">Hover the map for details.</div>
+      <div class="readout" id="readout" aria-live="polite"><span class="hint">Hover the map for details.</span></div>
       <div class="phases" id="phases">
         <div class="phasebar" id="phasebar"></div>
         <div class="phasetext"><p id="phWhat"></p><p class="do" id="phDo"></p></div>
@@ -1080,6 +1154,11 @@ svg.leaflet-image-layer.leaflet-interactive path {
         <h2 style="margin:6px 0 4px">How you fare as it unfolds · % of counties you beat</h2>
         <svg id="phaseChart" viewBox="0 0 340 150" role="img" aria-label="Safety percentile by phase"></svg>
       </div>
+    </section>
+    <section class="panel escpanel">
+      <div class="esctop"><div><h2 style="margin:0 0 2px">Plan my escape</h2><p class="scen-desc" id="escSub"></p></div><button class="linkbtn" id="escShowAll">Show all on map</button></div>
+      <div class="escape" id="escape"></div>
+      <p class="escnote">Safest places with 10,000+ people reachable by car, from straight-line distance at highway speeds. Leave early, top up fuel, and check official orders first.</p>
     </section>
   </aside>
 </div>
@@ -1131,7 +1210,7 @@ svg.leaflet-image-layer.leaflet-interactive path {
       <p class="scen-name" id="wScenName"></p>
       <p class="scen-desc" id="wScenDesc"></p>
       <p class="phnote" id="wPhNote" hidden></p>
-      <div class="wtools"><span class="lab">Weights 0–10</span><button class="linkbtn" id="wShowAll">Show all 25 factors</button></div>
+      <div class="wtools"><button class="linkbtn wfold" aria-expanded="false" data-for="wWeights">Adjust weights</button><span class="lab wlab">Weights 0–10</span><button class="linkbtn" id="wShowAll">Show all 25 factors</button></div>
       <div id="wWeights"></div>
     </section>
     <section class="panel">
@@ -1169,6 +1248,7 @@ svg.leaflet-image-layer.leaflet-interactive path {
         <input type="text" id="wSearch" placeholder="Country name or lat, lon (e.g. 46.8, 8.2)" autocomplete="off">
         <label class="lab" for="wOpacity">Risk layer</label>
         <input type="range" id="wOpacity" min="0" max="100" value="68" style="width:120px"><output id="wOpacityOut" for="wOpacity" class="lab">68%</output>
+        <label class="lab" for="wWind">Fallout winds</label><select id="wWind" class="windsel"><option value="avg">Year-round average</option><option value="winter">Winter</option><option value="spring">Spring</option><option value="summer">Summer</option><option value="fall">Fall</option><option value="live">Today (live forecast)</option></select><span class="windmsg"></span>
       </div>
       <div id="wMap" class="mapbox">
         <div class="zoom"><button id="wzin" aria-label="Zoom in">+</button><button id="wzout" aria-label="Zoom out">−</button><button id="wzhome" aria-label="Zoom to your country" title="Zoom to your country">⌂</button><button id="wzreset" aria-label="Reset zoom" title="Reset">⤢</button></div>
@@ -1179,7 +1259,7 @@ svg.leaflet-image-layer.leaflet-interactive path {
         <span class="key" id="wOvKey"></span>
         <span id="wDetStatus" class="detstat"></span><span id="wZoomNote" class="detstat"></span><span style="margin-left:auto">Drag to pan · Scroll or pinch to zoom · Click to set your country · Shift-click to compare</span>
       </div>
-      <div class="readout" id="wReadout" aria-live="polite">Hover the map for details.</div>
+      <div class="readout" id="wReadout" aria-live="polite"><span class="hint">Hover the map for details.</span></div>
       <div class="phases" id="wPhases">
         <div class="phasebar" id="wPhaseBar"></div>
         <div class="phasetext"><p id="wPhWhat"></p><p class="do" id="wPhDo"></p></div>
@@ -1209,6 +1289,11 @@ svg.leaflet-image-layer.leaflet-interactive path {
         <svg id="wPhaseChart" viewBox="0 0 340 150" role="img" aria-label="Safety percentile by phase"></svg>
       </div>
       <div class="tips" id="wTips"></div>
+    </section>
+    <section class="panel escpanel">
+      <div class="esctop"><div><h2 style="margin:0 0 2px">Plan my escape</h2><p class="scen-desc" id="wEscSub"></p></div><button class="linkbtn" id="wEscShowAll">Show all on map</button></div>
+      <div class="escape" id="wEscape"></div>
+      <p class="escnote">Safer countries of 1M+ people within roughly 6 hours, 12 hours and a day by road. Borders, visas and closures can block a route; check before you go.</p>
     </section>
   </aside>
 </div>
@@ -1258,8 +1343,60 @@ svg.leaflet-image-layer.leaflet-interactive path {
 <script src="https://cdnjs.cloudflare.com/ajax/libs/topojson/3.0.2/topojson.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js"></script>
 <script>
-const TOPO = __TOPO__;
-const CD = __COUNTIES__;
+// ================= winds for fallout: seasonal climatology or live 500 hPa forecast (Open-Meteo) =================
+window.WIND=(function(){
+  const RAD=Math.PI/180, key=(la,lo)=>la.toFixed(2)+','+lo.toFixed(2);
+  // 500 hPa westerlies: jet core latitude and peak speed (km/h) by season; tighter plumes in winter, wider in summer
+  const SEAS={avg:{c:44,pk:64,k:.09},winter:{c:38,pk:92,k:.07},spring:{c:42,pk:72,k:.09},summer:{c:50,pk:40,k:.13},fall:{c:44,pk:62,k:.10}};
+  let mode='avg', live=null; const subs=[], points=[];
+  function clim(lat,s){const S=SEAS[s]||SEAS.avg,a=Math.abs(lat);
+    if(a<20)return{to:270,spd:22,k:.12};          // trade winds blow west
+    if(a<25)return{to:90,spd:18,k:.14};
+    return{to:lat>=0?78:102,spd:20+S.pk*Math.exp(-Math.pow((a-S.c)/14,2)),k:S.k};}
+  const at=(lat,lon)=>(mode==='live'&&live&&live.get(key(lat,lon)))||clim(lat,mode==='live'?'avg':mode);
+  async function fetchLive(){
+    const uniq=[...new Map(points.map(p=>[key(p[0],p[1]),p])).values()], res=new Map();
+    for(let i=0;i<uniq.length;i+=150){const ch=uniq.slice(i,i+150);
+      const r=await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${ch.map(p=>p[0].toFixed(2)).join(',')}&longitude=${ch.map(p=>p[1].toFixed(2)).join(',')}&hourly=wind_speed_500hPa,wind_direction_500hPa&forecast_hours=1`);
+      if(!r.ok)throw new Error('wind '+r.status); let j=await r.json(); if(!Array.isArray(j))j=[j];
+      j.forEach((d,ix)=>{const h=d.hourly||{},spd=(h.wind_speed_500hPa||[])[0],dir=(h.wind_direction_500hPa||[])[0];if(spd!=null&&dir!=null)res.set(key(ch[ix][0],ch[ix][1]),{to:(dir+180)%360,spd,k:.08});});}
+    if(!res.size)throw new Error('no wind data'); return res;
+  }
+  const say=t=>document.querySelectorAll('.windmsg').forEach(el=>el.textContent=t);
+  async function set(m){
+    document.querySelectorAll('.windsel').forEach(el=>el.value=m);
+    if(m==='live'&&!live){say('Loading today’s winds…');
+      try{live=await fetchLive();}catch(e){say('Live winds are blocked here. Open the public site for today’s forecast.');document.querySelectorAll('.windsel').forEach(el=>el.value=mode);return;}}
+    mode=m; say(m==='live'?'Winds at ~5.5 km (500 hPa) from Open-Meteo, this hour':m==='avg'?'':'Typical '+m+' jet stream');
+    subs.forEach(f=>f());
+  }
+  return {at,set,points,onChange:f=>subs.push(f),get mode(){return mode}};
+})();
+// small shared helpers for the escape planner
+window.ESC={
+  bearing(a,b){const R=Math.PI/180,y=Math.sin((b[0]-a[0])*R)*Math.cos(b[1]*R),x=Math.cos(a[1]*R)*Math.sin(b[1]*R)-Math.sin(a[1]*R)*Math.cos(b[1]*R)*Math.cos((b[0]-a[0])*R);return (Math.atan2(y,x)/R+360)%360;},
+  compass(d){return ['N','NE','E','SE','S','SW','W','NW'][Math.round(d/45)%8];},
+  km(a,b){const R=Math.PI/180,dl=(b[0]-a[0])*R,p1=a[1]*R,p2=b[1]*R,h=Math.sin((p2-p1)/2)**2+Math.cos(p1)*Math.cos(p2)*Math.sin(dl/2)**2;return 12742*Math.asin(Math.min(1,Math.sqrt(h)));},
+  // closest likely target along the straight route (ignoring ones at your starting point), to warn before you drive past it
+  nearTarget(a,b,targets){let best=null;const ahead=targets.filter(t=>ESC.km(a,t.c)>60);for(let i=1;i<=20;i++){const p=[a[0]+(b[0]-a[0])*i/20,a[1]+(b[1]-a[1])*i/20];for(const t of ahead){const d=ESC.km(p,t.c);if(d<45&&(!best||d<best.d))best={d,n:t.n};}}return best;},
+  async road(a,b){try{const r=await fetch(`https://router.project-osrm.org/route/v1/driving/${a[0]},${a[1]};${b[0]},${b[1]}?overview=simplified&geometries=geojson`);if(!r.ok)return null;const j=await r.json();const rt=j.routes&&j.routes[0];return rt?{h:rt.duration/3600,km:rt.distance/1000,line:rt.geometry.coordinates.map(c=>[c[1],c[0]])}:null;}catch(e){return null;}}
+};
+const TOUCH=matchMedia('(pointer: coarse)').matches;
+if(TOUCH)document.addEventListener('DOMContentLoaded',()=>document.querySelectorAll('.readout .hint').forEach(h=>h.textContent='Tap the map for details.'));
+window.tweenScore=function(el,to){const fmt=v=>`${v.toFixed(1)}<small> /10</small>`,from=parseFloat(el.dataset.v);el.dataset.v=to;cancelAnimationFrame(el._raf);
+  if(isNaN(from)||Math.abs(from-to)<.05||matchMedia('(prefers-reduced-motion: reduce)').matches){el.innerHTML=fmt(to);return;}
+  const t0=performance.now();const step=t=>{const k=Math.min(1,(t-t0)/500),e=1-Math.pow(1-k,3);el.innerHTML=fmt(from+(to-from)*e);if(k<1)el._raf=requestAnimationFrame(step);};el._raf=requestAnimationFrame(step);};
+function placeTip(tip,box,cx,cy){
+  // small label beside the cursor; flips to the other side near the right or bottom edge
+  const x=cx-box.left, y=cy-box.top, w=tip.offsetWidth||160, h=tip.offsetHeight||24;
+  tip.style.left=x+'px'; tip.style.top=y+'px';
+  tip.style.transform=`translate(${x+14+w>box.width?`calc(-100% - 14px)`:'14px'},${y+14+h>box.height?`calc(-100% - 10px)`:'14px'})`;
+  tip.style.opacity=1;
+}
+window.placeTip=placeTip;
+</script>
+<script>
+window.__initNA=function(TOPO,CD,NAA,NAU){
 const $ = id => document.getElementById(id);
 
 // ---------- factors ----------
@@ -1306,7 +1443,6 @@ const REGION={NE:'CT ME MA NH RI VT NJ NY PA',MW:'IL IN MI OH WI IA KS MN MO NE 
 const REG_OF={}; Object.entries(REGION).forEach(([r,s])=>s.split(' ').forEach(a=>REG_OF[a]=r));
 
 // ---------- geometry (longitude / latitude) ----------
-const NAA = __NAADMIN__;
 const features=topojson.feature(TOPO,TOPO.objects.counties).features;
 const stateFeats=topojson.feature(TOPO,TOPO.objects.states).features;
 const stateMesh=topojson.mesh(TOPO,TOPO.objects.states,(a,b)=>a!==b);
@@ -1385,7 +1521,8 @@ NA_EST.split('\n').forEach(line=>{
   const v={}; nat.split(' ').forEach((x,i)=>v[NAT_K[i]]=+x);
   const [fd,sv,cr]=soc.split(' ').map(Number), [gr,wa,gs,cl]=inf.split(' ').map(Number);
   Object.assign(v,{fd,sv,cr,gr,wa,gs,cl});
-  const pop=Math.round(+popM*1e6), area=d3.geoArea(f)*6371*6371/2.59;
+  const u=NAU&&NAU[code]; if(u)['eq','hu','vo'].forEach(k=>{if(u[k]!=null)v[k]=u[k];});
+  const pop=u&&u.pop?u.pop:Math.round(+popM*1e6), area=d3.geoArea(f)*6371*6371/2.59;
   v.pd=Math.max(0,Math.min(10,10*Math.log10(Math.max(pop/area,1))/4));
   const c={id:code,st,cty,name,pop,area,v,f,reg:'NA',ll:pc.split(',').map(Number),bb:d3.geoBounds(f),est:true};
   c.label=`${name}, ${cty==='CAN'?'Canada':'Mexico'}`;
@@ -1443,10 +1580,8 @@ function lineKm(p,coords){const pts=coords.map(c=>kmxy(c,p));let m=Infinity;for(
     TARGETS.forEach(t=>{
       const [dx,dy]=kmxy(p,t.c), d=Math.hypot(dx,dy), w=TW[t.t];
       nk=Math.max(nk,w.p*Math.exp(-Math.max(0,d-10)/w.tau));
-      const a=dx*wx+dy*wy, cr=-dx*wy+dy*wx;
-      if(a>-40&&a<4000){const aa=Math.max(a,0), s=16+0.085*aa; fo+=w.fo*Math.exp(-aa/480)*Math.exp(-(cr*cr)/(2*s*s));}
     });
-    c.v.nk=10*nk; c._fo=fo; foMax=Math.max(foMax,fo);
+    c.v.nk=10*nk;
     let np=0; REACTORS.forEach(r=>{const d=kmd(p,[r[1],r[0]]);np=Math.max(np,d<16?10:10*Math.exp(-(d-16)/110));});
     c.v.np=np;
     const [dx,dy]=kmxy(p,ys), d=Math.hypot(dx,dy), cos=d?(dx*wx+dy*wy)/d:0, de=d*(1-0.2*cos);
@@ -1457,8 +1592,19 @@ function lineKm(p,coords){const pts=coords.map(c=>kmxy(c,p));let m=Infinity;for(
     let rf=0; metros.forEach(m=>{const dd=kmd(p,m.ll);if(dd>800)return;rf=Math.max(rf,(1+Math.log10(m.pop/900000))*Math.exp(-dd/120));});
     c.v.rf=Math.min(10,7*rf);
   });
-  const I0=0.12; C.forEach(c=>{c.v.fo=10*Math.log(1+c._fo/I0)/Math.log(1+foMax/I0);});
 })();
+let FO_REF=null;
+function computeFallout(){
+  // each target's plume follows the wind at its own location (season average or today's forecast)
+  const FW={silo:10,base:3,city:1.2};
+  const tw=TARGETS.map(t=>{const w=WIND.at(t.c[1],t.c[0]);return {c:t.c,ux:Math.sin(w.to*RAD),uy:Math.cos(w.to*RAD),L:480*w.spd/60,k:w.k,f:FW[t.t]};});
+  let mx=0;
+  C.forEach(c=>{let fo=0;for(const o of tw){const [dx,dy]=kmxy(c.ll,o.c),a=dx*o.ux+dy*o.uy;if(a<-40||a>4000)continue;const cr=-dx*o.uy+dy*o.ux,aa=Math.max(a,0),sd=16+o.k*aa;fo+=o.f*Math.exp(-aa/o.L)*Math.exp(-(cr*cr)/(2*sd*sd));}c._fo=fo;if(fo>mx)mx=fo;});
+  if(FO_REF==null)FO_REF=mx; const I0=0.12;
+  C.forEach(c=>{c.v.fo=Math.min(10,10*Math.log(1+c._fo/I0)/Math.log(1+FO_REF/I0));});
+}
+TARGETS.forEach(t=>WIND.points.push([t.c[1],t.c[0]]));
+computeFallout();
 
 // ---------- scenarios ----------
 const W0=()=>Object.fromEntries(KEYS.map(k=>[k,0]));
@@ -1658,7 +1804,10 @@ function unitAt(e){
 }
 lmap.on('mousemove',e=>{const c=unitAt(e);if(!c){tip.style.opacity=0;return;}showTip(e.originalEvent,c);});
 lmap.on('mouseout',()=>tip.style.opacity=0);
-lmap.on('click',e=>{const c=unitAt(e);if(!c)return;const ev=e.originalEvent;if(ev.shiftKey||ev.altKey||ev.metaKey){cmp=c.id===home?null:c.id;}else{home=c.id;if(cmp===home)cmp=null;}update();});
+lmap.on('click',e=>{const c=unitAt(e);if(!c)return;const ev=e.originalEvent;
+  if(TOUCH){showTip(ev,c);tip.style.opacity=0;$('readout').insertAdjacentHTML('beforeend',`<span class="ract"><button class="rbtn" data-id="${c.id}" data-act="home">Set as home</button><button class="rbtn" data-id="${c.id}" data-act="cmp">Compare</button></span>`);return;}
+  if(ev.shiftKey||ev.altKey||ev.metaKey){cmp=c.id===home?null:c.id;}else{home=c.id;if(cmp===home)cmp=null;}update();});
+$('readout').addEventListener('click',e=>{const b=e.target.closest('.rbtn');if(!b)return;if(b.dataset.act==='home'){home=b.dataset.id;if(cmp===home)cmp=null;}else{cmp=b.dataset.id===home?null:b.dataset.id;}update();});
 let naMoveT=null; lmap.on('moveend zoomend resize',()=>{clearTimeout(naMoveT);naMoveT=setTimeout(naRender,120);});
 lmap.on('zoomend',()=>{const z=lmap.getZoom(),c=lmap.getCenter(),inD=c.lng>-125&&c.lng<-67.6&&c.lat>15&&c.lat<52;$('naZoomNote').textContent=!naStreetOn&&z>(inD?7.5:6.5)?'Zoomed past the built-in terrain detail. Turn on street-level detail for more.':'';});
 lmap.fitBounds([[15,-128],[60,-62]],{animate:false});
@@ -1669,14 +1818,7 @@ function zoomTo(id){const c=CI[id];let [[w,s],[e,n]]=c.bb;if(e<w)e+=360;lmap.fly
 $('zhome').onclick=()=>zoomTo(home);
 
 function topThreats(c,w,n=3){return KEYS.filter(k=>w[k]>0).map(k=>({k,c:w[k]*c.v[k],v:c.v[k],w:w[k]})).sort((a,b)=>b.c-a.c).slice(0,n);}
-function placeTip(tip,box,cx,cy){
-  // small label beside the cursor; flips to the other side near the right or bottom edge
-  const x=cx-box.left, y=cy-box.top, w=tip.offsetWidth||160, h=tip.offsetHeight||24;
-  tip.style.left=x+'px'; tip.style.top=y+'px';
-  tip.style.transform=`translate(${x+14+w>box.width?`calc(-100% - 14px)`:'14px'},${y+14+h>box.height?`calc(-100% - 10px)`:'14px'})`;
-  tip.style.opacity=1;
-}
-window.placeTip=placeTip;
+
 function showTip(e,c){
   const r=R.of(c.id), box=mapEl.getBoundingClientRect();
   const val=layer==='score'?`${r.score.toFixed(1)} risk`:`${c.v[layer].toFixed(1)}/10`;
@@ -1692,6 +1834,7 @@ function paintMap(){
   if(!R)return;
   naPaint();
   Object.entries(mk).forEach(([k,g])=>{if(ov[k])g.addTo(lmap);else g.remove();});
+  if(ov.t)naArrows.addTo(lmap);else naArrows.remove();
   if(scen==='nuclear'&&phase===0)naStrike.addTo(lmap);else naStrike.remove();
   $('legLo').textContent=layer==='score'?'Lowest risk ('+R.ext[0].toFixed(1)+')':'0 · none';$('legHi').textContent=layer==='score'?'Highest ('+R.ext[1].toFixed(1)+')':'10 · severe';
   const k=[];
@@ -1704,6 +1847,52 @@ function paintMap(){
 (function(){const c=$('ramp').getContext('2d');for(let i=0;i<180;i++){c.fillStyle=riskInterp(i/179);c.fillRect(i,0,1,10);}})();
 [['ovT','t'],['ovR','r'],['ovG','g'],['ovL','l']].forEach(([id,k])=>{const b=$(id);b.onclick=()=>{ov[k]=!ov[k];b.setAttribute('aria-pressed',ov[k]);paintMap();};});
 $('ovS').onclick=()=>{if(!naStreetOK)return;naStreetOn=!naStreetOn;$('ovS').setAttribute('aria-pressed',naStreetOn);if(naStreetOn){naStreet.addTo(lmap);naTerrain.setOpacity(0);naDetail.setOpacity(0);lmap.setMaxZoom(17);}else{naStreet.remove();naTerrain.setOpacity(1);naDetail.setOpacity(1);lmap.setMaxZoom(11);}lmap.fire('zoomend');};
+
+
+// ---------- wind arrows over the missile fields ----------
+const naArrows=L.layerGroup();
+function drawArrows(){naArrows.clearLayers();const seen=new Set();TARGETS.filter(t=>t.t==='silo').forEach(t=>{if(seen.has(t.n))return;seen.add(t.n);const w=WIND.at(t.c[1],t.c[0]);
+  L.marker([t.c[1]+.6,t.c[0]],{interactive:false,keyboard:false,icon:L.divIcon({className:'windarrow',iconSize:[30,30],html:`<i style="transform:rotate(${w.to}deg)">↑</i><b>${Math.round(w.spd)}</b>`})}).addTo(naArrows);});}
+WIND.onChange(()=>{computeFallout();drawArrows();update();});
+drawArrows();
+
+// ---------- plan my escape ----------
+const escLayer=L.layerGroup().addTo(lmap); let escShown=false;
+function escapePlan(){
+  const H=CI[home], hs=R.of(home).score, bands=[[2,130],[6,390],[12,785]], used=new Set();
+  return bands.map(([h,maxKm])=>{
+    for(const i of R.order){const c=C[i];if(c.id===home||used.has(c.id)||c.pop<10000)continue;if(R.s[i]>=hs-0.15)break;
+      const d=ESC.km(H.ll,c.ll);if(d>maxKm)continue;used.add(c.id);
+      return {h,c,d,score:R.s[i],gain:hs-R.s[i],dir:ESC.compass(ESC.bearing(H.ll,c.ll)),near:ESC.nearTarget(H.ll,c.ll,TARGETS)};}
+    return {h,none:true};});
+}
+function renderEscape(){
+  const plan=escapePlan(), H=CI[home];
+  $('escSub').textContent=`From ${H.label} · ${SI[scen].label}`;
+  $('escape').innerHTML=plan.map((p,ix)=>p.none?`<div class="esc none"><div class="esch"><b>${p.h} h drive</b></div><p>Nowhere meaningfully safer within ${p.h} hours. You may already be in one of the better spots nearby.</p></div>`:
+    `<div class="esc"><div class="esch"><b>${p.h} h drive</b><span>${Math.round(p.d)} km ${p.dir}</span></div><h3>${p.c.label}</h3>
+     <div class="escbar"><span style="width:${Math.min(100,p.gain*14)}%"></span></div>
+     <p>Risk ${p.score.toFixed(1)} vs ${R.of(home).score.toFixed(1)} at home (${p.gain.toFixed(1)} lower).${p.near?` <span class="warn">Route passes within ${Math.round(p.near.d)} km of ${p.near.n}.</span>`:''}</p>
+     <div class="escbtns"><button class="rbtn" data-ix="${ix}" data-act="show">Show route</button><button class="rbtn" data-id="${p.c.id}" data-act="cmp">Compare</button></div><p class="roadmsg" id="road${ix}"></p></div>`).join('');
+  escLayer.clearLayers(); if(escShown)drawEscape(plan);
+  $('escape').querySelectorAll('.rbtn').forEach(b=>b.onclick=async()=>{
+    if(b.dataset.act==='cmp'){cmp=b.dataset.id;update();return;}
+    const p=plan[+b.dataset.ix]; escShown=true; drawEscape(plan,+b.dataset.ix);
+    const msg=$('road'+b.dataset.ix); msg.textContent='Checking roads…';
+    const r=await ESC.road(H.ll,p.c.ll);
+    if(r){L.polyline(r.line,{color:'#C9481A',weight:4,opacity:.9}).addTo(escLayer);msg.textContent=`By road: ${r.km.toFixed(0)} km, about ${r.h.toFixed(1)} h without traffic (OSRM).`;}
+    else msg.textContent='Straight-line estimate. Road routing works on the public site.';
+    $('map').scrollIntoView({behavior:'smooth',block:'center'});
+  });
+}
+function drawEscape(plan,focus){
+  escLayer.clearLayers(); const H=CI[home], pts=[[H.ll[1],H.ll[0]]];
+  plan.forEach((p,ix)=>{if(p.none)return;const ll=[p.c.ll[1],p.c.ll[0]];pts.push(ll);
+    L.polyline([[H.ll[1],H.ll[0]],ll],{color:'#C9481A',weight:focus===ix?3.5:2,dashArray:'6 6',opacity:focus==null||focus===ix?.95:.45}).addTo(escLayer);
+    L.marker(ll,{keyboard:false,icon:L.divIcon({className:'escpin',iconSize:[34,20],html:`<b>${p.h}h</b>`})}).addTo(escLayer);});
+  lmap.flyToBounds(pts,{padding:[50,50],maxZoom:8,duration:.7});
+}
+$('escShowAll').onclick=()=>{escShown=true;drawEscape(escapePlan());$('map').scrollIntoView({behavior:'smooth',block:'center'});};
 
 // ---------- phases ----------
 function renderPhases(){
@@ -1732,9 +1921,7 @@ bindCounty($('homeIn'),id=>{home=id;if(cmp===home)cmp=null;setTimeout(()=>zoomTo
 bindCounty($('cmpIn'),id=>{cmp=id===home?null:id;});
 $('cmpIn').addEventListener('input',e=>{if(!e.target.value.trim()){cmp=null;update();}});
 function cmpAb(){return cmp&&cmp!==home?cmp:bestId(home);}
-window.tweenScore=function(el,to){const fmt=v=>`${v.toFixed(1)}<small> /10</small>`,from=parseFloat(el.dataset.v);el.dataset.v=to;cancelAnimationFrame(el._raf);
-  if(isNaN(from)||Math.abs(from-to)<.05||matchMedia('(prefers-reduced-motion: reduce)').matches){el.innerHTML=fmt(to);return;}
-  const t0=performance.now();const step=t=>{const k=Math.min(1,(t-t0)/500),e=1-Math.pow(1-k,3);el.innerHTML=fmt(from+(to-from)*e);if(k<1)el._raf=requestAnimationFrame(step);};el._raf=requestAnimationFrame(step);};
+
 function fmtScore(pre,id){
   const r=R.of(id), t=tierOf(r.pct), c=CI[id];
   tweenScore($(pre+'Score'),r.score);
@@ -1753,7 +1940,7 @@ function renderHome(){
   $('verdict').innerHTML=diff>0.05
     ?`For the <b>${lbl}</b>, ${H.label} is safer than ${Math.round((1-hr.pct)*100)}% of places in North America. ${K.label} scores ${diff.toFixed(1)} points lower risk. Your biggest drivers: ${top.join(' and ')}.`
     :`For the <b>${lbl}</b>, ${H.label} already scores as well as ${K.label} (safer than ${Math.round((1-hr.pct)*100)}% of places). Your top remaining risks: ${top.join(' and ')}.`;
-  drawRadar(H,K,w); drawPhaseChart(H,K);
+  drawRadar(H,K,w); drawPhaseChart(H,K); renderEscape();
 }
 function drawRadar(H,K,w){
   const ks=KEYS.filter(k=>w[k]>0).sort((a,b)=>(w[b]*Math.max(H.v[b],K.v[b]))-(w[a]*Math.max(H.v[a],K.v[a]))).slice(0,8);
@@ -1890,11 +2077,13 @@ window.__liveUS=ev=>{ev.forEach(e=>{const sz=e.k==='quake'?Math.round(6+(e.mag-2
   naLive.addTo(lmap);const b=document.getElementById('ovLive');b.hidden=false;b.onclick=()=>{naLiveOn=!naLiveOn;b.setAttribute('aria-pressed',naLiveOn);naLiveOn?naLive.addTo(lmap):naLive.remove();paintMap();};paintMap();};
 const usOp=v=>{naOverlay.setOpacity(v/100);document.getElementById('usOpacityOut').textContent=v+'%';};
 document.getElementById('usOpacity').addEventListener('input',e=>usOp(+e.target.value));usOp(78);
+$('naWind').onchange=e=>WIND.set(e.target.value);
+if(window.__live)window.__liveUS(window.__live);
+};
 </script>
 <script>
 // ================= Europe · Asia-Pacific · World =================
-(function(){
-const WT=__WORLDTOPO__, WD=__WORLD__;
+window.__initWorld=function(WT,WD){
 const $=id=>document.getElementById(id);
 const G={nat:'Natural hazards',mod:'Threat zones',gov:'Conflict & governance',soc:'People & resources'};
 const SRC2={[G.nat]:'INFORM 2026',[G.mod]:'modeled',[G.gov]:'INFORM 2026',[G.soc]:'INFORM + World Bank'};
@@ -2042,8 +2231,8 @@ const detCompute=function(d){
       const t=T[j], tw=TW[t[0]]; let dlo=lo-t[2]; dlo=((dlo+540)%360)-180;
       const dx=dlo*111.2*cl, dy=(la-t[1])*111.2, d2=dx*dx+dy*dy;
       if(d2<tw[1]*tw[1]*36){const v=tw[0]*Math.exp(-Math.max(0,Math.sqrt(d2)-10)/tw[1]); if(v>nk)nk=v;}
-      const a=dx*(Math.abs(t[1])>=25?1:-1);
-      if(a>-40&&a<2600&&dy<700&&dy>-700){const aa=a>0?a:0, s=25+0.09*aa; fo+=tw[2]*Math.exp(-aa/600)*Math.exp(-(dy*dy)/(2*s*s));}
+      const a=dx*t[3]+dy*t[4];
+      if(a>-40&&a<3500){const cr=-dx*t[4]+dy*t[3];if(cr<800&&cr>-800){const aa=a>0?a:0, s=25+t[6]*aa; fo+=tw[2]*Math.exp(-aa/t[5])*Math.exp(-(cr*cr)/(2*s*s));}}
     }
     out.nk[i]=10*nk; out.fo[i]=Math.min(10,10*Math.log(1+fo/0.05)/LN);
     const near=(pts,cut,f)=>{let m=0;for(let j=0;j<pts.length;j++){const p=pts[j];const dlo=((lo-p[1]+540)%360)-180;const dx=dlo*111.2*cl,dy=(la-p[0])*111.2,d2=dx*dx+dy*dy;if(d2>cut*cut)continue;const v=f(Math.sqrt(d2));if(v>m)m=v;}return m;};
@@ -2085,7 +2274,7 @@ function detRender(){
   if(!detail){DET=base;paintMap();return;}
   const done=out=>{if(job!==detJob)return;base.out=out;DET=base;detStatus('');paintMap();};
   detStatus('Sharpening detail…');
-  const data={id:job,ll,mask,T:WD.targets,Rx:WD.reactors,V:WD.volcanoes,F:WD.flash};
+  const RD=Math.PI/180, data={id:job,ll,mask,T:WD.targets.map(([t,la,lo])=>{const w=WIND.at(la,lo);return [t,la,lo,Math.sin(w.to*RD),Math.cos(w.to*RD),480*w.spd/60,w.k];}),Rx:WD.reactors,V:WD.volcanoes,F:WD.flash};
   if(worker){workerCb=m=>{if(m.id===job)done(m.out);};worker.postMessage(data,[ll.buffer,mask.buffer]);}
   else setTimeout(()=>done(detCompute(data)),0);
 }
@@ -2126,7 +2315,10 @@ function cellAt(e){
 }
 map.on('mousemove',e=>{const h=cellAt(e);if(!h){tip.style.opacity=0;return;}showTip(e.originalEvent,h);});
 map.on('mouseout',()=>tip.style.opacity=0);
-map.on('click',e=>{const h=cellAt(e);if(!h)return;const c=h.c,ev=e.originalEvent;if(ev.shiftKey||ev.altKey||ev.metaKey){cmps[region]=c.iso===home()?null:c.iso;}else{homes[region]=c.iso;store.set('homes',homes);if(cmps[region]===c.iso)cmps[region]=null;}update();});
+map.on('click',e=>{const h=cellAt(e);if(!h)return;const c=h.c,ev=e.originalEvent;
+  if(TOUCH){showTip(ev,h);tip.style.opacity=0;$('wReadout').insertAdjacentHTML('beforeend',`<span class="ract"><button class="rbtn" data-id="${c.iso}" data-act="home">Set as my country</button><button class="rbtn" data-id="${c.iso}" data-act="cmp">Compare</button></span>`);return;}
+  if(ev.shiftKey||ev.altKey||ev.metaKey){cmps[region]=c.iso===home()?null:c.iso;}else{homes[region]=c.iso;store.set('homes',homes);if(cmps[region]===c.iso)cmps[region]=null;}update();});
+$('wReadout').addEventListener('click',e=>{const b=e.target.closest('.rbtn');if(!b)return;if(b.dataset.act==='home'){homes[region]=b.dataset.id;store.set('homes',homes);if(cmps[region]===b.dataset.id)cmps[region]=null;}else{cmps[region]=b.dataset.id===home()?null:b.dataset.id;}update();});
 let moveT=null; map.on('moveend zoomend resize',()=>{clearTimeout(moveT);moveT=setTimeout(detRender,120);});
 map.on('zoomend',()=>{const z=map.getZoom();$('wZoomNote').textContent=!streetOn&&z>(inDetail(map.getCenter())?7.5:6.5)?'Zoomed past the built-in terrain detail. Turn on street-level detail for more.':'';});
 function showTip(ev,h){
@@ -2151,6 +2343,7 @@ function paintMap(){
   paintOverlay();
   if(scen==='nuclear'&&phase===0&&SI2[scen].phases)strikeFx.addTo(map);else strikeFx.remove();
   Object.entries(markers).forEach(([k,g])=>{if(ov[k])g.addTo(map);else g.remove();});
+  if(ov.t)wArrows.addTo(map);else wArrows.remove();
   const k=[];
   if(ov.t)k.push(`<span><i style="background:#7A2E8E"></i>Missile field</span><span><i style="background:#B42F2A"></i>Military</span><span><i style="background:#17252A;box-shadow:0 0 0 1px #fff"></i>City</span>`);
   if(ov.r)k.push(`<span><i style="background:#F2C230"></i>Reactor</span>`);
@@ -2173,6 +2366,44 @@ $('wzout').onclick=()=>map.zoomOut(1);
 $('wzreset').onclick=()=>map.flyToBounds(RG[region].bounds,{duration:.6});
 $('wzhome').onclick=()=>zoomTo(home());
 $('wSearch').addEventListener('keydown',e=>{if(e.key!=='Enter')return;const m=e.target.value.trim().match(/^(-?\d+(?:\.\d+)?)[,\s]+(-?\d+(?:\.\d+)?)$/);if(m){map.flyTo([+m[1],+m[2]],7.5,{duration:.8});return;}const q=e.target.value.trim().toLowerCase();const c=C.find(x=>x.name.toLowerCase()===q)||C.find(x=>x.name.toLowerCase().startsWith(q));if(c)zoomTo(c.iso);});
+
+
+// ---------- wind arrows + plan my escape (countries) ----------
+const wArrows=L.layerGroup();
+function wDrawArrows(){wArrows.clearLayers();let last=null;WD.targets.forEach(([t,la,lo])=>{if(t!=='silo')return;if(last&&Math.abs(last[0]-la)<3&&Math.abs(last[1]-lo)<3)return;last=[la,lo];const w=WIND.at(la,lo);
+  L.marker([la+.8,lo],{interactive:false,keyboard:false,icon:L.divIcon({className:'windarrow',iconSize:[30,30],html:`<i style="transform:rotate(${w.to}deg)">↑</i><b>${Math.round(w.spd)}</b>`})}).addTo(wArrows);});}
+WD.targets.forEach(([t,la,lo])=>WIND.points.push([la,lo]));
+WIND.onChange(()=>{wDrawArrows();if(region)detRender();});
+wDrawArrows();
+const wEscLayer=L.layerGroup().addTo(map);
+const WT_TARGETS=WD.targets.filter(t=>t[0]!=='city').map(([t,la,lo])=>({c:[lo,la],n:t==='silo'?'a missile field':'a military base'}));
+function wEscapePlan(){
+  const h=home(),H=CI[h],hs=R.by[h].score,hl=[H.lon,H.lat],used=new Set();
+  return [[6,400],[12,800],[24,1600]].map(([hrs,maxKm])=>{
+    for(const c of R.ranked){if(c.iso===h||used.has(c.iso)||c.pop<1000000)continue;const sc=R.by[c.iso].score;if(sc>=hs-0.1)break;
+      const d=ESC.km(hl,[c.lon,c.lat]);if(d>maxKm)continue;used.add(c.iso);
+      return {h:hrs,c,d,score:sc,gain:hs-sc,dir:ESC.compass(ESC.bearing(hl,[c.lon,c.lat])),near:ESC.nearTarget(hl,[c.lon,c.lat],WT_TARGETS)};}
+    return {h:hrs,none:true};});
+}
+function wRenderEscape(){
+  const plan=wEscapePlan(),h=home(),H=CI[h];
+  $('wEscSub').textContent=`From ${H.name} · ${SI2[scen].label}`;
+  $('wEscape').innerHTML=plan.map((p,ix)=>p.none?`<div class="esc none"><div class="esch"><b>${p.h===24?'1 day':p.h+' h'}</b></div><p>No safer country of 1M+ people within reach.</p></div>`:
+    `<div class="esc"><div class="esch"><b>${p.h===24?'~1 day':'~'+p.h+' h'}</b><span>${Math.round(p.d)} km ${p.dir}</span></div><h3>${p.c.name}</h3>
+     <div class="escbar"><span style="width:${Math.min(100,p.gain*14)}%"></span></div>
+     <p>Risk ${p.score.toFixed(1)} vs ${R.by[h].score.toFixed(1)} (${p.gain.toFixed(1)} lower). Distances are center to center.${p.near?` <span class="warn">The direct line passes ${Math.round(p.near.d)} km from ${p.near.n}.</span>`:''}</p>
+     <div class="escbtns"><button class="rbtn" data-ix="${ix}" data-act="show">Show on map</button><button class="rbtn" data-iso="${p.c.iso}" data-act="cmp">Compare</button></div></div>`).join('');
+  wEscLayer.clearLayers();
+  $('wEscape').querySelectorAll('.rbtn').forEach(b=>b.onclick=()=>{if(b.dataset.act==='cmp'){cmps[region]=b.dataset.iso;update();return;}wDrawEscape(plan,+b.dataset.ix);});
+}
+function wDrawEscape(plan,focus){
+  wEscLayer.clearLayers();const H=CI[home()],pts=[[H.lat,H.lon]];
+  plan.forEach((p,ix)=>{if(p.none)return;const ll=[p.c.lat,p.c.lon];pts.push(ll);
+    L.polyline([[H.lat,H.lon],ll],{color:'#C9481A',weight:focus===ix?3.5:2,dashArray:'6 6',opacity:focus==null||focus===ix?.95:.45}).addTo(wEscLayer);
+    L.marker(ll,{keyboard:false,icon:L.divIcon({className:'escpin',iconSize:[40,20],html:`<b>${p.h===24?'1d':p.h+'h'}</b>`})}).addTo(wEscLayer);});
+  map.flyToBounds(pts,{padding:[50,50],maxZoom:6,duration:.7});$('wMap').scrollIntoView({behavior:'smooth',block:'center'});
+}
+$('wEscShowAll').onclick=()=>wDrawEscape(wEscapePlan());
 
 // ---- gallery ----
 SC2.forEach(s=>{const b=document.createElement('button');b.className='gcard';b.id='wg-'+s.id;b.dataset.id=s.id;
@@ -2242,7 +2473,7 @@ function renderHome(){
   const lbl=(phase>=0&&SI2[scen].phases?SI2[scen].phases[phase].n+' phase of ':'')+SI2[scen].label.toLowerCase();
   const beat=hr.pct!=null?` ${H.name} is safer than ${Math.round((1-hr.pct)*100)}% of countries in ${RG[region].label==='World'?'the world':RG[region].label}.`:'';
   $('wVerdict').innerHTML=`For <b>${lbl}</b>:${beat} `+(diff>0.05?`${K.name} scores ${diff.toFixed(1)} points lower risk. Your biggest drivers: ${top.join(' and ')}.`:`You already score as well as ${K.name}. Top remaining risks: ${top.join(' and ')}.`)+(H.est?` <span style="color:var(--muted)">(${H.est}.)</span>`:'');
-  radar(H,K,w); phaseChart(H,K);
+  radar(H,K,w); phaseChart(H,K); wRenderEscape();
   $('wTips').innerHTML='<h2 style="margin:12px 0 6px">Prepare for your top threats</h2>'+topThreats(H,W,3).map(x=>`<div class="tipcard"><div class="th"><b>${FI2[x.k].n}</b><span class="sev">${x.v.toFixed(1)}/10</span></div><div class="meter"><span style="width:${x.v*10}%;background:${riskInterp(x.v/10)}"></span></div><p>${FI2[x.k].t}</p></div>`).join('');
 }
 function radar(H,K,w){
@@ -2330,19 +2561,29 @@ window.__showRegion=function(r){
   $('wCta').hidden=r!=='world'; if(r!=='world')$('wSafest').hidden=true;
   fillSelects(); fillLayers(); buildMap(); update(); drawGallery();
 };
-})();
+$('wWind').onchange=e=>WIND.set(e.target.value);
+if(window.__live)window.__liveLeaflet(window.__live);
+};
 
 // ================= tabs =================
 (function(){
+  document.querySelectorAll('.wfold').forEach(b=>b.onclick=()=>b.setAttribute('aria-expanded',b.getAttribute('aria-expanded')!=='true'));
   const views={us:'view-us',europe:'view-global',asia:'view-global',africa:'view-global',world:'view-global'};
   const SUB={us:'All 3,142 US counties from FEMA\u2019s risk data, plus Canada\u2019s 13 provinces and territories and Mexico\u2019s 32 states (estimated), scored for 14 scenarios on a zoomable terrain map.',europe:'Every European country scored for 12 scenarios from the EU’s INFORM Risk Index, World Bank data and modeled threat zones.',asia:'East Asia, Southeast Asia, Australia, New Zealand and the Pacific islands, scored for 12 scenarios.',world:'All 190+ countries scored for 12 scenarios. Press the button to find the safest place on Earth.',africa:'All 54 African countries scored for 12 scenarios from INFORM, World Bank data and modeled threat zones, on a zoomable terrain map.'};
-  let cur=null;
+  let cur=null, naP=null, wP=null;
+  const loadJSON=u=>fetch(u).then(r=>{if(!r.ok)throw new Error(u+' returned '+r.status);return r.json();});
+  const ensureNA=()=>naP||(naP=loadJSON('data/na-bundle.json').then(b=>window.__initNA(b.topo,b.cd,b.admin,b.units)));
+  const ensureWorld=()=>wP||(wP=loadJSON('data/world-bundle.json').then(b=>window.__initWorld(b.topo,b.world)));
+  function fail(e){document.body.classList.remove('busy');const m=document.getElementById('loadmsg');m.hidden=false;
+    m.innerHTML=location.protocol==='file:'?'Map data can\u2019t load from a file on disk. In this folder run <code>python3 -m http.server</code> and open <code>http://localhost:8000</code>.':'Map data didn\u2019t load ('+String(e.message||e)+'). Check your connection and reload.';}
   function show(t){
     if(t===cur)return; cur=t;
     document.querySelectorAll('.tab').forEach(b=>b.setAttribute('aria-selected',b.dataset.tab===t));
     document.getElementById('view-us').hidden=t!=='us'; document.getElementById('view-global').hidden=t==='us';
     document.getElementById('subline').textContent=SUB[t]+' Pick a scenario, watch it play out, and see where you’d fare best.';
-    if(t==='us'){window.__usRefresh&&window.__usRefresh();} else window.__showRegion(t);
+    document.body.classList.add('busy');
+    (t==='us'?ensureNA().then(()=>{if(cur==='us')window.__usRefresh();}):ensureWorld().then(()=>{if(cur===t)window.__showRegion(t);}))
+      .then(()=>{document.body.classList.remove('busy');if(t==='us')setTimeout(()=>ensureWorld().catch(()=>{}),2500);},fail);
     try{localStorage.setItem('dda3-tab',JSON.stringify(t));}catch(e){}
     try{if(['europe','asia','africa','world'].includes(t))history.replaceState(null,'','#'+t);else if(['europe','asia','africa','world'].includes(location.hash.slice(1)))history.replaceState(null,'','#us');}catch(e){}
   }

@@ -1,8 +1,9 @@
 """Build the DoomsDay Atlas page.
 
 Reads FEMA National Risk Index county data (data/raw/), turns per-county loss
-rates into 0-10 hazard scores, and inlines them with the county map into
-index.html from atlas.template.html.
+rates into 0-10 hazard scores, and writes the page (index.html, from
+atlas.template.html) plus the two data files it loads: data/na-bundle.json
+and data/world-bundle.json.
 
 Refresh the raw data with:  python3 build.py --fetch
 Europe / Asia-Pacific / World data comes from build_world.py (run it first if data/world.json is missing).
@@ -63,7 +64,8 @@ def clamp(x, a=0.0, b=10.0):
     return max(a, min(b, x))
 
 
-def build():
+def county_scores():
+    """FEMA NRI -> {fips: (state, name, population, area_sq_mi, {factor: 0-10})}"""
     rows = [r for r in load() if r["STCOFIPS"][:2] not in ("60", "66", "69", "72", "78")]
     by = {r["STCOFIPS"]: r for r in rows}
 
@@ -124,19 +126,36 @@ def build():
     for f in [f for f in out if f in ("02063", "02066") or (f.startswith("09") and f[2:] >= "110")]:
         del out[f]
 
-    keys = list(HAZ) + ["pd", "fd", "sv", "cr"]
+    return out
+
+
+KEYS = list(HAZ) + ["pd", "fd", "sv", "cr"]
+
+
+def build():
+    out = county_scores()
+    keys = KEYS
     data = {"keys": keys, "c": {f: [st, nm, int(pop), round(area, 1)] + [int(round(v[k] * 10)) for k in keys]
                                 for f, (st, nm, pop, area, v) in sorted(out.items())}}
 
-    topo = (ROOT / "data" / "counties-10m.json").read_text()  # unprojected US counties (us-atlas)
-    tpl = (ROOT / "atlas.template.html").read_text()
-    world_topo = (ROOT / "data" / "countries-10m.json").read_text()  # high-res borders for the region maps
-    world = (ROOT / "data" / "world.json").read_text()  # from build_world.py
-    html = (tpl.replace("__TOPO__", topo).replace("__COUNTIES__", json.dumps(data, separators=(",", ":")))
-               .replace("__WORLDTOPO__", world_topo).replace("__WORLD__", world)
-               .replace("__NAADMIN__", (ROOT / "data" / "na-admin1.json").read_text()))  # Canada + Mexico, from tools/make_na_admin.js
+    # data ships as two files the page loads after it opens; the world file loads only when needed
+    rd = lambda f: (ROOT / "data" / f).read_text()
+    na = ('{"topo":' + rd("counties-10m.json") + ',"cd":' + json.dumps(data, separators=(",", ":")) +
+          ',"admin":' + rd("na-admin1.json") + ',"units":' + rd("na-units.json") + '}')  # admin from tools/make_na_admin.js, units from build_na.py
+    world = '{"topo":' + rd("countries-10m.json") + ',"world":' + rd("world.json") + '}'  # world.json from build_world.py
+    (ROOT / "data" / "na-bundle.json").write_text(na)
+    (ROOT / "data" / "world-bundle.json").write_text(world)
+    body = (ROOT / "atlas.template.html").read_text()
+    # index.html: a complete page for GitHub Pages and local use; artifact.html: the same content
+    # without the document shell, for the claude.ai viewer (which adds its own)
+    head = ('<!doctype html>\n<html lang="en">\n<head>\n<meta charset="utf-8">\n'
+            '<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">\n'
+            '<meta name="description" content="Disaster survivability atlas: scenario risk for every US county, Canadian province, Mexican state and country.">\n')
+    html = head + body + "\n</html>\n"
     (ROOT / "index.html").write_text(html)
-    print(f"index.html: {len(out)} counties, {len(html) / 1e6:.2f} MB")
+    (ROOT / "artifact.html").write_text(body)
+    print(f"na-bundle {len(na) / 1e6:.2f} MB, world-bundle {len(world) / 1e6:.2f} MB")
+    print(f"index.html: {len(out)} counties, {len(html) / 1e3:.0f} KB")
     for f in ("06037", "06075", "53033", "41005", "29143", "48201", "12086", "22071", "30049", "50023", "56029", "38101"):
         st, nm, pop, area, v = out[f]
         print(f, st, nm.ljust(14), " ".join(f"{k}={v[k]:.0f}" for k in keys))
