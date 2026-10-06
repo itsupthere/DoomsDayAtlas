@@ -141,7 +141,7 @@ def build():
     # data ships as two files the page loads after it opens; the world file loads only when needed
     rd = lambda f: (ROOT / "data" / f).read_text()
     na = ('{"topo":' + rd("counties-10m.json") + ',"cd":' + json.dumps(data, separators=(",", ":")) +
-          ',"admin":' + rd("na-admin1.json") + ',"units":' + rd("na-units.json") + '}')  # admin from tools/make_na_admin.js, units from build_na.py
+          ',"admin":' + rd("na-admin1.json") + ',"units":' + rd("na-units.json") + ',"extra":' + rd("us-extra.json") + '}')  # extra from build_us_extra.py  # admin from tools/make_na_admin.js, units from build_na.py
     world = '{"topo":' + rd("countries-10m.json") + ',"world":' + rd("world.json") + '}'  # world.json from build_world.py
     (ROOT / "data" / "na-bundle.json").write_text(na)
     (ROOT / "data" / "world-bundle.json").write_text(world)

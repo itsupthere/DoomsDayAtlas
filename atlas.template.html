@@ -353,6 +353,83 @@ body.busy .mapbox::before{content:"Loading map data\2026";position:absolute;inse
   select,input[type=text],input[type=number]{font-size:16px} /* stops iOS zooming on focus */
   .leaflet-control-attribution{font-size:9px;max-width:70%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 }
+
+/* household profile, frequencies, print, now */
+.pf{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:12px}
+.pf fieldset{border:1px solid var(--line);border-radius:3px;padding:10px 12px;margin:0;display:grid;gap:8px;min-width:0;background:var(--bg)}
+.pf legend{padding:0 4px}
+.pf label{display:grid;gap:3px;font-size:12.5px;color:var(--muted)}
+.pf label.ck{display:flex;align-items:center;gap:8px;color:var(--ink)}
+.pf label.ck input{width:18px;height:18px;accent-color:var(--accent)}
+.pf input[type=number]{width:90px}
+.pf input,.pf select{color:var(--ink)}
+.sl{text-transform:none;letter-spacing:0}
+.nwrlocal{border:2px solid var(--ink);border-radius:4px;padding:10px 12px;margin-bottom:10px;background:var(--bg)}
+.nwr{display:flex;flex-wrap:wrap;gap:4px 12px;align-items:baseline;margin:4px 0}
+.nwr b{font-family:var(--f-display);font-size:24px;font-weight:800}
+.nwr span{font-size:12.5px;color:var(--muted)}
+.ftab{width:100%;border-collapse:collapse;font-size:12.5px}
+.ftab th{text-align:left;font-weight:600;padding:6px 8px 6px 0;border-bottom:1px solid var(--line);vertical-align:top;width:34%}
+.ftab td{padding:6px 8px 6px 0;border-bottom:1px solid var(--line);vertical-align:top;font-family:var(--f-mono);font-size:12px}
+.ftab td+td{font-family:var(--f-body);color:var(--muted)}
+.printmodal{position:fixed;inset:0;z-index:5000;background:rgba(0,0,0,.55);overflow:auto;padding:16px}
+.pmbar{max-width:820px;margin:0 auto 10px;display:flex;gap:12px;align-items:center;flex-wrap:wrap;background:var(--panel);padding:10px 12px;border-radius:4px}
+.printsheet{max-width:820px;margin:0 auto;background:#fff;color:#111;padding:22px 24px;font-family:var(--f-body);font-size:10.5px;line-height:1.35;border-radius:2px}
+.ps-h{display:flex;justify-content:space-between;align-items:flex-end;border-bottom:2px solid #111;padding-bottom:6px;margin-bottom:10px;gap:10px;flex-wrap:wrap}
+.ps-h div:first-child{display:flex;flex-direction:column}
+.ps-t{font-family:var(--f-display);font-size:26px;text-transform:uppercase;line-height:1}
+.ps-m{font-family:var(--f-mono);font-size:9px;color:#444}
+.ps-cols{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}
+.printsheet h4{font-family:var(--f-mono);font-size:9px;letter-spacing:.1em;text-transform:uppercase;margin:8px 0 4px;border-bottom:1px solid #999;padding-bottom:2px}
+.printsheet ul{margin:2px 0 6px 14px;padding:0}
+.printsheet li{margin:1px 0}
+.ps-th i{font-style:normal;font-family:var(--f-mono);color:#555}
+.ps-esc{margin:3px 0 5px}
+.ps-esc small{color:#444}
+.ps-kv{display:flex;flex-direction:column;margin:3px 0}
+.ps-kv span:first-child{font-family:var(--f-mono);font-size:8.5px;color:#555;text-transform:uppercase}
+.blank{display:inline-block;min-width:150px;border-bottom:1px solid #999;height:12px}
+.ps-radio{border:2px solid #111;padding:6px 8px;border-radius:3px}
+.ps-radio table{width:100%;border-collapse:collapse;font-size:9.5px}
+.ps-radio th{text-align:left;font-weight:600;padding:2px 4px 2px 0;border-bottom:1px solid #ddd;vertical-align:top}
+.ps-radio td{font-family:var(--f-mono);padding:2px 0;border-bottom:1px solid #ddd;text-align:right}
+.ps-nwr{background:#f1f1f1;padding:5px 6px;margin-bottom:6px}
+.ps-nwr b{display:block;font-size:13px}
+.ps-note{font-size:9px;color:#333;margin:6px 0 0}
+@media (max-width:700px){.ps-cols{grid-template-columns:1fr}}
+@media print{
+  body.printing>*:not(.wrap){display:none!important}
+  body.printing .wrap>*:not(.printmodal){display:none!important}
+  html,body.printing{background:#fff!important}
+  body.printing .wrap{padding:0!important;max-width:none}
+  body.printing .printmodal{position:static;background:none;padding:0}
+  body.printing .pmbar{display:none}
+  body.printing .printsheet{max-width:none;padding:0;font-size:9.5px}
+  body.printing .ps-cols{grid-template-columns:1fr 1fr 1fr}
+  @page{margin:10mm}
+}
+.tabnow{display:inline-flex;align-items:center;gap:6px}
+.nowsum{font-size:15px;margin:0}
+.nowbars{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:6px 18px;margin-top:10px}
+.nbar{display:grid;grid-template-columns:minmax(0,1fr) 90px 28px;gap:8px;align-items:center;background:none;border:1px solid transparent;border-radius:3px;padding:5px 6px;cursor:pointer;text-align:left;font-size:12.5px;min-height:36px}
+.nbar:hover,.nbar.on{border-color:var(--line);background:var(--bg)}
+.nbar.on{border-color:var(--accent)}
+.nl{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.nt{height:8px;background:var(--chip);border-radius:1px;overflow:hidden}
+.nt span{display:block;height:100%}
+.nv{font-family:var(--f-mono);font-size:11px;color:var(--muted);text-align:right}
+.nowgrid{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:18px;margin-top:18px;align-items:start}
+#nowLeaf{width:100%;aspect-ratio:4/3;min-height:340px;background:var(--sea);z-index:0}
+.nowlist{display:grid;gap:8px;max-height:640px;overflow-y:auto;padding-right:4px}
+.nitem{border-bottom:1px solid var(--line);padding:6px 0 10px}
+.nmeta{display:flex;gap:10px;flex-wrap:wrap;font-family:var(--f-mono);font-size:10.5px;color:var(--muted)}
+.ntitle{display:block;color:var(--ink);font-weight:600;font-size:13.5px;margin:3px 0 5px;text-decoration:none}
+.ntitle:hover{text-decoration:underline}
+.ncats{display:flex;gap:6px;flex-wrap:wrap}
+.nchip{font-size:11px;border:1px solid var(--c,var(--line));color:var(--ink);background:transparent;border-radius:99px;padding:3px 9px;cursor:pointer;min-height:28px}
+.nchip:hover{background:var(--c,var(--ink));color:#fff}
+.nmap{--c:var(--muted)}
+@media (max-width:820px){.nowgrid{grid-template-columns:minmax(0,1fr);gap:12px}#nowLeaf{aspect-ratio:auto;height:52vh}.nowlist{max-height:none}.nbar{min-height:42px}.pf input[type=number]{width:100%}}
 footer{margin-top:26px;border-top:1px solid var(--line);padding-top:12px;font-size:12px;color:var(--muted);max-width:120ch}
 footer a{color:var(--muted)}
 @media (prefers-reduced-motion:reduce){.phase .fill.run{animation:none;width:100%}}
@@ -1054,11 +1131,25 @@ svg.leaflet-image-layer.leaflet-interactive path {
 
 <p class="loadmsg" id="loadmsg" role="alert" hidden></p>
 <div class="tabs" role="tablist" aria-label="Region">
+  <button class="tab tabnow" role="tab" data-tab="now" aria-selected="false"><span class="livedot" aria-hidden="true"></span>Now</button>
   <button class="tab" role="tab" data-tab="us" aria-selected="true">North America</button>
   <button class="tab" role="tab" data-tab="europe" aria-selected="false">Europe</button>
   <button class="tab" role="tab" data-tab="asia" aria-selected="false">Asia-Pacific</button>
   <button class="tab" role="tab" data-tab="africa" aria-selected="false">Africa</button>
   <button class="tab" role="tab" data-tab="world" aria-selected="false">World</button>
+</div>
+
+<div id="view-now" hidden>
+  <section class="panel sec nowtop">
+    <div class="planhead"><div><h2 style="margin:0 0 4px">What's happening now</h2><p class="nowsum" id="nowSummary">Loading the latest reports…</p></div></div>
+    <div class="nowbars" id="nowBars"></div>
+    <p class="escnote" id="nowUpdated"></p>
+  </section>
+  <div class="nowgrid">
+    <section class="panel"><div id="nowLeaf" class="leafbox"></div></section>
+    <section class="panel nowlistp"><h2>Latest reports · tap a topic above to filter</h2><div class="nowlist" id="nowList"></div>
+      <p class="escnote">Headlines and links from BBC, Al Jazeera, NPR, The Guardian, DW and WHO, plus official alerts from GDACS, USGS, NOAA and the US National Weather Service. Sorted into scenarios by keywords, so a few items may be off-topic.</p></section>
+  </div>
 </div>
 
 <div id="view-us">
@@ -1145,7 +1236,7 @@ svg.leaflet-image-layer.leaflet-interactive path {
         <div class="score c"><div class="big" id="cScore">–</div><div class="meta" id="cMeta"></div><span class="tier" id="cTier"></span></div>
       </div>
       <p class="verdict" id="verdict"></p>
-      <div class="sharerow"><button class="sharebtn" id="shareUS">Copy my result</button><span class="sharemsg" id="shareUSMsg" aria-live="polite"></span></div>
+      <div class="sharerow"><button class="sharebtn" id="shareUS">Copy my result</button><button class="sharebtn printbtn">Print my plan</button><span class="sharemsg" id="shareUSMsg" aria-live="polite"></span></div>
       <div class="chartbox">
         <div class="ckey"><span><i></i><span id="kH">Home</span></span><span><i class="c"></i><span id="kC">Compare</span></span></div>
         <svg id="radar" viewBox="-50 0 440 300" role="img" aria-label="Radar chart of top threats, home versus compare"></svg>
@@ -1177,7 +1268,7 @@ svg.leaflet-image-layer.leaflet-interactive path {
 <section class="panel sec">
   <div class="planhead">
     <div><h2 style="margin:0 0 4px">Your preparedness plan</h2><h3 id="planTitle"></h3></div>
-    <div class="ring" id="ring"></div>
+    <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap"><div class="ring" id="ring"></div><button class="sharebtn printbtn">Print my plan (PDF)</button></div>
   </div>
   <div class="plangrid" id="plan"></div>
 </section>
@@ -1279,7 +1370,7 @@ svg.leaflet-image-layer.leaflet-interactive path {
         <div class="score c"><div class="big" id="wCScore">–</div><div class="meta" id="wCMeta"></div><span class="tier" id="wCTier"></span></div>
       </div>
       <p class="verdict" id="wVerdict"></p>
-      <div class="sharerow"><button class="sharebtn" id="shareW">Copy my result</button><span class="sharemsg" id="shareWMsg" aria-live="polite"></span></div>
+      <div class="sharerow"><button class="sharebtn" id="shareW">Copy my result</button><button class="sharebtn printbtn">Print my plan</button><span class="sharemsg" id="shareWMsg" aria-live="polite"></span></div>
       <div class="chartbox">
         <div class="ckey"><span><i></i><span id="wkH">Home</span></span><span><i class="c"></i><span id="wkC">Compare</span></span></div>
         <svg id="wRadar" viewBox="-50 0 440 300" role="img" aria-label="Radar chart of top threats, your country versus compare"></svg>
@@ -1310,13 +1401,56 @@ svg.leaflet-image-layer.leaflet-interactive path {
 </div>
 </div>
 
+<section class="panel sec" id="household">
+  <div class="planhead">
+    <div><h2 style="margin:0 0 4px">Your household</h2><h3>Tailors your plan, supplies, escape routes and printout</h3></div>
+    <button class="sharebtn printbtn">Print my plan (PDF)</button>
+  </div>
+  <div class="pf">
+    <fieldset><legend class="lab">Who's at home</legend>
+      <label>Adults<input type="number" min="0" max="20" data-pf="adults"></label>
+      <label>Kids<input type="number" min="0" max="20" data-pf="kids"></label>
+      <label>Older adults<input type="number" min="0" max="20" data-pf="seniors"></label>
+      <label>Pets<input type="number" min="0" max="10" data-pf="pets"></label>
+    </fieldset>
+    <fieldset><legend class="lab">Health</legend>
+      <label class="ck"><input type="checkbox" data-pf="infant">Infant</label>
+      <label class="ck"><input type="checkbox" data-pf="medFridge">Refrigerated medicine (e.g. insulin)</label>
+      <label class="ck"><input type="checkbox" data-pf="medPower">Powered medical device (oxygen, CPAP)</label>
+      <label class="ck"><input type="checkbox" data-pf="mobility">Limited mobility</label>
+    </fieldset>
+    <fieldset><legend class="lab">Home and transport</legend>
+      <label>Transport<select data-pf="car"><option value="gas">Gas or diesel car</option><option value="ev">Electric car</option><option value="none">No car</option></select></label>
+      <label>Home<select data-pf="home"><option value="basement">House with basement</option><option value="nobasement">House, no basement</option><option value="apartment">Apartment or condo</option><option value="mobile">Mobile home or RV</option></select></label>
+      <label>Water<select data-pf="water"><option value="city">City water</option><option value="well">Private well</option></select></label>
+    </fieldset>
+    <fieldset><legend class="lab">For the printout (stays on this device)</legend>
+      <label>Out-of-area contact<input type="text" data-pf="contactName" placeholder="Name" autocomplete="off"></label>
+      <label>Their phone<input type="text" data-pf="contactPhone" placeholder="Phone" autocomplete="off"></label>
+      <label>Meeting point near home<input type="text" data-pf="meetNear" placeholder="e.g. library parking lot" autocomplete="off"></label>
+      <label>Meeting point out of area<input type="text" data-pf="meetFar" placeholder="e.g. aunt's house in Bend" autocomplete="off"></label>
+      <label>Local news radio station<input type="text" data-pf="station" placeholder="e.g. KNX 1070 AM" autocomplete="off"></label>
+    </fieldset>
+  </div>
+</section>
+
+<section class="panel sec" id="radio">
+  <div class="planhead">
+    <div><h2 style="margin:0 0 4px">Emergency radio frequencies</h2><h3>Write them down now. Phones and internet fail first.</h3></div>
+    <button class="sharebtn printbtn">Print with my plan</button>
+  </div>
+  <div id="freq"></div>
+  <p class="escnote">Anyone may listen on every frequency here. Transmitting on amateur (ham) bands needs a license; FRS, PMR446, CB, MURS and UHF CB don't. A cheap scanner or a weather radio with SAME alerts covers most of the listening.</p>
+</section>
+
+<div class="printmodal" id="printModal" hidden>
+  <div class="pmbar"><button class="sharebtn" id="psPrint">Print / Save as PDF</button><button class="linkbtn" id="psClose">Close</button><span class="windmsg" id="psNote"></span></div>
+  <div class="printsheet" id="printSheet"></div>
+</div>
+
 <section class="panel sec">
   <div class="planhead">
-    <div><h2 style="margin:0 0 4px">Supplies to store</h2><h3>Water and food for your household</h3></div>
-    <div class="supin">
-      <div><label class="lab" for="people">People</label><input type="number" id="people" min="1" max="20" value="2"></div>
-      <div><label class="lab" for="pets">Dogs / large pets</label><input type="number" id="pets" min="0" max="10" value="0"></div>
-    </div>
+    <div><h2 style="margin:0 0 4px">Supplies to store</h2><h3>Water and food for <span id="supWho">your household</span></h3></div>
   </div>
   <div class="sup" id="sup"></div>
 </section>
@@ -1396,7 +1530,161 @@ function placeTip(tip,box,cx,cy){
 window.placeTip=placeTip;
 </script>
 <script>
-window.__initNA=function(TOPO,CD,NAA,NAU){
+// ================= household profile, supplies, emergency radio frequencies, printable plan =================
+window.PROFILE=(function(){
+  const KEY='dda-profile', DEF={adults:2,kids:0,seniors:0,pets:0,infant:false,medFridge:false,medPower:false,mobility:false,car:'gas',home:'basement',water:'city',contactName:'',contactPhone:'',meetNear:'',meetFar:'',station:'',ham:false};
+  let p={...DEF}; try{Object.assign(p,JSON.parse(localStorage.getItem(KEY)||'{}'));}catch(e){}
+  const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(p));}catch(e){}};
+  function bind(){
+    document.querySelectorAll('[data-pf]').forEach(el=>{const k=el.dataset.pf;
+      if(el.type==='checkbox')el.checked=!!p[k];else el.value=p[k];
+      el.addEventListener(el.tagName==='SELECT'||el.type==='checkbox'?'change':'input',()=>{p[k]=el.type==='checkbox'?el.checked:el.type==='number'?Math.max(0,Math.min(20,+el.value||0)):el.value;save();renderSupplies();window.dispatchEvent(new Event('profilechange'));});});
+  }
+  function actions(){
+    const a=[];
+    if(p.home==='mobile')a.push('Mobile homes are not safe in tornadoes, hurricanes or fallout. Know the nearest sturdy shelter and how fast you can reach it.');
+    if(p.home==='apartment')a.push('For fallout, shelter on a middle floor or the basement, in the center of the building, away from the roof and outer walls.');
+    if(p.home==='nobasement')a.push('No basement: pick an interior room on the lowest floor and stack heavy items (books, water) against the walls facing outside.');
+    if(p.water==='well')a.push('Your well pump needs power. Store extra water, or add a hand pump or a generator big enough to run it.');
+    if(p.car==='ev')a.push('Keep your EV above 80%. Chargers stop working in grid outages, and evacuation traffic drains range.');
+    if(p.car==='none')a.push('No car: line up a ride now (neighbor, family, community transport) and learn your area’s evacuation pickup points.');
+    if(p.medFridge)a.push('Refrigerated medicine: ask your doctor for a 90-day supply and keep a cooler with frozen gel packs ready.');
+    if(p.medPower)a.push('Powered medical device: register with your power company’s medical priority list and get a battery that covers several nights.');
+    if(p.mobility||p.seniors)a.push('Limited mobility or older adults: tell two neighbors your plan and sign up for your local special-needs registry.');
+    if(p.kids)a.push('Kids: learn the school’s emergency plan and update who is allowed to pick them up.');
+    if(p.infant)a.push('Infant: keep 2 weeks of ready-to-feed formula, bottles, diapers and wipes in the go-bag.');
+    if(p.pets)a.push('Pets: carrier or leash, 2 weeks of food, medicines and vaccination records. Many shelters require them.');
+    if(!p.contactPhone)a.push('Add an out-of-area contact below. Long-distance calls and texts often work when local lines are jammed.');
+    return a;
+  }
+  return {get:()=>p,bind,actions,people:()=>Math.max(1,(+p.adults||0)+(+p.kids||0)+(+p.seniors||0))};
+})();
+
+function renderSupplies(){
+  const el=document.getElementById('sup'); if(!el)return;
+  const P=PROFILE.get(), ppl=PROFILE.people(), pets=+P.pets||0;
+  document.getElementById('supWho').textContent=`${ppl} ${ppl===1?'person':'people'}${pets?` and ${pets} pet${pets>1?'s':''}`:''}${P.infant?', including an infant':''}`;
+  const horizons=[['72 hours','Evacuation or first shelter',3],['2 weeks','FEMA’s recommended home supply',14],['3 months','Long outage or collapse',90]];
+  el.innerHTML=horizons.map(([t,s,d])=>{
+    const gal=Math.ceil(ppl*d+pets*0.5*d), kcal=ppl*2000*d, lbs=Math.ceil(kcal/1600), petLbs=Math.ceil(pets*0.75*d);
+    const sq=(n,col,per)=>`<div class="picto" aria-hidden="true">${Array.from({length:Math.min(150,Math.ceil(n/per))},()=>`<i style="background:${col}"></i>`).join('')}</div>`;
+    const extra=[P.infant?`<div class="row lab sl"><span>Formula and diapers</span><b>${d} days</b></div>`:'',
+      P.medFridge?`<div class="row lab sl"><span>Refrigerated medicine</span><b>cooler + ${Math.ceil(d/2)} ice changes</b></div>`:'',
+      P.medPower?`<div class="row lab sl"><span>Medical device battery</span><b>~${(0.4*d).toFixed(1)} kWh</b></div>`:''].join('');
+    return `<div class="supc"><h3>${t}</h3><div class="lab sl">${s}</div>
+      <div class="row"><div class="lab"><span>Water</span><b>${gal.toLocaleString()} gal</b></div>${sq(gal,'#2F6F9F',5)}</div>
+      <div class="row"><div class="lab"><span>Dry food (rice, beans, oats)</span><b>${lbs.toLocaleString()} lb</b></div>${sq(lbs,'#C9481A',5)}</div>
+      ${pets?`<div class="row"><div class="lab"><span>Pet food</span><b>${petLbs} lb</b></div>${sq(petLbs,'#8DB878',5)}</div>`:''}${extra}
+      <div class="row lab sl">${(kcal/1000).toLocaleString()}k calories · each square = 5 gal or 5 lb</div></div>`;
+  }).join('');
+}
+
+// emergency radio frequencies by region (MHz unless noted). Transmitting on amateur bands needs a license; anyone may listen.
+window.FREQ={
+  common:[['Marine VHF ch 16','156.800','Distress and calling, worldwide'],['Aviation emergency','121.500','Listen only'],['WWV / WWVH time signals','2.5 · 5 · 10 · 15 · 20','Shortwave, tells you which bands are working']],
+  us:[['NOAA Weather Radio','162.400 · 162.425 · 162.450 · 162.475 · 162.500 · 162.525 · 162.550','Same 7 channels in Canada (Weather Radio Canada)'],
+      ['FRS/GMRS ch 1','462.5625','Common family calling channel'],['GMRS ch 20 + 141.3 Hz tone','462.6750','Traveler assistance and emergency'],
+      ['CB ch 9','27.065','Emergency channel'],['CB ch 19','27.185','Highway and truckers: road conditions'],
+      ['MURS (US, no license)','151.820 · 151.880 · 151.940 · 154.570 · 154.600',''],
+      ['Ham 2 m calling','146.520','FM simplex, licensed to transmit'],['Ham 70 cm calling','446.000',''],['Ham 6 m calling','52.525','']],
+  europe:[['PMR446 ch 1','446.00625','License-free walkie-talkies'],['PMR446 ch 8','446.09375','Widely used as a calling channel'],
+      ['CB ch 9','27.065','Emergency channel'],['CB ch 19','27.185','Road traffic'],
+      ['Ham 2 m calling','145.500','FM simplex, licensed to transmit'],['Ham 70 cm calling','433.500',''],
+      ['National broadcaster','AM / FM / long wave','e.g. BBC Radio 4 on 198 kHz LW in the UK']],
+  asia:[['UHF CB ch 5 (Australia, NZ)','476.525','Emergency channel (ch 35 is its repeater input)'],['UHF CB ch 40 (Australia)','477.400','Highways'],
+      ['CB ch 9','27.065','Emergency where 27 MHz CB is used'],['Ham 2 m calling','145.500','Check your national calling frequency'],
+      ['National broadcaster','AM / FM','e.g. ABC local radio in Australia, NHK in Japan']],
+  africa:[['Ham 2 m calling','145.500','Check your national calling frequency'],['CB ch 9','27.065','Emergency where 27 MHz CB is used'],
+      ['National broadcaster','AM / FM / shortwave','BBC World Service and RFI also broadcast on shortwave']],
+  world:[['Ham 2 m calling','145.500 (Europe, Africa, Asia) · 146.520 (Americas)','FM simplex, licensed to transmit'],['CB ch 9','27.065','Emergency channel in most countries with 27 MHz CB'],
+      ['PMR446 / FRS','446.00625 (Europe) · 462.5625 (Americas)','License-free walkie-talkies']]
+};
+function freqRows(tab){const reg=tab==='us'?'us':tab==='now'?'world':tab;return (FREQ[reg]||FREQ.world).concat(FREQ.common);}
+function renderFreq(){
+  const tab=window.__curTab||'us', box=document.getElementById('freq'); if(!box)return;
+  const loc=tab==='us'&&window.__localNWR?window.__localNWR():null, P=PROFILE.get();
+  box.innerHTML=(loc&&loc.list.length?`<div class="nwrlocal"><div class="lab">Your local NOAA Weather Radio · ${loc.place}</div>${loc.list.slice(0,3).map(n=>`<div class="nwr"><b>${n[0]} MHz</b><span>${n[1]} · ${n[2]}${n[3]?' · covers '+n[3].toLowerCase():''}</span></div>`).join('')}<div class="lab">SAME code ${loc.same} · program it so your radio alarms only for your county</div></div>`:
+     loc?`<div class="nwrlocal"><div class="lab">${loc.place}</div><p class="scen-desc">No NOAA transmitter listed here. Scan 162.400–162.550 MHz; in Canada these are Weather Radio Canada channels.</p></div>`:'')+
+    (P.station?`<div class="nwrlocal"><div class="lab">Your local news station</div><div class="nwr"><b>${P.station.replace(/</g,'&lt;')}</b></div></div>`:'')+
+    `<table class="ftab"><tbody>${freqRows(tab).map(r=>`<tr><th>${r[0]}</th><td>${r[1]}</td><td>${r[2]}</td></tr>`).join('')}</tbody></table>`;
+}
+
+// ---------- printable one-page plan ----------
+function printPlan(){
+  const tab=window.__curTab||'us', d=(tab==='us'?window.__planData:window.__wPlanData)?.(); if(!d)return;
+  const P=PROFILE.get(), ppl=PROFILE.people(), loc=tab==='us'&&window.__localNWR?window.__localNWR():null, esc=s=>String(s||'').replace(/</g,'&lt;');
+  const line=v=>v?esc(v):'<span class="blank"></span>';
+  const sheet=document.getElementById('printSheet');
+  sheet.innerHTML=`<header class="ps-h"><div><b class="ps-t">Emergency plan</b><span>${esc(d.place)}</span></div><div class="ps-m">${esc(d.scen)} · ${new Date().toLocaleDateString()} · DoomsDay Atlas</div></header>
+  <div class="ps-cols">
+   <section><h4>Top threats here</h4>${d.threats.map(t=>`<div class="ps-th"><b>${esc(t.n)}</b> <i>${t.v.toFixed(1)}/10</i><ul>${t.acts.slice(0,2).map(a=>`<li>${esc(a)}</li>`).join('')}</ul></div>`).join('')}
+    ${PROFILE.actions().length?`<h4>For your household</h4><ul>${PROFILE.actions().slice(0,5).map(a=>`<li>${esc(a)}</li>`).join('')}</ul>`:''}</section>
+   <section><h4>Where to go</h4>${d.escape.map(e=>`<div class="ps-esc"><b>${esc(e.when)}</b> ${esc(e.name)}<br><small>${esc(e.how)}</small></div>`).join('')||'<p>Shelter in place unless officials say otherwise.</p>'}
+    <h4>Meet here</h4><div class="ps-kv"><span>Near home</span>${line(P.meetNear)}</div><div class="ps-kv"><span>Out of area</span>${line(P.meetFar)}</div>
+    <h4>Contacts</h4><div class="ps-kv"><span>Out-of-area contact</span>${line(P.contactName)} ${line(P.contactPhone)}</div><div class="ps-kv"><span>Local emergency</span>911 (US/Canada) · 112 (EU) · 000 (Australia)</div><div class="ps-kv"><span>Doctor / pharmacy</span><span class="blank"></span></div>
+    <h4>Store for ${ppl} ${ppl===1?'person':'people'}${P.pets?' + '+P.pets+' pet'+(P.pets>1?'s':''):''}</h4>
+    <div class="ps-kv"><span>2 weeks</span>${Math.ceil(ppl*14+P.pets*7)} gal water · ${Math.ceil(ppl*2000*14/1600)} lb dry food</div>
+    <div class="ps-kv"><span>Also</span>30+ days of medicine, first aid, radio, batteries, cash, copies of IDs</div></section>
+   <section class="ps-radio"><h4>Radio frequencies (MHz)</h4>
+    ${loc&&loc.list.length?`<div class="ps-nwr"><b>Your NOAA Weather Radio: ${loc.list[0][0]}</b><small>${esc(loc.list[0][1])} ${esc(loc.list[0][2])} · SAME ${loc.same}${loc.list[1]?` · backup ${loc.list[1][0]}`:''}</small></div>`:''}
+    <div class="ps-kv"><span>Local news station</span>${line(P.station)}</div>
+    <table>${freqRows(tab).map(r=>`<tr><th>${esc(r[0])}</th><td>${esc(r[1])}</td></tr>`).join('')}</table>
+    <div class="ps-kv"><span>Local repeater</span><span class="blank"></span></div>
+    <p class="ps-note">Tune in and program your radios now, not during the emergency. Fallout: stay inside 24–72 h; dose falls 90% by hour 7.</p></section>
+  </div>`;
+  document.getElementById('printModal').hidden=false; document.body.classList.add('printing');
+}
+document.addEventListener('DOMContentLoaded',()=>{
+  PROFILE.bind(); renderSupplies(); renderFreq();
+  document.querySelectorAll('.printbtn').forEach(b=>b.onclick=printPlan);
+  document.getElementById('psPrint').onclick=()=>{try{window.print();}catch(e){}setTimeout(()=>{document.getElementById('psNote').textContent='If nothing opened, printing is blocked in this viewer. Open the public site (itsupthere.github.io/DoomsDayAtlas) to print or save as PDF, or take a screenshot.';},800);};
+  document.getElementById('psClose').onclick=()=>{document.getElementById('printModal').hidden=true;document.body.classList.remove('printing');};
+});
+</script>
+<script>
+// ================= Now: current events, refreshed every 2 hours by GitHub Actions =================
+window.__initNow=function(){
+  const $=id=>document.getElementById(id);
+  const CAT={nuclear:['Nuclear threats','#7A2E8E','nuclear'],war:['War & conflict','#B42F2A','war'],pandemic:['Disease outbreaks','#2E7D6B','pandemic'],
+    climate:['Storms, floods & heat','#2F6F9F','climate'],drought:['Drought & wildfire','#E6873A','drought'],grid:['Grid & cyberattacks','#5A696B','solar'],
+    solar:['Space weather','#C9A227','solar'],collapse:['Unrest & famine','#8A5A2B','collapse'],ring:['Quakes, volcanoes & tsunamis','#C9481A','ring'],meltdown:['Reactors & radiation','#D4A017','meltdown']};
+  const ago=t=>{const m=Math.round((Date.now()-t)/60000);return m<60?m+' min ago':m<1440?Math.round(m/60)+' h ago':Math.round(m/1440)+' d ago';};
+  const esc=s=>String(s||'').replace(/[<&"]/g,c=>({'<':'&lt;','&':'&amp;','"':'&quot;'}[c]));
+  let data=null, filt=null;
+  const map=L.map('nowLeaf',{zoomControl:true,minZoom:1,maxZoom:9,zoomSnap:.25,worldCopyJump:true,preferCanvas:true});
+  map.attributionControl.setPrefix(false);
+  L.tileLayer('tiles/{z}/{x}/{y}.jpg',{tileSize:1024,zoomOffset:-2,minNativeZoom:2,maxNativeZoom:6,maxZoom:9,attribution:'Terrain: AWS Terrain Tiles'}).addTo(map);
+  map.fitBounds([[-50,-160],[70,175]],{animate:false});
+  const layer=L.layerGroup().addTo(map);
+  function draw(){
+    const items=data.items.filter(i=>!filt||i.cats.includes(filt));
+    layer.clearLayers();
+    items.forEach(i=>{if(i.lat==null)return;const c=CAT[i.cats[0]];
+      L.circleMarker([i.lat,i.lon],{radius:4+i.sev*2.5,color:'#fff',weight:1.2,fillColor:c[1],fillOpacity:.85}).bindPopup(`<b>${esc(i.title)}</b><br>${esc(i.src)} · ${ago(i.t)}${i.link?` · <a href="${esc(i.link)}" target="_blank" rel="noopener">read</a>`:''}`).addTo(layer);});
+    const mx=Math.max(1,...Object.values(data.pressure));
+    $('nowBars').innerHTML=Object.entries(CAT).map(([k,c])=>{const v=data.pressure[k]||0,n=data.items.filter(i=>i.cats.includes(k)).length;
+      return `<button class="nbar${filt===k?' on':''}" data-k="${k}" aria-pressed="${filt===k}"><span class="nl">${c[0]}</span><span class="nt"><span style="width:${Math.max(2,v/mx*100)}%;background:${c[1]}"></span></span><span class="nv">${n}</span></button>`;}).join('');
+    $('nowBars').querySelectorAll('.nbar').forEach(b=>b.onclick=()=>{filt=filt===b.dataset.k?null:b.dataset.k;draw();});
+    $('nowList').innerHTML=items.slice(0,80).map(i=>`<article class="nitem"><div class="nmeta"><span>${esc(i.src)}</span><span>${ago(i.t)}</span>${i.place?`<span>${esc(i.place)}</span>`:''}</div>
+      <a class="ntitle" href="${esc(i.link)}" target="_blank" rel="noopener">${esc(i.title)}</a>
+      <div class="ncats">${i.cats.map(k=>`<button class="nchip" data-s="${CAT[k][2]}" style="--c:${CAT[k][1]}">${CAT[k][0]}</button>`).join('')}${i.lat!=null?`<button class="nchip nmap" data-ll="${i.lat},${i.lon}">Show on map</button>`:''}</div></article>`).join('')||'<p class="scen-desc">Nothing in this category in the last 3 days.</p>';
+    $('nowList').querySelectorAll('.nchip').forEach(b=>b.onclick=()=>{
+      if(b.dataset.ll){const [la,lo]=b.dataset.ll.split(',').map(Number);map.flyTo([la,lo],4.5,{duration:.7});$('nowLeaf').scrollIntoView({behavior:'smooth',block:'center'});return;}
+      try{localStorage.setItem('dda3-scen',JSON.stringify(b.dataset.s));}catch(e){}
+      window.__goTab&&window.__goTab('world',b.dataset.s);});
+    const top=Object.entries(data.pressure).sort((a,b)=>b[1]-a[1]).filter(x=>x[1]>0).slice(0,2).map(x=>CAT[x[0]][0].toLowerCase());
+    $('nowSummary').innerHTML=`<b>${data.items.length}</b> relevant reports in the last ${data.hours} hours${top.length?`, mostly about <b>${top.join('</b> and <b>')}</b>`:''}.`;
+    $('nowUpdated').textContent=`Updated ${ago(data.updated)} from ${data.sources.join(', ')}. Refreshes every 2 hours.`;
+  }
+  const get=u=>fetch(u,{cache:'no-store'}).then(r=>{if(!r.ok)throw 0;return r.json();});
+  // the newest file is on GitHub; the copy published with the page is the fallback
+  return get('https://raw.githubusercontent.com/itsupthere/DoomsDayAtlas/main/data/news.json').catch(()=>get('data/news.json'))
+    .then(d=>{data=d;draw();window.__nowRefresh=()=>{map.invalidateSize();};})
+    .catch(()=>{$('nowSummary').textContent='News could not load right now.';});
+};
+</script>
+<script>
+window.__initNA=function(TOPO,CD,NAA,NAU,EX){
 const $ = id => document.getElementById(id);
 
 // ---------- factors ----------
@@ -1427,13 +1715,13 @@ const F = [
  {k:'fd',n:'Low local food production',g:G_SOC,p:['3-month pantry of shelf-stable staples','Non-hybrid seeds and a garden','Know local farms and ranchers']},
  {k:'sv',n:'Social vulnerability',g:G_SOC,p:['Check on elderly and disabled neighbors','Emergency savings and cash on hand','Sign up for local emergency alerts']},
  {k:'cr',n:'Low community resilience',g:G_SOC,p:['Join or start a CERT team','Learn first aid and CPR','Know your local emergency shelters']},
- {k:'gr',n:'Power grid fragility',g:G_INF,p:['Generator or solar sized for fridge and well pump','2 weeks of no-cook food and a manual can opener','Cash in small bills']},
+ {k:'gr',n:'Power outage history',g:G_INF,p:['Generator or solar sized for fridge and well pump','2 weeks of no-cook food and a manual can opener','Cash in small bills']},
  {k:'wa',n:'Water stress',g:G_INF,p:['Gravity water filter plus purification tablets','1 gal per person per day for 14 days','Locate natural water within walking distance']},
  {k:'gs',n:'Short growing season',g:G_INF,p:['Grow cold-hardy crops: potatoes, kale, cabbage','Build a cold frame or greenhouse','Store 6–12 months of grains and legumes']},
- {k:'cl',n:'2050 climate trend',g:G_INF,p:['Factor 2050 projections into buy or rent decisions','Track insurer exits as an early warning']}
+ {k:'cl',n:'Climate trend (observed)',g:G_INF,p:['This area has warmed since 1951–80: plan for more heat, drought and fire','Factor the trend into buy or rent decisions','Track insurer exits as an early warning']}
 ];
 const KEYS=F.map(f=>f.k), FI=Object.fromEntries(F.map(f=>[f.k,f]));
-const SRC={[G_NAT]:'FEMA NRI',[G_MOD]:'modeled',[G_SOC]:'FEMA NRI',[G_INF]:'state est.'};
+const SRC={[G_NAT]:'FEMA NRI',[G_MOD]:'modeled',[G_SOC]:'FEMA NRI',[G_INF]:'NOAA · USGS · EIA'};
 
 // statewide estimates: grid fragility, water stress, short growing season, 2050 trend
 const STATE_EST=`AL 5 2 2 6|AK 7 1 9 6|AZ 5 10 2 9|AR 5 3 3 5|CA 6 9 2 8|CO 4 8 7 7|CT 4 2 5 4|DE 4 2 3 5|DC 4 2 3 5|FL 6 4 0 9|GA 5 4 2 6|HI 8 4 0 6|ID 3 6 7 6|IL 4 2 4 5|IN 5 2 5 5|IA 4 2 5 5|KS 4 6 4 6|KY 5 2 4 5|LA 6 2 1 8|ME 4 1 7 3|MD 4 3 4 5|MA 4 2 5 4|MI 6 1 6 4|MN 4 1 8 4|MS 6 2 2 7|MO 5 3 4 6|MT 4 5 8 6|NE 3 5 6 6|NV 5 10 6 9|NH 4 1 7 3|NJ 5 3 4 6|NM 4 9 5 8|NY 5 2 6 5|NC 5 3 3 6|ND 4 4 8 5|OH 5 2 5 5|OK 5 6 3 7|OR 4 5 4 6|PA 5 2 5 5|RI 4 2 4 4|SC 5 3 2 6|SD 3 4 7 5|TN 5 2 3 5|TX 9 8 2 8|UT 4 8 6 7|VT 3 1 7 3|VA 4 2 4 5|WA 3 5 5 5|WV 6 1 5 4|WI 4 1 7 4|WY 3 5 9 6`;
@@ -1466,6 +1754,8 @@ features.forEach(f=>{
   c.label=`${name}${/County|Parish|Borough|city|Census Area|Municipality/.test(name)?'':(st==='LA'?' Parish':st==='AK'?'':' County')}, ${st}`;
   C.push(c); CI[c.id]=c;
 });
+// measured county data (NOAA climate, USGS water, EIA outages) replaces the statewide estimates
+if(EX)C.forEach(c=>{const ex=EX.c[c.id];if(!ex)return;EX.keys.forEach((k,i)=>{if(ex[i]>=0)c.v[k]=ex[i]/10;});c.ffd=ex[4];c.warm=ex[5];c.saidi=ex[6];});
 // ---------- Canadian provinces and Mexican states (estimated) ----------
 // code|population (M)|population-center lon,lat|eq hu to st wf fl cf dr ht ws vo ts ls|fd sv cr|gr wa gs cl
 const NA_EST=`CA-BC|5.6|-122.8,49.3|8 0 1 2 8 5 5 3 2 5 4 7 7|5 2 2|3 1 6 4
@@ -1825,7 +2115,7 @@ function showTip(e,c){
   const extra=layer==='ys'&&c.ashCm?` · ~${c.ashCm>=100?(c.ashCm/100).toFixed(1)+' m':c.ashCm>=1?c.ashCm.toFixed(0)+' cm':(c.ashCm*10).toFixed(0)+' mm'} ash`:'';
   tip.innerHTML=`<b>${c.label}</b> <span class="m">${val}${extra}</span>`;
   placeTip(tip,box,e.clientX,e.clientY);
-  $('readout').innerHTML=`<b>${c.label}</b> · ${c.pop.toLocaleString()} people · ${layer==='score'?`risk ${r.score.toFixed(1)}, safer than ${Math.round((1-r.pct)*100)}% of places in North America`:`${FI[layer].n} ${c.v[layer].toFixed(1)}/10`}${extra} · top threats: ${topThreats(c,activeW()).map(x=>FI[x.k].n.toLowerCase()).join(', ')||'none'}${c.est?' · estimated province/state profile':''}`;
+  $('readout').innerHTML=`<b>${c.label}</b> · ${c.pop.toLocaleString()} people · ${layer==='score'?`risk ${r.score.toFixed(1)}, safer than ${Math.round((1-r.pct)*100)}% of places in North America`:`${FI[layer].n} ${c.v[layer].toFixed(1)}/10`}${extra} · top threats: ${topThreats(c,activeW()).map(x=>FI[x.k].n.toLowerCase()).join(', ')||'none'}${c.ffd>0?` · ~${c.ffd} frost-free days`:''}${c.saidi>0?` · power out ~${c.saidi} min/yr`:''}${c.warm?` · ${c.warm>0?'+':''}${c.warm}°F since 1951–80`:''}${c.est?' · partly estimated province/state profile':''}`;
 }
 const layerEl=$('layer');
 layerEl.innerHTML=`<option value="score">Scenario risk</option>`+[G_NAT,G_MOD,G_SOC,G_INF].map(g=>`<optgroup label="${g}">${F.filter(f=>f.g===g).map(f=>`<option value="${f.k}">${f.n}</option>`).join('')}</optgroup>`).join('');
@@ -1859,7 +2149,7 @@ drawArrows();
 // ---------- plan my escape ----------
 const escLayer=L.layerGroup().addTo(lmap); let escShown=false;
 function escapePlan(){
-  const H=CI[home], hs=R.of(home).score, bands=[[2,130],[6,390],[12,785]], used=new Set();
+  const H=CI[home], hs=R.of(home).score, car=PROFILE.get().car, bands=car==='none'?[['On foot (1 day)',30],[2,130],[6,390]]:[[2,130],[6,390],[12,785]], used=new Set();
   return bands.map(([h,maxKm])=>{
     for(const i of R.order){const c=C[i];if(c.id===home||used.has(c.id)||c.pop<10000)continue;if(R.s[i]>=hs-0.15)break;
       const d=ESC.km(H.ll,c.ll);if(d>maxKm)continue;used.add(c.id);
@@ -1868,9 +2158,9 @@ function escapePlan(){
 }
 function renderEscape(){
   const plan=escapePlan(), H=CI[home];
-  $('escSub').textContent=`From ${H.label} · ${SI[scen].label}`;
-  $('escape').innerHTML=plan.map((p,ix)=>p.none?`<div class="esc none"><div class="esch"><b>${p.h} h drive</b></div><p>Nowhere meaningfully safer within ${p.h} hours. You may already be in one of the better spots nearby.</p></div>`:
-    `<div class="esc"><div class="esch"><b>${p.h} h drive</b><span>${Math.round(p.d)} km ${p.dir}</span></div><h3>${p.c.label}</h3>
+  $('escSub').textContent=`From ${H.label} · ${SI[scen].label}`+(PROFILE.get().car==='none'?' · no car: arrange a ride now; drive times assume you have one':PROFILE.get().car==='ev'?' · EV: the 12 h option needs charging stops, which may be down':'');
+  $('escape').innerHTML=plan.map((p,ix)=>p.none?`<div class="esc none"><div class="esch"><b>${typeof p.h==='string'?p.h:p.h+' h drive'}</b></div><p>Nowhere meaningfully safer within ${typeof p.h==='string'?'a day on foot':p.h+' hours'}. You may already be in one of the better spots nearby.</p></div>`:
+    `<div class="esc"><div class="esch"><b>${typeof p.h==='string'?p.h:p.h+' h drive'}</b><span>${Math.round(p.d)} km ${p.dir}</span></div><h3>${p.c.label}</h3>
      <div class="escbar"><span style="width:${Math.min(100,p.gain*14)}%"></span></div>
      <p>Risk ${p.score.toFixed(1)} vs ${R.of(home).score.toFixed(1)} at home (${p.gain.toFixed(1)} lower).${p.near?` <span class="warn">Route passes within ${Math.round(p.near.d)} km of ${p.near.n}.</span>`:''}</p>
      <div class="escbtns"><button class="rbtn" data-ix="${ix}" data-act="show">Show route</button><button class="rbtn" data-id="${p.c.id}" data-act="cmp">Compare</button></div><p class="roadmsg" id="road${ix}"></p></div>`).join('');
@@ -2008,7 +2298,8 @@ function renderPlan(){
   const H=CI[home], th=topThreats(H,W,5).filter(x=>x.c>0);
   $('planTitle').textContent=`${H.label} · ${SI[scen].label}`;
   const card=(id,title,sev,v,items,base)=>`<div class="threat${base?' base':''}"><div class="th"><h3>${title}</h3><span class="sev">${sev}</span></div>${v!=null?`<div class="meter"><span style="width:${v*10}%;background:${riskInterp(v/10)}"></span></div>`:''}<ul>${items.map((t,i)=>{const key=id+':'+i;return `<li><label><input type="checkbox" data-key="${key}" ${checked[key]?'checked':''}><span>${t}</span></label></li>`}).join('')}</ul></div>`;
-  $('plan').innerHTML=th.map(x=>card(x.k,FI[x.k].n,`${x.v.toFixed(1)}/10 · weight ${x.w}`,x.v,FI[x.k].p)).join('')+card('base','Baseline kit','everyone',null,BASE,true);
+  const hh=PROFILE.actions();
+  $('plan').innerHTML=th.map(x=>card(x.k,FI[x.k].n,`${x.v.toFixed(1)}/10 · weight ${x.w}`,x.v,FI[x.k].p)).join('')+(hh.length?card('household','For your household','your profile',null,hh):'')+card('base','Baseline kit','everyone',null,BASE,true);
   $('plan').querySelectorAll('input').forEach(i=>i.onchange=()=>{checked[i.dataset.key]=i.checked;store.set('checked',checked);ring();});
   ring();
 }
@@ -2017,21 +2308,7 @@ function ring(){
   $('ring').innerHTML=`<svg viewBox="0 0 44 44" aria-hidden="true"><circle cx="22" cy="22" r="${r}" fill="none" stroke="var(--chip)" stroke-width="5"/><circle cx="22" cy="22" r="${r}" fill="none" stroke="var(--accent)" stroke-width="5" stroke-dasharray="${L*f} ${L}" transform="rotate(-90 22 22)" stroke-linecap="round"/></svg><span><b style="color:var(--ink)">${done}</b> of ${all.length} done</span>`;
 }
 
-// ---------- supplies ----------
-function renderSupplies(){
-  const ppl=Math.max(1,Math.min(20,+$('people').value||1)), pets=Math.max(0,Math.min(10,+$('pets').value||0));
-  const horizons=[['72 hours','Evacuation or first shelter',3],['2 weeks','FEMA’s recommended home supply',14],['3 months','Long outage or collapse',90]];
-  $('sup').innerHTML=horizons.map(([t,s,d])=>{
-    const gal=Math.ceil(ppl*d+pets*0.5*d), kcal=ppl*2000*d, lbs=Math.ceil(kcal/1600), petLbs=Math.ceil(pets*0.75*d);
-    const sq=(n,col,per)=>`<div class="picto" aria-hidden="true">${Array.from({length:Math.min(150,Math.ceil(n/per))},()=>`<i style="background:${col}"></i>`).join('')}</div>`;
-    return `<div class="supc"><h3>${t}</h3><div class="lab" style="text-transform:none;letter-spacing:0">${s}</div>
-      <div class="row"><div class="lab"><span>Water</span><b>${gal.toLocaleString()} gal</b></div>${sq(gal,'#2F6F9F',5)}</div>
-      <div class="row"><div class="lab"><span>Dry food (rice, beans, oats)</span><b>${lbs.toLocaleString()} lb</b></div>${sq(lbs,'#C9481A',5)}</div>
-      ${pets?`<div class="row"><div class="lab"><span>Pet food</span><b>${petLbs} lb</b></div>${sq(petLbs,'#8DB878',5)}</div>`:''}
-      <div class="row lab" style="text-transform:none;letter-spacing:0">${(kcal/1000).toLocaleString()}k calories · each square = 5 gal or 5 lb</div></div>`;
-  }).join('');
-}
-['people','pets'].forEach(id=>$(id).addEventListener('input',renderSupplies));
+
 
 // ---------- research ----------
 function renderResearch(){
@@ -2066,11 +2343,16 @@ function update(){
   $('stampHome').textContent=CI[home].label;
   const ph=phase>=0&&SI[scen].phases?SI[scen].phases[phase]:null;
   $('phNote').hidden=!ph; if(ph)$('phNote').innerHTML=`Map is showing the <b>${ph.n}</b> phase, which uses its own weights: ${KEYS.filter(k=>ph.w[k]>0).sort((a,b)=>ph.w[b]-ph.w[a]).slice(0,4).map(k=>FI[k].n.toLowerCase()).join(', ')}. Sliders set the overall mix.`;
-  syncWeights(); paintMap(); renderPhases(); renderHome(); renderBest(); renderStates(); renderPlan();
+  syncWeights(); paintMap(); renderPhases(); renderHome(); renderBest(); renderStates(); renderPlan(); renderFreq();
   if(scen==='custom'&&Date.now()-lastCustomDraw>400){lastCustomDraw=Date.now();drawMini(SI.custom);}
   store.set('scen',scen);store.set('w',W);store.set('home',home);store.set('cmp',cmp);
 }
-renderSupplies(); renderResearch(); update(); drawGallery();
+renderResearch(); update(); drawGallery();
+window.__localNWR=()=>{const c=CI[home];return {place:c.label,same:c.est?'':'0'+c.id,list:c.est?[]:(EX&&EX.nwr[c.id])||[]};};
+window.__planData=()=>{const H=CI[home],w=activeW();return {place:H.label,scen:SI[scen].label,
+  threats:topThreats(H,w,4).filter(x=>x.c>0).map(x=>({n:FI[x.k].n,v:x.v,acts:FI[x.k].p})),
+  escape:escapePlan().filter(p=>!p.none).map(p=>({when:typeof p.h==='string'?p.h:'Within '+p.h+' h',name:p.c.label,how:`${Math.round(p.d)} km ${p.dir} · risk ${p.score.toFixed(1)} vs ${R.of(home).score.toFixed(1)} at home`}))};};
+addEventListener('profilechange',()=>{renderPlan();renderEscape();});
 window.__usRefresh=()=>{update();setTimeout(()=>{lmap.invalidateSize();naRender();},0);};
 window.__usShare=()=>{const H=CI[home],r=R.of(home),K=CI[cmpAb()];return `In the DoomsDay Atlas ${SI[scen].label.toLowerCase()} scenario, ${H.label} is safer than ${Math.round((1-r.pct)*100)}% of places in North America (risk ${r.score.toFixed(1)}/10). One of the safest picks: ${K.label}. ${'https://itsupthere.github.io/DoomsDayAtlas/'}#${scen}`;};
 window.__liveUS=ev=>{ev.forEach(e=>{const sz=e.k==='quake'?Math.round(6+(e.mag-2.5)*3):9;L.marker([e.la,e.lo],{keyboard:false,riseOnHover:true,icon:L.divIcon({className:'livefx live-'+e.k,iconSize:[sz,sz],html:'<i></i>'})}).bindPopup(`<b>${e.title.replace(/</g,'&lt;')}</b><br>${window.__liveAgo(e.t)}${e.url?` · <a href="${e.url}" target="_blank" rel="noopener">source</a>`:''}`).addTo(naLive);});
@@ -2474,7 +2756,7 @@ function renderHome(){
   const beat=hr.pct!=null?` ${H.name} is safer than ${Math.round((1-hr.pct)*100)}% of countries in ${RG[region].label==='World'?'the world':RG[region].label}.`:'';
   $('wVerdict').innerHTML=`For <b>${lbl}</b>:${beat} `+(diff>0.05?`${K.name} scores ${diff.toFixed(1)} points lower risk. Your biggest drivers: ${top.join(' and ')}.`:`You already score as well as ${K.name}. Top remaining risks: ${top.join(' and ')}.`)+(H.est?` <span style="color:var(--muted)">(${H.est}.)</span>`:'');
   radar(H,K,w); phaseChart(H,K); wRenderEscape();
-  $('wTips').innerHTML='<h2 style="margin:12px 0 6px">Prepare for your top threats</h2>'+topThreats(H,W,3).map(x=>`<div class="tipcard"><div class="th"><b>${FI2[x.k].n}</b><span class="sev">${x.v.toFixed(1)}/10</span></div><div class="meter"><span style="width:${x.v*10}%;background:${riskInterp(x.v/10)}"></span></div><p>${FI2[x.k].t}</p></div>`).join('');
+  $('wTips').innerHTML=(PROFILE.actions().length?'<h2 style="margin:12px 0 6px">For your household</h2>'+PROFILE.actions().slice(0,4).map(a=>`<div class="tipcard"><p>${a}</p></div>`).join(''):'')+'<h2 style="margin:12px 0 6px">Prepare for your top threats</h2>'+topThreats(H,W,3).map(x=>`<div class="tipcard"><div class="th"><b>${FI2[x.k].n}</b><span class="sev">${x.v.toFixed(1)}/10</span></div><div class="meter"><span style="width:${x.v*10}%;background:${riskInterp(x.v/10)}"></span></div><p>${FI2[x.k].t}</p></div>`).join('');
 }
 function radar(H,K,w){
   const ks=K2.filter(k=>w[k]>0).sort((a,b)=>w[b]*Math.max(H.v[b],K.v[b])-w[a]*Math.max(H.v[a],K.v[a])).slice(0,8);
@@ -2551,7 +2833,7 @@ function update(){
   const ph=phase>=0&&SI2[scen].phases?SI2[scen].phases[phase]:null;
   $('wPhNote').hidden=!ph;if(ph)$('wPhNote').innerHTML=`Map is showing the <b>${ph.n}</b> phase, which uses its own weights. Sliders set the overall mix.`;
   $('stampScen').textContent=SI2[scen].label;$('stampPhase').textContent=ph?ph.n:'Overall';$('stampHome').textContent=CI[home()].name;
-  syncWeights();paintMap();renderPhases();renderHome();renderLists();
+  syncWeights();paintMap();renderPhases();renderHome();renderLists();renderFreq();
   if(scen==='custom'&&Date.now()-lastCustom>400){lastCustom=Date.now();drawMini(SI2.custom);}
   store.set('scen',scen);store.set('w',W);
 }
@@ -2562,34 +2844,41 @@ window.__showRegion=function(r){
   fillSelects(); fillLayers(); buildMap(); update(); drawGallery();
 };
 $('wWind').onchange=e=>WIND.set(e.target.value);
+window.__wPlanData=()=>{const h=home(),H=CI[h],w=activeW();return {place:H.name,scen:SI2[scen].label,
+  threats:topThreats(H,w,4).filter(x=>x.c>0).map(x=>({n:FI2[x.k].n,v:x.v,acts:[FI2[x.k].t]})),
+  escape:wEscapePlan().filter(p=>!p.none).map(p=>({when:p.h===24?'Within a day':'Within '+p.h+' h',name:p.c.name,how:`${Math.round(p.d)} km ${p.dir} (center to center) · risk ${p.score.toFixed(1)} vs ${R.by[h].score.toFixed(1)}`}))};};
+window.__worldScen=id=>{if(SI2[id])selectScen(id);};
+addEventListener('profilechange',()=>{if(region)renderHome();});
 if(window.__live)window.__liveLeaflet(window.__live);
 };
 
 // ================= tabs =================
 (function(){
   document.querySelectorAll('.wfold').forEach(b=>b.onclick=()=>b.setAttribute('aria-expanded',b.getAttribute('aria-expanded')!=='true'));
-  const views={us:'view-us',europe:'view-global',asia:'view-global',africa:'view-global',world:'view-global'};
-  const SUB={us:'All 3,142 US counties from FEMA\u2019s risk data, plus Canada\u2019s 13 provinces and territories and Mexico\u2019s 32 states (estimated), scored for 14 scenarios on a zoomable terrain map.',europe:'Every European country scored for 12 scenarios from the EU’s INFORM Risk Index, World Bank data and modeled threat zones.',asia:'East Asia, Southeast Asia, Australia, New Zealand and the Pacific islands, scored for 12 scenarios.',world:'All 190+ countries scored for 12 scenarios. Press the button to find the safest place on Earth.',africa:'All 54 African countries scored for 12 scenarios from INFORM, World Bank data and modeled threat zones, on a zoomable terrain map.'};
+  const views={now:'view-now',us:'view-us',europe:'view-global',asia:'view-global',africa:'view-global',world:'view-global'};
+  const SUB={now:'Current wars, outbreaks, disasters, outages and space weather from news and official alerts, sorted by scenario and refreshed every 2 hours.',us:'All 3,142 US counties from FEMA\u2019s risk data, plus Canada\u2019s 13 provinces and territories and Mexico\u2019s 32 states (estimated), scored for 14 scenarios on a zoomable terrain map.',europe:'Every European country scored for 12 scenarios from the EU’s INFORM Risk Index, World Bank data and modeled threat zones.',asia:'East Asia, Southeast Asia, Australia, New Zealand and the Pacific islands, scored for 12 scenarios.',world:'All 190+ countries scored for 12 scenarios. Press the button to find the safest place on Earth.',africa:'All 54 African countries scored for 12 scenarios from INFORM, World Bank data and modeled threat zones, on a zoomable terrain map.'};
   let cur=null, naP=null, wP=null;
   const loadJSON=u=>fetch(u).then(r=>{if(!r.ok)throw new Error(u+' returned '+r.status);return r.json();});
-  const ensureNA=()=>naP||(naP=loadJSON('data/na-bundle.json').then(b=>window.__initNA(b.topo,b.cd,b.admin,b.units)));
+  const ensureNA=()=>naP||(naP=loadJSON('data/na-bundle.json').then(b=>window.__initNA(b.topo,b.cd,b.admin,b.units,b.extra)));
+  let nowP=null; const ensureNow=()=>nowP||(nowP=Promise.resolve().then(()=>window.__initNow()));
   const ensureWorld=()=>wP||(wP=loadJSON('data/world-bundle.json').then(b=>window.__initWorld(b.topo,b.world)));
   function fail(e){document.body.classList.remove('busy');const m=document.getElementById('loadmsg');m.hidden=false;
     m.innerHTML=location.protocol==='file:'?'Map data can\u2019t load from a file on disk. In this folder run <code>python3 -m http.server</code> and open <code>http://localhost:8000</code>.':'Map data didn\u2019t load ('+String(e.message||e)+'). Check your connection and reload.';}
   function show(t){
     if(t===cur)return; cur=t;
     document.querySelectorAll('.tab').forEach(b=>b.setAttribute('aria-selected',b.dataset.tab===t));
-    document.getElementById('view-us').hidden=t!=='us'; document.getElementById('view-global').hidden=t==='us';
-    document.getElementById('subline').textContent=SUB[t]+' Pick a scenario, watch it play out, and see where you’d fare best.';
+    window.__curTab=t; ['view-now','view-us','view-global'].forEach(v=>document.getElementById(v).hidden=views[t]!==v); renderFreq();
+    document.getElementById('subline').textContent=SUB[t]+(t==='now'?'':' Pick a scenario, watch it play out, and see where you’d fare best.');
     document.body.classList.add('busy');
-    (t==='us'?ensureNA().then(()=>{if(cur==='us')window.__usRefresh();}):ensureWorld().then(()=>{if(cur===t)window.__showRegion(t);}))
+    (t==='now'?ensureNow().then(()=>{window.__nowRefresh&&window.__nowRefresh();}):t==='us'?ensureNA().then(()=>{if(cur==='us')window.__usRefresh();}):ensureWorld().then(()=>{if(cur===t)window.__showRegion(t);}))
       .then(()=>{document.body.classList.remove('busy');if(t==='us')setTimeout(()=>ensureWorld().catch(()=>{}),2500);},fail);
     try{localStorage.setItem('dda3-tab',JSON.stringify(t));}catch(e){}
-    try{if(['europe','asia','africa','world'].includes(t))history.replaceState(null,'','#'+t);else if(['europe','asia','africa','world'].includes(location.hash.slice(1)))history.replaceState(null,'','#us');}catch(e){}
+    try{if(['now','europe','asia','africa','world'].includes(t))history.replaceState(null,'','#'+t);else if(['now','europe','asia','africa','world'].includes(location.hash.slice(1)))history.replaceState(null,'','#us');}catch(e){}
   }
   document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>show(b.dataset.tab));
   const h=location.hash.slice(1); let t='us';
-  if(['us','europe','asia','africa','world'].includes(h))t=h; else if(!h){try{t=JSON.parse(localStorage.getItem('dda3-tab'))||'us';}catch(e){}}
+  window.__goTab=(t,sc)=>{show(t);if(sc)ensureWorld().then(()=>window.__worldScen&&window.__worldScen(sc));scrollTo({top:0,behavior:'smooth'});};
+  if(['now','us','europe','asia','africa','world'].includes(h))t=h; else if(!h){try{t=JSON.parse(localStorage.getItem('dda3-tab'))||'us';}catch(e){}}
   show(views[t]?t:'us');
 })();
 </script>
