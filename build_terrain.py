@@ -4,8 +4,10 @@ Source: AWS Terrain Tiles (Terrarium encoding, open data, zoom 6) — elevation 
 Output: tiles/{z}/{x}/{y}.jpg — Web Mercator, 1024 px tiles, z0..z4 (341 files, the
           equivalent of standard zoom 2..6), plus data/us-terrain.jpg for the US county map.
 
-    python3 build_terrain.py SRC_DIR     (SRC_DIR holds the zoom-6 tiles as {x}_{y}.png;
-                                          add --fetch to download them first, ~4096 files)
+    python3 build_terrain.py SRC_DIR [SRC7_DIR] [--fetch]
+      SRC_DIR holds the zoom-6 elevation tiles as {x}_{y}.png (~4096 files with --fetch).
+      SRC7_DIR (optional) holds zoom-7 tiles for the extra-detail regions in DETAIL and adds
+      tiles/5/ (Europe, Southeast Asia, Africa at ~1.2 km/px).
 Needs numpy and Pillow.
 """
 import math, sys, os, urllib.request, concurrent.futures as cf
@@ -145,9 +147,75 @@ def us_terrain(src, w=2925, h=1830):
     print("us-terrain.jpg", img.shape)
 
 
+# Extra-detail regions: 1024 px tiles at z5 (standard zoom 7, ~1.2 km/px), built from zoom-7 elevation.
+DETAIL = {"europe": (-25, 34, 45, 71.5), "seasia": (92, -12, 153, 28), "africa": (-20, -36, 55, 38)}
+
+
+def detail_tiles():
+    """Output z5 tiles covering each DETAIL box (lon/lat -> 32x32 grid)."""
+    n = 32
+    out = set()
+    for w, s, e, nlat in DETAIL.values():
+        def ty(lat):
+            return int((1 - math.log(math.tan(math.radians(lat)) + 1 / math.cos(math.radians(lat))) / math.pi) / 2 * n)
+        for tx in range(int((w + 180) / 360 * n), int((e + 180) / 360 * n) + 1):
+            for t in range(ty(nlat), ty(s) + 1):
+                out.add((tx, t))
+    return sorted(out)
+
+
+def fetch7(src7, tiles):
+    src7.mkdir(parents=True, exist_ok=True)
+    need = {(tx * 4 + i, ty * 4 + j) for tx, ty in tiles for i in range(-1, 5) for j in range(-1, 5) if 0 <= ty * 4 + j < 128}
+
+    def get(xy):
+        x, y = xy
+        x %= 128
+        p = src7 / f"{x}_{y}.png"
+        if p.exists() and p.stat().st_size > 100:
+            return
+        for a in range(4):
+            try:
+                p.write_bytes(urllib.request.urlopen(f"https://s3.amazonaws.com/elevation-tiles-prod/terrarium/7/{x}/{y}.png", timeout=30).read())
+                return
+            except Exception:
+                pass
+    with cf.ThreadPoolExecutor(48) as ex:
+        list(ex.map(get, need))
+
+
+def build_detail(src7):
+    tiles = detail_tiles()
+    n7 = 128
+    m_per_px = 40075016.686 / (256 * n7)
+
+    def et(x, y):
+        x %= n7
+        if y < 0 or y >= n7:
+            return np.full((256, 256), -4000, np.float32)
+        a = np.asarray(Image.open(src7 / f"{x}_{y}.png").convert("RGB"), dtype=np.float32)
+        return a[..., 0] * 256 + a[..., 1] + a[..., 2] / 256 - 32768
+    for tx, ty in tiles:
+        d = OUT / "5" / str(tx)
+        d.mkdir(parents=True, exist_ok=True)
+        p = d / f"{ty}.jpg"
+        if p.exists():
+            continue
+        mos = np.vstack([np.hstack([et(tx * 4 + i, ty * 4 + j) for i in range(-1, 5)]) for j in range(-1, 5)])
+        e = mos[255:255 + 1026, 255:255 + 1026]
+        n = 32 * 1024
+        Image.fromarray(render(e, tile_lat(ty * 1024 - 1, n), tile_lat(ty * 1024 + 1025, n), m_per_px)).save(p, quality=72, optimize=True, progressive=True)
+    print("detail tiles:", len(tiles))
+
+
 if __name__ == "__main__":
     src = Path(sys.argv[1])
     if "--fetch" in sys.argv:
         fetch(src)
     build(src)
     us_terrain(src)
+    if len(sys.argv) > 2 and not sys.argv[2].startswith("--"):  # optional second dir for zoom-7 detail
+        src7 = Path(sys.argv[2])
+        if "--fetch" in sys.argv:
+            fetch7(src7, detail_tiles())
+        build_detail(src7)

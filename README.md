@@ -3,9 +3,10 @@
 An interactive map of disaster survivability. Every US county, and every country in Europe, Asia-Pacific and the world, scored for up to 14 scenarios: nuclear war, nuclear winter, regional war, climate 2050, mega-drought, grid collapse, solar superstorm / EMP, pandemic, societal breakdown, Yellowstone and supervolcano winter, Cascadia, New Madrid, reactor disasters and everyday natural hazards.
 
 - **United States:** all 3,142 counties, from FEMA's National Risk Index plus modeled threat zones, over shaded-relief terrain.
-- **Europe · Asia-Pacific · World:** country scores from the EU's INFORM Risk Index and World Bank data, with threat zones (blast, fallout, reactors, volcanoes, flashpoints) drawn point by point on a zoomable terrain map.
+- **Europe · Asia-Pacific · Africa · World:** country scores from the EU's INFORM Risk Index and World Bank data, with threat zones (blast, fallout, reactors, volcanoes, flashpoints) drawn point by point on a zoomable terrain map.
 - **Scenario playback:** watch a scenario unfold phase by phase; the map re-scores at each stage.
 - **Your location:** compare your county or country with the best match, with radar and timeline charts, a preparedness checklist and a supplies calculator.
+- **Live layer:** this week's earthquakes (USGS) and active wildfires, volcanoes and storms (NASA EONET) pulse on the maps, with a live ticker and the current Doomsday Clock. Live data loads on the public site; the claude.ai viewer blocks it.
 - **Safest place on Earth:** ranks every country of 1M+ people across all 12 global scenarios.
 
 ## Run it
@@ -24,7 +25,7 @@ python3 -m http.server 8000
 
 ```bash
 python3 build_world.py --fetch      # countries: INFORM + World Bank -> data/world.json
-python3 build_terrain.py SRC --fetch # terrain tiles -> tiles/, data/us-terrain.jpg (needs numpy, Pillow)
+python3 build_terrain.py SRC SRC7 --fetch # terrain tiles -> tiles/ (+ sharper tiles/5 for Europe, SE Asia, Africa), data/us-terrain.jpg; needs numpy, Pillow
 python3 build.py --fetch             # US counties from FEMA, then writes index.html
 ```
 
@@ -35,6 +36,7 @@ python3 build.py --fetch             # US counties from FEMA, then writes index.
 - [FEMA National Risk Index](https://resilience.climate.gov/datasets/FEMA::national-risk-index-counties): county hazards, population, farm output, social vulnerability, community resilience
 - [INFORM Risk Index Mid-2026](https://drmkc.jrc.ec.europa.eu/inform-index/INFORM-Risk/Results-and-data), EU Joint Research Centre: country hazards, conflict, governance, health care
 - [World Bank Open Data](https://data.worldbank.org/): farmland, grain output, water stress, electricity access
+- [USGS earthquake feed](https://earthquake.usgs.gov/earthquakes/feed/) and [NASA EONET](https://eonet.gsfc.nasa.gov/): live events
 - [AWS Terrain Tiles](https://registry.opendata.aws/terrain-tiles/) (SRTM, GMTED, ETOPO1): elevation for the shaded relief
 - [world-atlas](https://github.com/topojson/world-atlas) and [us-atlas](https://github.com/topojson/us-atlas): map boundaries (Natural Earth, US Census)
 - Research behind the scenarios: Xia et al. 2022 (nuclear famine), Mastin et al. 2014 (Yellowstone ash), Love et al. 2018 (geoelectric hazards), FEMA 2019 National THIRA, NRC emergency planning zones

@@ -85,9 +85,11 @@ input[type=range]{width:100%;accent-color:var(--accent);margin:0}
 .lbl{font-family:var(--f-mono);font-size:9.5px;fill:var(--ink);pointer-events:none;text-anchor:middle;paint-order:stroke;stroke:var(--stroke);stroke-width:2.5px;stroke-opacity:.7}
 .zoom{position:absolute;right:8px;top:8px;display:flex;flex-direction:column;gap:4px}
 .zoom button{width:30px;height:30px;border:1px solid var(--line);background:var(--panel);border-radius:3px;cursor:pointer;font-size:16px;line-height:1}
-.tip{position:absolute;pointer-events:none;background:var(--ink);color:var(--panel);padding:8px 10px;border-radius:3px;font-size:12px;min-width:180px;max-width:260px;transform:translate(-50%,calc(-100% - 12px));opacity:0;transition:opacity .12s;z-index:5}
-.tip b{font-size:13px}
-.tip .m{font-family:var(--f-mono);font-size:11px;opacity:.85}
+.tip{position:absolute;left:0;top:0;pointer-events:none;background:var(--ink);color:var(--panel);padding:3px 7px;border-radius:3px;font-size:11.5px;white-space:nowrap;max-width:260px;overflow:hidden;text-overflow:ellipsis;opacity:0;transition:opacity .1s;z-index:5;box-shadow:0 1px 4px rgba(0,0,0,.25)}
+.tip b{font-size:11.5px;font-weight:600}
+.readout{font-size:12px;color:var(--muted);min-height:1.5em;margin-top:6px;overflow-wrap:anywhere}
+.readout b{color:var(--ink)}
+.tip .m{font-family:var(--f-mono);font-size:11px;opacity:.8}
 .legend{display:flex;align-items:center;gap:10px;font-family:var(--f-mono);font-size:11px;color:var(--muted);margin-top:8px;flex-wrap:wrap}
 .ramp{height:10px;width:180px;border-radius:2px;max-width:40vw}
 .key{display:flex;gap:12px;flex-wrap:wrap}
@@ -240,6 +242,45 @@ input[type=range]{width:100%;accent-color:var(--accent);margin:0}
 .tipcard .meter{height:4px;background:var(--chip);border-radius:2px;overflow:hidden;margin:5px 0}
 .tipcard .meter span{display:block;height:100%}
 .tipcard p{margin:0;font-size:12.5px;color:var(--muted)}
+
+/* life: clock, ticker, live markers, strike pulses, share */
+.pulsebar{display:flex;flex-wrap:wrap;gap:10px 22px;align-items:center;margin-top:10px}
+.dclock{display:flex;align-items:center;gap:10px;color:var(--ink);text-decoration:none}
+.dclock svg{width:38px;height:38px;flex:none}
+.dclock .face{fill:var(--panel);stroke:var(--ink);stroke-width:1.6}
+.dclock .ticks line{stroke:var(--ink);stroke-width:1.2}
+.dclock .hh,.dclock .mh{stroke:var(--ink);stroke-width:2;stroke-linecap:round}
+.dclock .sh{stroke:var(--accent);stroke-width:1;transform-origin:20px 20px;animation:sweep 60s steps(60) infinite}
+.dclock .pin{fill:var(--accent)}
+.dclock span{display:flex;flex-direction:column;line-height:1.15}
+.dclock b{font-family:var(--f-display);font-size:20px;text-transform:uppercase;letter-spacing:.02em}
+.dclock small{font-family:var(--f-mono);font-size:10.5px;color:var(--muted)}
+@keyframes sweep{to{transform:rotate(360deg)}}
+.ticker{display:flex;align-items:center;gap:8px;flex:1 1 320px;min-width:0;font-size:12.5px;border:1px solid var(--line);border-radius:99px;padding:5px 12px;background:var(--panel);overflow:hidden}
+.ticker b{font-family:var(--f-mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--accent)}
+.ticker #tickerText{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+.ticker #tickerText.in{animation:tin .5s ease}
+@keyframes tin{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.livedot{width:8px;height:8px;border-radius:50%;background:var(--accent);flex:none;animation:blink 1.6s ease-in-out infinite}
+@keyframes blink{50%{opacity:.25}}
+.livefx i{display:block;width:100%;height:100%;border-radius:50%;background:var(--lc);box-shadow:0 0 0 1.5px #fff;position:relative}
+.livefx i::after{content:"";position:absolute;inset:0;border-radius:50%;border:2px solid var(--lc);animation:ping 2.2s ease-out infinite}
+.live-quake{--lc:#E0522B}.live-fire{--lc:#F59E0B}.live-volcano{--lc:#7A2E8E}.live-storm{--lc:#2F6F9F}.live-flood{--lc:#2F6F9F}
+@keyframes ping{from{transform:scale(1);opacity:.9}to{transform:scale(3.2);opacity:0}}
+.strikefx i{display:block;width:100%;height:100%;border-radius:50%;border:2px solid #FFB020;background:radial-gradient(circle,rgba(255,240,200,.95) 0,rgba(255,176,32,.6) 30%,rgba(180,47,42,0) 70%);animation:strike 1.6s ease-out infinite}
+.strikefx.big i{border-color:#FF6A2B}
+@keyframes strike{0%{transform:scale(.2);opacity:1}70%{opacity:.7}100%{transform:scale(1.6);opacity:0}}
+#map .mk .ring{fill:none;stroke:#FFB020;stroke-width:2;vector-effect:non-scaling-stroke;opacity:0;transform-box:fill-box;transform-origin:center}
+#map .striking .mk .ring{animation:sring 1.6s ease-out infinite}
+@keyframes sring{0%{transform:scale(.3);opacity:1}100%{transform:scale(2.4);opacity:0}}
+#map .live .lp{fill:none;stroke:var(--lc);stroke-width:1.5;vector-effect:non-scaling-stroke;transform-box:fill-box;transform-origin:center;animation:ping 2.4s ease-out infinite}
+#map .live .lc{fill:var(--lc);stroke:#fff;stroke-width:.8;vector-effect:non-scaling-stroke}
+.sharerow{display:flex;align-items:center;gap:10px;margin-top:10px;flex-wrap:wrap}
+.sharebtn{border:1px solid var(--ink);background:transparent;border-radius:3px;padding:6px 12px;cursor:pointer;font-size:12.5px;font-weight:500}
+.sharebtn:hover{background:var(--ink);color:var(--panel)}
+.sharemsg{font-size:12px;color:var(--muted);flex:1 1 100%}
+.sharebox{width:100%;font:inherit;font-size:12px;background:var(--bg);color:var(--ink);border:1px solid var(--line);border-radius:3px;padding:6px}
+@media (prefers-reduced-motion:reduce){.dclock .sh,.livedot,.livefx i::after,.strikefx i,#map .striking .mk .ring,#map .live .lp,.ticker #tickerText.in{animation:none}}
 footer{margin-top:26px;border-top:1px solid var(--line);padding-top:12px;font-size:12px;color:var(--muted);max-width:120ch}
 footer a{color:var(--muted)}
 @media (prefers-reduced-motion:reduce){.phase .fill.run{animation:none;width:100%}}
@@ -931,10 +972,19 @@ svg.leaflet-image-layer.leaflet-interactive path {
   <div class="stamp">Scenario <b id="stampScen">—</b><br>Phase <b id="stampPhase">Overall</b><br>Home <b id="stampHome">—</b></div>
 </header>
 
+<div class="pulsebar">
+  <a class="dclock" href="https://thebulletin.org/doomsday-clock/" target="_blank" rel="noopener" title="Doomsday Clock, Bulletin of the Atomic Scientists">
+    <svg viewBox="0 0 40 40" aria-hidden="true"><circle cx="20" cy="20" r="17" class="face"/><g class="ticks"><line x1="20" y1="4.5" x2="20" y2="7.5" transform="rotate(0 20 20)"/><line x1="20" y1="4.5" x2="20" y2="6.2" transform="rotate(30 20 20)"/><line x1="20" y1="4.5" x2="20" y2="6.2" transform="rotate(60 20 20)"/><line x1="20" y1="4.5" x2="20" y2="7.5" transform="rotate(90 20 20)"/><line x1="20" y1="4.5" x2="20" y2="6.2" transform="rotate(120 20 20)"/><line x1="20" y1="4.5" x2="20" y2="6.2" transform="rotate(150 20 20)"/><line x1="20" y1="4.5" x2="20" y2="7.5" transform="rotate(180 20 20)"/><line x1="20" y1="4.5" x2="20" y2="6.2" transform="rotate(210 20 20)"/><line x1="20" y1="4.5" x2="20" y2="6.2" transform="rotate(240 20 20)"/><line x1="20" y1="4.5" x2="20" y2="7.5" transform="rotate(270 20 20)"/><line x1="20" y1="4.5" x2="20" y2="6.2" transform="rotate(300 20 20)"/><line x1="20" y1="4.5" x2="20" y2="6.2" transform="rotate(330 20 20)"/></g><line class="hh" x1="20" y1="20" x2="20" y2="9.5" transform="rotate(-2.6 20 20)"/><line class="mh" x1="20" y1="20" x2="20" y2="6" transform="rotate(-8.5 20 20)"/><line class="sh" x1="20" y1="22" x2="20" y2="5.5"/><circle cx="20" cy="20" r="1.6" class="pin"/></svg>
+    <span><b>85 seconds to midnight</b><small>Doomsday Clock, Jan 2026 · closest ever</small></span>
+  </a>
+  <div class="ticker" id="ticker" hidden><span class="livedot" aria-hidden="true"></span><b>Live</b><span id="tickerText" aria-live="polite"></span></div>
+</div>
+
 <div class="tabs" role="tablist" aria-label="Region">
   <button class="tab" role="tab" data-tab="us" aria-selected="true">United States</button>
   <button class="tab" role="tab" data-tab="europe" aria-selected="false">Europe</button>
   <button class="tab" role="tab" data-tab="asia" aria-selected="false">Asia-Pacific</button>
+  <button class="tab" role="tab" data-tab="africa" aria-selected="false">Africa</button>
   <button class="tab" role="tab" data-tab="world" aria-selected="false">World</button>
 </div>
 
@@ -981,6 +1031,7 @@ svg.leaflet-image-layer.leaflet-interactive path {
           <select id="layer"></select>
         </div>
         <div class="toggles" role="group" aria-label="Map overlays">
+          <button class="tog" id="ovLive" aria-pressed="true" hidden>Live events</button>
           <button class="tog" id="ovT" aria-pressed="true">Likely targets</button>
           <button class="tog" id="ovR" aria-pressed="false">Reactors</button>
           <button class="tog" id="ovG" aria-pressed="false">Faults + volcanoes</button>
@@ -997,6 +1048,7 @@ svg.leaflet-image-layer.leaflet-interactive path {
         <span class="key" id="ovKey"></span>
         <span style="margin-left:auto">Click a county to set home · Shift-click to compare · Scroll or pinch to zoom</span>
       </div>
+      <div class="readout" id="readout" aria-live="polite">Hover the map for details.</div>
       <div class="phases" id="phases">
         <div class="phasebar" id="phasebar"></div>
         <div class="phasetext"><p id="phWhat"></p><p class="do" id="phDo"></p></div>
@@ -1017,6 +1069,7 @@ svg.leaflet-image-layer.leaflet-interactive path {
         <div class="score c"><div class="big" id="cScore">–</div><div class="meta" id="cMeta"></div><span class="tier" id="cTier"></span></div>
       </div>
       <p class="verdict" id="verdict"></p>
+      <div class="sharerow"><button class="sharebtn" id="shareUS">Copy my result</button><span class="sharemsg" id="shareUSMsg" aria-live="polite"></span></div>
       <div class="chartbox">
         <div class="ckey"><span><i></i><span id="kH">Home</span></span><span><i class="c"></i><span id="kC">Compare</span></span></div>
         <svg id="radar" viewBox="-50 0 440 300" role="img" aria-label="Radar chart of top threats, home versus compare"></svg>
@@ -1102,6 +1155,7 @@ svg.leaflet-image-layer.leaflet-interactive path {
         <div class="toggles" role="group" aria-label="Map overlays">
           <button class="tog" id="wovD" aria-pressed="true">Fine detail</button>
           <button class="tog" id="wovS" aria-pressed="false" disabled>Street-level detail (online)</button>
+          <button class="tog" id="wovLive" aria-pressed="true" hidden>Live events</button>
           <button class="tog" id="wovT" aria-pressed="true">Likely targets</button>
           <button class="tog" id="wovR" aria-pressed="false">Reactors</button>
           <button class="tog" id="wovV" aria-pressed="false">Volcanoes</button>
@@ -1123,6 +1177,7 @@ svg.leaflet-image-layer.leaflet-interactive path {
         <span class="key" id="wOvKey"></span>
         <span id="wDetStatus" class="detstat"></span><span id="wZoomNote" class="detstat"></span><span style="margin-left:auto">Drag to pan · Scroll or pinch to zoom · Click to set your country · Shift-click to compare</span>
       </div>
+      <div class="readout" id="wReadout" aria-live="polite">Hover the map for details.</div>
       <div class="phases" id="wPhases">
         <div class="phasebar" id="wPhaseBar"></div>
         <div class="phasetext"><p id="wPhWhat"></p><p class="do" id="wPhDo"></p></div>
@@ -1142,6 +1197,7 @@ svg.leaflet-image-layer.leaflet-interactive path {
         <div class="score c"><div class="big" id="wCScore">–</div><div class="meta" id="wCMeta"></div><span class="tier" id="wCTier"></span></div>
       </div>
       <p class="verdict" id="wVerdict"></p>
+      <div class="sharerow"><button class="sharebtn" id="shareW">Copy my result</button><span class="sharemsg" id="shareWMsg" aria-live="polite"></span></div>
       <div class="chartbox">
         <div class="ckey"><span><i></i><span id="wkH">Home</span></span><span><i class="c"></i><span id="wkC">Compare</span></span></div>
         <svg id="wRadar" viewBox="-50 0 440 300" role="img" aria-label="Radar chart of top threats, your country versus compare"></svg>
@@ -1477,7 +1533,7 @@ gLbl.selectAll('text').data(stateFeats.filter(f=>!['10','11','09','44','34','24'
   .text(f=>{const n=f.properties.name;return Object.keys(STNAME).find(a=>STNAME[a]===n)||'';});
 const OVC={silo:'#7A2E8E',base:'#B42F2A',city:'var(--ink)',reactor:'#D4A017',geo:'#C9481A'};
 const gT=gz.append('g').attr('pointer-events','none'), gR=gz.append('g').attr('pointer-events','none'), gG=gz.append('g').attr('pointer-events','none');
-TARGETS.forEach(t=>{const g=gT.append('g').attr('class','mk').attr('data-x',t.xy[0]).attr('data-y',t.xy[1]);g.append('circle').attr('r',t.t==='silo'?3.4:3).style('fill',OVC[t.t]).attr('stroke','var(--stroke)').attr('stroke-width',1).attr('vector-effect','non-scaling-stroke');});
+TARGETS.forEach((t,i)=>{const g=gT.append('g').attr('class','mk').attr('data-x',t.xy[0]).attr('data-y',t.xy[1]);g.append('circle').attr('class','ring').attr('r',t.t==='silo'?9:6).style('animation-delay',(i%7)*.13+'s');g.append('circle').attr('r',t.t==='silo'?3.4:3).style('fill',OVC[t.t]).attr('stroke','var(--stroke)').attr('stroke-width',1).attr('vector-effect','non-scaling-stroke');});
 REACTORS.forEach(r=>{gR.append('g').attr('class','mk').attr('data-x',r[0]).attr('data-y',r[1]).append('rect').attr('x',-3).attr('y',-3).attr('width',6).attr('height',6).attr('transform','rotate(45)').attr('fill',OVC.reactor).attr('stroke','var(--stroke)').attr('stroke-width',1).attr('vector-effect','non-scaling-stroke');});
 const line=d3.line();
 FAULTS.forEach(f=>gG.append('path').attr('d',line(f.xy)).attr('fill','none').attr('stroke',OVC.geo).attr('stroke-width',2.4).attr('stroke-dasharray','6 3').attr('stroke-linecap','round').attr('vector-effect','non-scaling-stroke'));
@@ -1498,19 +1554,27 @@ function zoomTo(id,k=5){const c=CI[id];svg.transition().duration(700).call(zoom.
 $('zhome').onclick=()=>zoomTo(home);
 
 function topThreats(c,w,n=3){return KEYS.filter(k=>w[k]>0).map(k=>({k,c:w[k]*c.v[k],v:c.v[k],w:w[k]})).sort((a,b)=>b.c-a.c).slice(0,n);}
+function placeTip(tip,box,cx,cy){
+  // small label beside the cursor; flips to the other side near the right or bottom edge
+  const x=cx-box.left, y=cy-box.top, w=tip.offsetWidth||160, h=tip.offsetHeight||24;
+  tip.style.left=x+'px'; tip.style.top=y+'px';
+  tip.style.transform=`translate(${x+14+w>box.width?`calc(-100% - 14px)`:'14px'},${y+14+h>box.height?`calc(-100% - 10px)`:'14px'})`;
+  tip.style.opacity=1;
+}
+window.placeTip=placeTip;
 function showTip(e,c){
   const r=R.of(c.id), box=mapEl.getBoundingClientRect();
-  const val=layer==='score'?`Risk ${r.score.toFixed(1)} · safer than ${Math.round((1-r.pct)*100)}% of counties`:`${FI[layer].n}: ${c.v[layer].toFixed(1)}/10`;
+  const val=layer==='score'?`${r.score.toFixed(1)} risk`:`${c.v[layer].toFixed(1)}/10`;
   const extra=layer==='ys'&&c.ashCm?` · ~${c.ashCm>=100?(c.ashCm/100).toFixed(1)+' m':c.ashCm>=1?c.ashCm.toFixed(0)+' cm':(c.ashCm*10).toFixed(0)+' mm'} ash`:'';
-  tip.innerHTML=`<b>${c.label}</b><div class="m">${c.pop.toLocaleString()} people</div><div class="m">${val}${extra}</div><div class="m" style="margin-top:3px">Top: ${topThreats(c,activeW()).map(x=>FI[x.k].n).join(', ')||'—'}</div>`;
-  let x=e.clientX-box.left, y=e.clientY-box.top;
-  x=Math.max(95,Math.min(box.width-95,x)); if(y<90){tip.style.transform='translate(-50%,16px)';}else tip.style.transform='';
-  tip.style.left=x+'px';tip.style.top=y+'px';tip.style.opacity=1;
+  tip.innerHTML=`<b>${c.label}</b> <span class="m">${val}${extra}</span>`;
+  placeTip(tip,box,e.clientX,e.clientY);
+  $('readout').innerHTML=`<b>${c.label}</b> · ${c.pop.toLocaleString()} people · ${layer==='score'?`risk ${r.score.toFixed(1)}, safer than ${Math.round((1-r.pct)*100)}% of counties`:`${FI[layer].n} ${c.v[layer].toFixed(1)}/10`}${extra} · top threats: ${topThreats(c,activeW()).map(x=>FI[x.k].n.toLowerCase()).join(', ')||'none'}`;
 }
 const layerEl=$('layer');
 layerEl.innerHTML=`<option value="score">Scenario risk</option>`+[G_NAT,G_MOD,G_SOC,G_INF].map(g=>`<optgroup label="${g}">${F.filter(f=>f.g===g).map(f=>`<option value="${f.k}">${f.n}</option>`).join('')}</optgroup>`).join('');
 layerEl.onchange=()=>{layer=layerEl.value;paintMap();};
 function paintMap(){
+  gT.classed('striking',scen==='nuclear'&&phase===0);
   const col=layer==='score'?(c,i)=>riskInterp(norm(R.s[i])):(c)=>riskInterp(c.v[layer]/10);
   coPaths.attr('fill',col);
   $('legLo').textContent=layer==='score'?'Lowest risk ('+R.ext[0].toFixed(1)+')':'0 · none';$('legHi').textContent=layer==='score'?'Highest ('+R.ext[1].toFixed(1)+')':'10 · severe';
@@ -1553,9 +1617,12 @@ bindCounty($('homeIn'),id=>{home=id;if(cmp===home)cmp=null;setTimeout(()=>zoomTo
 bindCounty($('cmpIn'),id=>{cmp=id===home?null:id;});
 $('cmpIn').addEventListener('input',e=>{if(!e.target.value.trim()){cmp=null;update();}});
 function cmpAb(){return cmp&&cmp!==home?cmp:bestId(home);}
+window.tweenScore=function(el,to){const fmt=v=>`${v.toFixed(1)}<small> /10</small>`,from=parseFloat(el.dataset.v);el.dataset.v=to;cancelAnimationFrame(el._raf);
+  if(isNaN(from)||Math.abs(from-to)<.05||matchMedia('(prefers-reduced-motion: reduce)').matches){el.innerHTML=fmt(to);return;}
+  const t0=performance.now();const step=t=>{const k=Math.min(1,(t-t0)/500),e=1-Math.pow(1-k,3);el.innerHTML=fmt(from+(to-from)*e);if(k<1)el._raf=requestAnimationFrame(step);};el._raf=requestAnimationFrame(step);};
 function fmtScore(pre,id){
   const r=R.of(id), t=tierOf(r.pct), c=CI[id];
-  $(pre+'Score').innerHTML=`${r.score.toFixed(1)}<small> /10</small>`;
+  tweenScore($(pre+'Score'),r.score);
   $(pre+'Meta').textContent=`${c.label} · #${r.rank.toLocaleString()} of ${C.length.toLocaleString()}`;
   const tg=$(pre+'Tier');tg.textContent=t[1];tg.style.background=t[2];tg.style.color=t[3];
 }
@@ -1703,6 +1770,9 @@ function update(){
 }
 renderSupplies(); renderResearch(); update(); drawGallery();
 window.__usRefresh=update;
+window.__usShare=()=>{const H=CI[home],r=R.of(home),K=CI[cmpAb()];return `In the DoomsDay Atlas ${SI[scen].label.toLowerCase()} scenario, ${H.label} is safer than ${Math.round((1-r.pct)*100)}% of US counties (risk ${r.score.toFixed(1)}/10). One of the safest picks: ${K.label}. ${'https://itsupthere.github.io/DoomsDayAtlas/'}#${scen}`;};
+const gLive=gz.append('g').attr('pointer-events','none').attr('class','livegrp');
+window.__liveUS=ev=>{ev.forEach(e=>{const p=proj([e.lo,e.la]);if(!p)return;const r=e.k==='quake'?3+(e.mag-2.5)*2.2:4;const g=gLive.append('g').attr('class','mk live live-'+e.k).attr('data-x',p[0]).attr('data-y',p[1]).attr('transform',`translate(${p[0]},${p[1]})`);g.append('circle').attr('class','lp').attr('r',r);g.append('circle').attr('class','lc').attr('r',Math.max(1.6,r*.45));g.append('title').text(e.title);});const b=document.getElementById('ovLive');b.hidden=false;b.onclick=()=>{const on=b.getAttribute('aria-pressed')!=='true';b.setAttribute('aria-pressed',on);gLive.attr('display',on?null:'none');};};
 const usOp=v=>{document.getElementById('map').style.setProperty('--co-op',v/100);document.getElementById('usOpacityOut').textContent=v+'%';};
 document.getElementById('usOpacity').addEventListener('input',e=>usOp(+e.target.value));usOp(78);
 </script>
@@ -1787,6 +1857,7 @@ feats.forEach(f=>{f.iso=ID2ISO[f.id]||NAME2ISO[f.properties.name]||null;});
 const RG={
  europe:{label:'Europe',inR:c=>c.reg==='Europe'||['TUR','CYP','GEO','ARM','AZE'].includes(c.iso),proj:()=>d3.geoConicConformal().rotate([-15,0]).parallels([40,65]),box:[[-24,34],[45,34],[45,71],[-24,71],[10,72]],bounds:[[35,-24],[71,45]],home:'DEU'},
  asia:{label:'Asia-Pacific',inR:c=>['Eastern Asia','South-eastern Asia','Australia and New Zealand','Melanesia','Micronesia','Polynesia'].includes(c.sub),proj:()=>d3.geoMercator().rotate([-150,0]),box:[[75,-48],[-128,-48],[-128,54],[75,54],[150,54],[150,-48]],bounds:[[-47,75],[53,230]],home:'JPN'},
+ africa:{label:'Africa',inR:c=>c.reg==='Africa',proj:()=>d3.geoMercator(),box:[[-20,-36],[55,-36],[55,38],[-20,38]],bounds:[[-36,-20],[38,55]],home:'KEN'},
  world:{label:'World',inR:()=>true,proj:()=>d3.geoNaturalEarth1(),box:null,bounds:[[-55,-165],[75,190]],home:'USA'}
 };
 const store={get(k,d){try{const v=localStorage.getItem('dda3-'+k);return v==null?d:JSON.parse(v)}catch(e){return d}},set(k,v){try{localStorage.setItem('dda3-'+k,JSON.stringify(v))}catch(e){}}};
@@ -1821,6 +1892,12 @@ const map=L.map(leafEl,{zoomControl:false,worldCopyJump:true,minZoom:1,maxZoom:1
 map.attributionControl.setPrefix(false);
 const terrain=L.tileLayer('tiles/{z}/{x}/{y}.jpg',{tileSize:1024,zoomOffset:-2,minNativeZoom:2,maxNativeZoom:6,maxZoom:11,
   attribution:'Terrain: AWS Terrain Tiles (SRTM, GMTED, ETOPO1) · Risk: INFORM 2026, World Bank'}).addTo(map);
+// sharper terrain (~1.2 km/px) for Europe, Southeast Asia and Africa; matches DETAIL in build_terrain.py
+const DETAIL_BOX=[[-25,34,45,71.5],[92,-12,153,28],[-20,-36,55,38]];
+const t2lat=(y,n)=>Math.atan(Math.sinh(Math.PI*(1-2*y/n)))*180/Math.PI, lat2t=(lat,n)=>Math.floor((1-Math.log(Math.tan(lat*Math.PI/180)+1/Math.cos(lat*Math.PI/180))/Math.PI)/2*n);
+const detailLayers=DETAIL_BOX.map(([w,s,e,nl])=>{const n=32,x0=Math.floor((w+180)/360*n),x1=Math.floor((e+180)/360*n)+1,y0=lat2t(nl,n),y1=lat2t(s,n)+1;
+  return L.tileLayer('tiles/{z}/{x}/{y}.jpg',{tileSize:1024,zoomOffset:-2,minNativeZoom:7,maxNativeZoom:7,minZoom:6.25,maxZoom:11,bounds:[[t2lat(y1,n),x0/n*360-180],[t2lat(y0,n),x1/n*360-180]],errorTileUrl:'data:image/gif;base64,R0lGODlhAQABAAAAACw='}).addTo(map);});
+const inDetail=ll=>DETAIL_BOX.some(([w,s,e,n])=>ll.lng>=w&&ll.lng<=e&&ll.lat>=s&&ll.lat<=n);
 const street=L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png',{subdomains:'abc',maxZoom:17,opacity:1,attribution:'Map: © OpenTopoMap (CC-BY-SA), © OpenStreetMap contributors'});
 let streetOK=false, streetOn=false;
 (function probe(){const im=new Image();im.onload=()=>{streetOK=true;$('wovS').disabled=false;$('wovS').title='Online topographic map with roads and towns, down to street level';};
@@ -1936,28 +2013,35 @@ map.on('mousemove',e=>{const h=cellAt(e);if(!h){tip.style.opacity=0;return;}show
 map.on('mouseout',()=>tip.style.opacity=0);
 map.on('click',e=>{const h=cellAt(e);if(!h)return;const c=h.c,ev=e.originalEvent;if(ev.shiftKey||ev.altKey||ev.metaKey){cmps[region]=c.iso===home()?null:c.iso;}else{homes[region]=c.iso;store.set('homes',homes);if(cmps[region]===c.iso)cmps[region]=null;}update();});
 let moveT=null; map.on('moveend zoomend resize',()=>{clearTimeout(moveT);moveT=setTimeout(detRender,120);});
-map.on('zoomend',()=>{const z=map.getZoom();$('wZoomNote').textContent=!streetOn&&z>6.5?'Zoomed past the built-in terrain detail. Turn on street-level detail for more.':'';});
+map.on('zoomend',()=>{const z=map.getZoom();$('wZoomNote').textContent=!streetOn&&z>(inDetail(map.getCenter())?7.5:6.5)?'Zoomed past the built-in terrain detail. Turn on street-level detail for more.':'';});
 function showTip(ev,h){
   const c=h.c, box=mapEl.getBoundingClientRect(), r=R.by[c.iso]; let val;
-  if(layer==='overall'&&overall)val=overall.by[c.iso]!=null?`Overall: safer than ${Math.round(overall.by[c.iso]*100)}% of countries`:'Not ranked (under 1M people)';
-  else if(layer==='score')val=r.rank?`Risk ${r.score.toFixed(1)} · #${r.rank} of ${R.n}`:`Risk ${r.score.toFixed(1)}`;
-  else val=`${FI2[layer].n}: ${c.v[layer].toFixed(1)}/10 (national)`;
-  const spot=detail&&layer!=='overall'&&h.v!=null&&h.v===h.v?`<div class="m">At this spot: ${h.v.toFixed(1)}${layer==='score'?' risk':'/10'}</div>`:'';
-  tip.innerHTML=`<b>${c.name}</b><div class="m">${h.ll.lat.toFixed(2)}°, ${h.ll.lng.toFixed(2)}°${c.pop?' · '+(c.pop/1e6).toFixed(1)+'M people':''}</div><div class="m">${val}</div>${spot}<div class="m" style="margin-top:3px">Top: ${topThreats(c,activeW()).map(x=>FI2[x.k].n).join(', ')}</div>${c.est?`<div class="m" style="opacity:.7;margin-top:3px">${c.est}</div>`:''}`;
-  let x=ev.clientX-box.left,y=ev.clientY-box.top; x=Math.max(110,Math.min(box.width-110,x));
-  tip.style.transform=y<110?'translate(-50%,18px)':''; tip.style.left=x+'px'; tip.style.top=y+'px'; tip.style.opacity=1;
+  if(layer==='overall'&&overall)val=overall.by[c.iso]!=null?`safer than ${Math.round(overall.by[c.iso]*100)}% overall`:'not ranked';
+  else if(layer==='score')val=r.rank?`${r.score.toFixed(1)} risk · #${r.rank}`:`${r.score.toFixed(1)} risk`;
+  else val=`${c.v[layer].toFixed(1)}/10`;
+  const spot=detail&&layer!=='overall'&&h.v!=null&&h.v===h.v?h.v:null;
+  tip.innerHTML=`<b>${c.name}</b> <span class="m">${spot!=null?`${spot.toFixed(1)} here`:val}</span>`;
+  window.placeTip(tip,box,ev.clientX,ev.clientY);
+  $('wReadout').innerHTML=`<b>${c.name}</b> · ${h.ll.lat.toFixed(2)}°, ${h.ll.lng.toFixed(2)}°${c.pop?' · '+(c.pop/1e6).toFixed(1)+'M people':''} · national: ${layer==='score'||layer==='overall'?val:`${FI2[layer].n} ${val}`}${spot!=null?` · this spot: ${spot.toFixed(1)}`:''} · top threats: ${topThreats(c,activeW()).map(x=>FI2[x.k].n.toLowerCase()).join(', ')}${c.est?` · ${c.est.toLowerCase()}`:''}`;
 }
 function buildMap(){
   setTimeout(()=>{map.invalidateSize();map.fitBounds(RG[region].bounds,{animate:false});detRender();},0);
 }
+const strikeFx=L.layerGroup(WD.targets.map(([t,la,lo],i)=>L.marker([la,lo],{interactive:false,keyboard:false,icon:L.divIcon({className:'strikefx'+(t==='silo'?' big':''),iconSize:[34,34],html:`<i style="animation-delay:${(i%9)*.11}s"></i>`})})));
+const liveLayer=L.layerGroup(); let liveOn=true;
+window.__liveLeaflet=ev=>{ev.forEach(e=>{const s=e.k==='quake'?Math.round(6+(e.mag-2.5)*3):9;L.marker([e.la,e.lo],{keyboard:false,riseOnHover:true,icon:L.divIcon({className:'livefx live-'+e.k,iconSize:[s,s],html:'<i></i>'})}).bindPopup(`<b>${e.title.replace(/</g,'&lt;')}</b><br>${window.__liveAgo(e.t)}${e.url?` · <a href="${e.url}" target="_blank" rel="noopener">source</a>`:''}`).addTo(liveLayer);});
+  liveLayer.addTo(map);const b=$('wovLive');b.hidden=false;b.onclick=()=>{liveOn=!liveOn;b.setAttribute('aria-pressed',liveOn);liveOn?liveLayer.addTo(map):liveLayer.remove();paintMap();};paintMap();};
+window.__wShare=()=>{const h=home(),H=CI[h],r=R.by[h],K=CI[cmpIso()];const where=RG[region].label==='World'?'the world':RG[region].label;return `In the DoomsDay Atlas ${SI2[scen].label.toLowerCase()} scenario, ${H.name} ${r.pct!=null?`is safer than ${Math.round((1-r.pct)*100)}% of countries in ${where}`:`scores ${r.score.toFixed(1)}/10`}. One of the safest picks: ${K.name}. ${'https://itsupthere.github.io/DoomsDayAtlas/'}#${region}`;};
 function paintMap(){
   paintOverlay();
+  if(scen==='nuclear'&&phase===0&&SI2[scen].phases)strikeFx.addTo(map);else strikeFx.remove();
   Object.entries(markers).forEach(([k,g])=>{if(ov[k])g.addTo(map);else g.remove();});
   const k=[];
   if(ov.t)k.push(`<span><i style="background:#7A2E8E"></i>Missile field</span><span><i style="background:#B42F2A"></i>Military</span><span><i style="background:#17252A;box-shadow:0 0 0 1px #fff"></i>City</span>`);
   if(ov.r)k.push(`<span><i style="background:#F2C230"></i>Reactor</span>`);
   if(ov.v)k.push(`<span><i style="background:#C9481A"></i>Volcano</span>`);
   if(ov.f)k.push(`<span><i style="background:#B42F2A;opacity:.4"></i>Flashpoint (250 km)</span>`);
+  if(window.__live&&liveOn)k.push(`<span><i style="background:#E0522B"></i>Quake (live)</span><span><i style="background:#F59E0B"></i>Wildfire</span><span><i style="background:#7A2E8E"></i>Volcano / storm</span>`);
   $('wOvKey').innerHTML=k.join('');
   if(layer==='overall'){$('wLegLo').textContent='Safest overall';$('wLegHi').textContent='Least safe';}
   else if(layer==='single'||(layer!=='score')){$('wLegLo').textContent='0 · none';$('wLegHi').textContent='10 · severe';}
@@ -1966,7 +2050,7 @@ function paintMap(){
 (function(){const c=$('wRamp').getContext('2d');for(let i=0;i<180;i++){c.fillStyle=riskInterp(i/179);c.fillRect(i,0,1,10);}})();
 $('wovD').onclick=()=>{detail=!detail;$('wovD').setAttribute('aria-pressed',detail);detRender();};
 [['wovT','t'],['wovR','r'],['wovV','v'],['wovF','f']].forEach(([id,k])=>{$(id).onclick=()=>{ov[k]=!ov[k];$(id).setAttribute('aria-pressed',ov[k]);paintMap();};});
-$('wovS').onclick=()=>{if(!streetOK)return;streetOn=!streetOn;$('wovS').setAttribute('aria-pressed',streetOn);if(streetOn){street.addTo(map);terrain.setOpacity(0);map.setMaxZoom(17);}else{street.remove();terrain.setOpacity(1);map.setMaxZoom(11);}map.fire('zoomend');};
+$('wovS').onclick=()=>{if(!streetOK)return;streetOn=!streetOn;$('wovS').setAttribute('aria-pressed',streetOn);if(streetOn){street.addTo(map);terrain.setOpacity(0);detailLayers.forEach(l=>l.setOpacity(0));map.setMaxZoom(17);}else{street.remove();terrain.setOpacity(1);detailLayers.forEach(l=>l.setOpacity(1));map.setMaxZoom(11);}map.fire('zoomend');};
 $('wOpacity').addEventListener('input',e=>{overlay.setOpacity(+e.target.value/100);$('wOpacityOut').textContent=e.target.value+'%';});
 function zoomTo(iso){const fs=feats.filter(f=>f.iso===iso);if(!fs.length)return;const b=d3.geoBounds({type:'FeatureCollection',features:fs});let [[w,s],[e,n]]=b;if(e<w)e+=360;map.flyToBounds([[s,w],[n,e]],{maxZoom:6,duration:.8,padding:[20,20]});}
 $('wzin').onclick=()=>map.zoomIn(1);
@@ -2028,7 +2112,7 @@ function fillSelects(){
 $('wHome').onchange=e=>{homes[region]=e.target.value;store.set('homes',homes);if(cmps[region]===e.target.value)cmps[region]=null;update();zoomTo(e.target.value,region==='world'?4:2.5);};
 $('wCmp').onchange=e=>{cmps[region]=e.target.value==='auto'?null:e.target.value;update();};
 function fmt(pre,iso){const r=R.by[iso],c=CI[iso];
-  $(pre+'Score').innerHTML=`${r.score.toFixed(1)}<small> /10</small>`;
+  tweenScore($(pre+'Score'),r.score);
   $(pre+'Meta').textContent=r.rank?`${c.name} · #${r.rank} of ${R.n}`:`${c.name} · not ranked`;
   const t=r.pct!=null?tierOf(r.pct):null,tg=$(pre+'Tier');tg.hidden=!t;if(t){tg.textContent=t[1];tg.style.background=t[2];tg.style.color=t[3];}}
 function renderHome(){
@@ -2135,8 +2219,8 @@ window.__showRegion=function(r){
 
 // ================= tabs =================
 (function(){
-  const views={us:'view-us',europe:'view-global',asia:'view-global',world:'view-global'};
-  const SUB={us:'Every US county scored for 14 disaster scenarios, built on FEMA’s county risk data plus modeled threat zones.',europe:'Every European country scored for 12 scenarios from the EU’s INFORM Risk Index, World Bank data and modeled threat zones.',asia:'East Asia, Southeast Asia, Australia, New Zealand and the Pacific islands, scored for 12 scenarios.',world:'All 190+ countries scored for 12 scenarios. Press the button to find the safest place on Earth.'};
+  const views={us:'view-us',europe:'view-global',asia:'view-global',africa:'view-global',world:'view-global'};
+  const SUB={us:'Every US county scored for 14 disaster scenarios, built on FEMA’s county risk data plus modeled threat zones.',europe:'Every European country scored for 12 scenarios from the EU’s INFORM Risk Index, World Bank data and modeled threat zones.',asia:'East Asia, Southeast Asia, Australia, New Zealand and the Pacific islands, scored for 12 scenarios.',world:'All 190+ countries scored for 12 scenarios. Press the button to find the safest place on Earth.',africa:'All 54 African countries scored for 12 scenarios from INFORM, World Bank data and modeled threat zones, on a zoomable terrain map.'};
   let cur=null;
   function show(t){
     if(t===cur)return; cur=t;
@@ -2145,12 +2229,44 @@ window.__showRegion=function(r){
     document.getElementById('subline').textContent=SUB[t]+' Pick a scenario, watch it play out, and see where you’d fare best.';
     if(t==='us'){window.__usRefresh&&window.__usRefresh();} else window.__showRegion(t);
     try{localStorage.setItem('dda3-tab',JSON.stringify(t));}catch(e){}
-    try{if(['europe','asia','world'].includes(t))history.replaceState(null,'','#'+t);else if(['europe','asia','world'].includes(location.hash.slice(1)))history.replaceState(null,'','#us');}catch(e){}
+    try{if(['europe','asia','africa','world'].includes(t))history.replaceState(null,'','#'+t);else if(['europe','asia','africa','world'].includes(location.hash.slice(1)))history.replaceState(null,'','#us');}catch(e){}
   }
   document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>show(b.dataset.tab));
   const h=location.hash.slice(1); let t='us';
-  if(['us','europe','asia','world'].includes(h))t=h; else if(!h){try{t=JSON.parse(localStorage.getItem('dda3-tab'))||'us';}catch(e){}}
+  if(['us','europe','asia','africa','world'].includes(h))t=h; else if(!h){try{t=JSON.parse(localStorage.getItem('dda3-tab'))||'us';}catch(e){}}
   show(views[t]?t:'us');
 })();
 </script>
+<script>
+// ================= live events: USGS earthquakes + NASA EONET (works on the public site; the claude.ai viewer blocks outside requests) =================
+(function(){
+  const ago=t=>{const m=Math.round((Date.now()-t)/60000);return m<60?m+' min ago':m<1440?Math.round(m/60)+' h ago':Math.round(m/1440)+' d ago';};
+  const ev=[];
+  const get=u=>fetch(u).then(r=>{if(!r.ok)throw 0;return r.json();});
+  Promise.allSettled([get('https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/2.5_week.geojson'),get('https://eonet.gsfc.nasa.gov/api/v3/events?status=open&days=30&limit=400')]).then(([q,e])=>{
+    if(q.status==='fulfilled')q.value.features.forEach(f=>{const c=f.geometry&&f.geometry.coordinates;if(!c||f.properties.mag==null)return;ev.push({k:'quake',la:c[1],lo:c[0],mag:f.properties.mag,t:f.properties.time,title:`M${f.properties.mag.toFixed(1)} earthquake${f.properties.place?' · '+f.properties.place:''}`,url:f.properties.url});});
+    if(e.status==='fulfilled')e.value.events.forEach(x=>{const cat=(x.categories[0]||{}).id,g=x.geometry&&x.geometry[x.geometry.length-1];if(!g||g.type!=='Point')return;
+      const k={wildfires:'fire',volcanoes:'volcano',severeStorms:'storm',floods:'flood'}[cat];if(!k)return;ev.push({k,la:g.coordinates[1],lo:g.coordinates[0],t:Date.parse(g.date),title:x.title,url:(x.sources&&x.sources[0]&&x.sources[0].url)||x.link});});
+    if(!ev.length)return;
+    window.__live=ev; window.__liveAgo=ago;
+    window.__liveUS&&window.__liveUS(ev); window.__liveLeaflet&&window.__liveLeaflet(ev);
+    const pick=ev.filter(x=>x.k!=='quake'||x.mag>=4.5).filter(x=>x.k!=='fire').sort((a,b)=>b.t-a.t).slice(0,12);
+    const fires=ev.filter(x=>x.k==='fire').length, quakes=ev.filter(x=>x.k==='quake').length;
+    const items=[`${quakes} earthquakes M2.5+ this week · ${fires} active wildfires tracked by NASA`].concat(pick.map(x=>`${x.title} · ${ago(x.t)}`));
+    const el=document.getElementById('ticker'), tx=document.getElementById('tickerText'); el.hidden=false; let i=0;
+    const show=()=>{tx.classList.remove('in');void tx.offsetWidth;tx.textContent=items[i%items.length];tx.classList.add('in');i++;};
+    show(); setInterval(show,6000);
+  });
+})();
+
+// ================= share your result =================
+function shareText(txt,btn,msg){
+  const done=()=>{msg.textContent='Copied. Paste it anywhere.';setTimeout(()=>msg.textContent='',3000);};
+  const fail=()=>{msg.innerHTML='';const ta=document.createElement('textarea');ta.value=txt;ta.rows=3;ta.className='sharebox';msg.appendChild(ta);ta.select();};
+  try{navigator.clipboard.writeText(txt).then(done,fail);}catch(e){fail();}
+}
+document.getElementById('shareUS').onclick=e=>shareText(window.__usShare(),e.target,document.getElementById('shareUSMsg'));
+document.getElementById('shareW').onclick=e=>shareText(window.__wShare(),e.target,document.getElementById('shareWMsg'));
+</script>
+
 
