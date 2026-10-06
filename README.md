@@ -17,13 +17,9 @@ An interactive map of disaster survivability. Every US county, Canadian province
 
 ## Run it
 
-The page loads its data from `data/na-bundle.json` and `data/world-bundle.json`, so it needs a web server (browsers block those requests from a file on disk). Use GitHub Pages, any static host, or locally:
+Double-click `index.html`, keeping the `data/` and `tiles/` folders next to it, or use the live site at https://itsupthere.github.io/DoomsDayAtlas/.
 
-```bash
-python3 -m http.server 8000
-```
-
-Then open http://localhost:8000. Live events, live winds, road routes and street-level maps need an internet connection.
+Opened from disk, the page loads its data from `data/*.js`; on a web server it uses the matching `data/*.json`. Live events, live winds, road routes, the Now feed and street-level maps need an internet connection.
 
 ## Rebuild the data
 

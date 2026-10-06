@@ -145,6 +145,9 @@ def build():
     world = '{"topo":' + rd("countries-10m.json") + ',"world":' + rd("world.json") + '}'  # world.json from build_world.py
     (ROOT / "data" / "na-bundle.json").write_text(na)
     (ROOT / "data" / "world-bundle.json").write_text(world)
+    # same data as scripts, so the page also works when opened straight from disk (browsers block fetch() on file://)
+    (ROOT / "data" / "na-bundle.js").write_text("window.__BUNDLE_NA=" + na + ";")
+    (ROOT / "data" / "world-bundle.js").write_text("window.__BUNDLE_WORLD=" + world + ";")
     body = (ROOT / "atlas.template.html").read_text()
     # index.html: a complete page for GitHub Pages and local use; artifact.html: the same content
     # without the document shell, for the claude.ai viewer (which adds its own)

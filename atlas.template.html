@@ -2859,11 +2859,14 @@ if(window.__live)window.__liveLeaflet(window.__live);
   const SUB={now:'Current wars, outbreaks, disasters, outages and space weather from news and official alerts, sorted by scenario and refreshed every 2 hours.',us:'All 3,142 US counties from FEMA\u2019s risk data, plus Canada\u2019s 13 provinces and territories and Mexico\u2019s 32 states (estimated), scored for 14 scenarios on a zoomable terrain map.',europe:'Every European country scored for 12 scenarios from the EU’s INFORM Risk Index, World Bank data and modeled threat zones.',asia:'East Asia, Southeast Asia, Australia, New Zealand and the Pacific islands, scored for 12 scenarios.',world:'All 190+ countries scored for 12 scenarios. Press the button to find the safest place on Earth.',africa:'All 54 African countries scored for 12 scenarios from INFORM, World Bank data and modeled threat zones, on a zoomable terrain map.'};
   let cur=null, naP=null, wP=null;
   const loadJSON=u=>fetch(u).then(r=>{if(!r.ok)throw new Error(u+' returned '+r.status);return r.json();});
-  const ensureNA=()=>naP||(naP=loadJSON('data/na-bundle.json').then(b=>window.__initNA(b.topo,b.cd,b.admin,b.units,b.extra)));
+  // opened from disk: load the same data as a script file instead of fetch()
+  const loadData=(name,glob)=>location.protocol!=='file:'?loadJSON('data/'+name+'.json'):new Promise((res,rej)=>{if(window[glob])return res(window[glob]);
+    const sc=document.createElement('script');sc.src='data/'+name+'.js';sc.onload=()=>res(window[glob]);sc.onerror=()=>rej(new Error('data/'+name+'.js is missing'));document.head.appendChild(sc);});
+  const ensureNA=()=>naP||(naP=loadData('na-bundle','__BUNDLE_NA').then(b=>window.__initNA(b.topo,b.cd,b.admin,b.units,b.extra)));
   let nowP=null; const ensureNow=()=>nowP||(nowP=Promise.resolve().then(()=>window.__initNow()));
-  const ensureWorld=()=>wP||(wP=loadJSON('data/world-bundle.json').then(b=>window.__initWorld(b.topo,b.world)));
+  const ensureWorld=()=>wP||(wP=loadData('world-bundle','__BUNDLE_WORLD').then(b=>window.__initWorld(b.topo,b.world)));
   function fail(e){document.body.classList.remove('busy');const m=document.getElementById('loadmsg');m.hidden=false;
-    m.innerHTML=location.protocol==='file:'?'Map data can\u2019t load from a file on disk. In this folder run <code>python3 -m http.server</code> and open <code>http://localhost:8000</code>.':'Map data didn\u2019t load ('+String(e.message||e)+'). Check your connection and reload.';}
+    m.innerHTML=location.protocol==='file:'?'Map data didn\u2019t load. Keep the <code>data</code> and <code>tiles</code> folders next to index.html, or use the live site: itsupthere.github.io/DoomsDayAtlas':'Map data didn\u2019t load ('+String(e.message||e)+'). Check your connection and reload.';}
   function show(t){
     if(t===cur)return; cur=t;
     document.querySelectorAll('.tab').forEach(b=>b.setAttribute('aria-selected',b.dataset.tab===t));
